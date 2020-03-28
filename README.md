@@ -23,6 +23,30 @@
 * Now restart tomcat.
 * You should now be able to login to http://localhost:8080/manager/html with the user/pass of admin/admin.
 
+### Setup Git
+
+* Open Git Bash
+* cd to your chosen folder to store the project
+* Clone the repo into the folder: `git clone https://github.com/IoTBay/uts-iotbay.git`
+
+```
+rhys@NULLBOX MINGW64 ~
+$ cd /c/Development/
+
+rhys@NULLBOX MINGW64 /c/Development
+$ git clone https://github.com/IoTBay/uts-iotbay.git
+Cloning into 'uts-iotbay'...
+remote: Enumerating objects: 10, done.
+remote: Counting objects: 100% (10/10), done.
+remote: Compressing objects: 100% (9/9), done.
+remote: Total 10 (delta 1), reused 0 (delta 0), pack-reused 0
+Unpacking objects: 100% (10/10), done.
+```
+
+### Setup Netbeans
+
+* Open Netbeans. File -> Open Project -> Browse to the `uts-iotbay` folder containing the Git repository.
+
 ### FAQ
 #### When starting Tomcat in XAMPP I get "Make sure you have Java JDK or JRE installed and the required ports are free"
 * First try starting Tomcat via windows CMD. Run CMD as administrator and run the startup script:
