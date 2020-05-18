@@ -5,7 +5,13 @@
  */
 package uts.isd.model;
 
+import uts.isd.model.dao.*;
+
 import java.io.Serializable;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.sql.ResultSet;
 import java.text.ParseException;
 import java.util.Date;
 import java.text.SimpleDateFormat;
@@ -23,7 +29,7 @@ public class User implements Serializable {
     private int customerId;
     private int defaultCurrencyId;
     private String email;
-    private String password;
+    private byte[] password;
     private int accessLevel;
     private Date birthDate;
     private int sex;
@@ -35,14 +41,45 @@ public class User implements Serializable {
     private Date modifiedDate;
     private int modifiedBy;
     
-    public User()
+    public User() {  }
+    
+    /**
+     * This constructor takes an SQL ResultSet and grabs the values from the DB Record
+     * to populate each property in the user model.
+     * 
+     * @param rs The SQL ResultSet row to populate values from.
+     */
+    public User(ResultSet rs)
     {
+        try
+        {
+            this.id = rs.getInt("ID");
+            this.customerId = rs.getInt("CustomerID");
+            //this.defaultCurrencyId = 
+            this.email = rs.getString("Email");
+            this.password = rs.getBytes("Password");
+            this.accessLevel = rs.getInt("AccessLevel");
+            this.birthDate = rs.getDate("BirthDate");
+            this.sex = rs.getInt("Gender");
+            this.biography = rs.getString("Biography");
+            this.passwordResetHash = rs.getString("PasswordResetHash");
+            
+            this.createdDate = rs.getDate("CreatedDate");
+            this.createdBy = rs.getInt("CreatedBy");
+            this.modifiedDate = rs.getDate("ModifiedDate");
+            this.modifiedBy = rs.getInt("ModifiedBy");
+        }
+        catch (Exception e)
+        {
+            System.out.println("Unable to load User from ResultSet for ID");
+            System.out.println(e);
+            System.out.println(e.getMessage());
+        }
         
     }
 
-    public User(String email, String password) {
+    public User(String email) {
         this.email = email;
-        this.password = password;
     }
     
     /**
@@ -59,7 +96,16 @@ public class User implements Serializable {
         if (request.getParameter("customerId") != null)
             this.customerId = Integer.parseInt(request.getParameter("customerId"));
         this.email = request.getParameter("email");
-        this.password = request.getParameter("password");
+        try
+        {
+            this.setPassword(request.getParameter("password"));
+        }
+        catch (Exception e)
+        {
+            System.out.println("Unable to hash password when adding user");
+            System.out.println(e);
+            System.out.println(e.getMessage());
+        }
         if (request.getParameter("accessLevel") != null)
             this.accessLevel = Integer.parseInt(request.getParameter("accessLevel"));
         else
@@ -80,6 +126,23 @@ public class User implements Serializable {
         this.modifiedDate = new Date();
         this.createdBy = 0;
         this.modifiedBy = 0;
+        
+        try
+        {
+            //Initiate a connection to the DB
+            DBUser db = new DBUser();
+            //Assumes the User object (this) has been populated already.
+            //Takes object properties and inserts into DB.
+            boolean added = db.addUser(this);
+            //Always close DB when done.
+            db.close();
+            return added;
+        }
+        catch (Exception e)
+        {
+            
+        }
+        
         
         return true;
     }
@@ -109,12 +172,24 @@ public class User implements Serializable {
         this.email = email;
     }
 
-    public String getPassword() {
-        return password;
+    public String getPassword() 
+    {
+        //Convert back to string before returning
+        //https://mkyong.com/java/how-do-convert-byte-array-to-string-in-java/
+        return new String(this.password, StandardCharsets.UTF_8);
+    }
+    
+    public byte[] getPasswordBytes()
+    {
+        return this.password;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    public void setPassword(String password) throws NoSuchAlgorithmException
+    {
+        //Build SHA256 hash of password.
+        //https://www.baeldung.com/sha-256-hashing-java
+        MessageDigest digest = MessageDigest.getInstance("SHA-256");
+        this.password = digest.digest(password.getBytes(StandardCharsets.UTF_8));
     }
 
     public int getAccessLevel() {
@@ -156,6 +231,11 @@ public class User implements Serializable {
 
     public void setBiography(String biography) {
         this.biography = biography;
+    }
+    
+    public int getGender()
+    {
+        return this.sex;
     }
     
     public String getSex() {
