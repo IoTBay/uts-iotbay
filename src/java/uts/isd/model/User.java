@@ -88,7 +88,7 @@ public class User implements Serializable {
      * @param request The controller's HTTPServlet POST request properties.
      * @return boolean - Returns true if adding the properties was successful. Otherwise false.
      */
-    public boolean addUser(ServletRequest request)
+    public boolean addUser(ServletRequest request, IUser db)
     {
         if (request.getParameter("id") != null)
             this.id = Integer.parseInt(request.getParameter("id"));
@@ -129,13 +129,10 @@ public class User implements Serializable {
         
         try
         {
-            //Initiate a connection to the DB
-            DBUser db = new DBUser();
             //Assumes the User object (this) has been populated already.
             //Takes object properties and inserts into DB.
             boolean added = db.addUser(this);
             //Always close DB when done.
-            db.close();
             return added;
         }
         catch (Exception e)
