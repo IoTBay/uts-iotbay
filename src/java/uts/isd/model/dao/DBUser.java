@@ -5,11 +5,11 @@
  */
 package uts.isd.model.dao;
 
-import java.security.MessageDigest;
 import uts.isd.model.User;
 
 import java.util.*;
 import java.sql.*;
+import uts.isd.util.Logging;
 
 /**
  * DBManager is the primary DAO class to interact with the database. 
@@ -52,8 +52,7 @@ public class DBUser implements IUser {
         }
         catch (Exception e)
         {
-            System.out.println(e);
-            System.out.println(e.getMessage());
+            Logging.logMessage("Unable to getUserById", e);
             return null;
         }
     }
@@ -70,15 +69,14 @@ public class DBUser implements IUser {
             ResultSet rs = p.executeQuery();
             if (!rs.next())
             {
-                System.out.println("getUserByEmail returned no records for Email: "+email);
+                Logging.logMessage("getUserByEmail returned no records for Email: "+email);
                 return null; //No records returned
             }
             return new User(rs);
         }
         catch (Exception e)
         {
-            System.out.println(e);
-            System.out.println(e.getMessage());
+            Logging.logMessage("Unable to getUserByEmail", e);
             return null;
         }
     }
@@ -105,8 +103,7 @@ public class DBUser implements IUser {
         }
         catch (Exception e)
         {
-            System.out.println(e);
-            System.out.println(e.getMessage());
+            Logging.logMessage("Unable to getUsersByFirstName", e);
             return null;
         }
     }
@@ -132,8 +129,7 @@ public class DBUser implements IUser {
         }
         catch (Exception e)
         {
-            System.out.println(e);
-            System.out.println(e.getMessage());
+            Logging.logMessage("Unable to getAllUsers", e);
             return null;
         }
     }
@@ -161,8 +157,7 @@ public class DBUser implements IUser {
         }
         catch (Exception e)
         {
-            System.out.println(e);
-            System.out.println(e.getMessage());
+            Logging.logMessage("Unable addUser", e);
             return false;
         }
     }
@@ -193,8 +188,7 @@ public class DBUser implements IUser {
         }
         catch (Exception e)
         {
-            System.out.println(e);
-            System.out.println(e.getMessage());
+            Logging.logMessage("Unable to parse Date for updateUser", e);
             return false;
         }
     }
@@ -214,8 +208,7 @@ public class DBUser implements IUser {
         }
         catch (Exception e)
         {
-            System.out.println(e);
-            System.out.println(e.getMessage());
+            Logging.logMessage("Unable to parse Date for deleteUserById", e);
             return false;
         }
     }
