@@ -157,7 +157,7 @@ public class DBUser implements IUser {
         }
         catch (Exception e)
         {
-            Logging.logMessage("Unable addUser", e);
+            Logging.logMessage("Unable to addUser", e);
             return false;
         }
     }
@@ -188,7 +188,7 @@ public class DBUser implements IUser {
         }
         catch (Exception e)
         {
-            Logging.logMessage("Unable to parse Date for updateUser", e);
+            Logging.logMessage("Unable to updateUser", e);
             return false;
         }
     }
@@ -208,7 +208,7 @@ public class DBUser implements IUser {
         }
         catch (Exception e)
         {
-            Logging.logMessage("Unable to parse Date for deleteUserById", e);
+            Logging.logMessage("Unable to deleteUserById", e);
             return false;
         }
     }
