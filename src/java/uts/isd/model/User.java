@@ -19,12 +19,14 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.ServletRequest;
+import uts.isd.util.Logging;
 
 /**
  *
  * @author rhys
  */
 public class User implements Serializable {
+    
     private int id;
     private int customerId;
     private int defaultCurrencyId;
@@ -71,9 +73,7 @@ public class User implements Serializable {
         }
         catch (Exception e)
         {
-            System.out.println("Unable to load User from ResultSet for ID");
-            System.out.println(e);
-            System.out.println(e.getMessage());
+            Logging.logMessage("Unable to load User from ResultSet for ID", e);
         }
         
     }
@@ -102,9 +102,7 @@ public class User implements Serializable {
         }
         catch (Exception e)
         {
-            System.out.println("Unable to hash password when adding user");
-            System.out.println(e);
-            System.out.println(e.getMessage());
+            Logging.logMessage("Unable to hash password when adding user", e);
         }
         if (request.getParameter("accessLevel") != null)
             this.accessLevel = Integer.parseInt(request.getParameter("accessLevel"));
@@ -116,7 +114,7 @@ public class User implements Serializable {
         try {
             this.birthDate = new SimpleDateFormat("yyyy-MM-dd").parse(dob);
         } catch (ParseException ex) {
-            Logger.getLogger(User.class.getName()).log(Level.SEVERE, null, ex);
+            Logging.logMessage("Unable to parse Date for addUser", ex);
             return false;
         }
         
@@ -137,7 +135,7 @@ public class User implements Serializable {
         }
         catch (Exception e)
         {
-            
+            Logging.logMessage("Failed to addUser", e);
         }
         
         
@@ -206,7 +204,7 @@ public class User implements Serializable {
         try {
             this.birthDate = new SimpleDateFormat("yyyy-MM-dd").parse(s);
         } catch (ParseException ex) {
-            Logger.getLogger(User.class.getName()).log(Level.SEVERE, null, ex);
+            Logging.logMessage("Unable to parse Date for setBirthDate", ex);
         }
     }
     
