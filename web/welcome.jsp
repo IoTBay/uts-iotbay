@@ -1,4 +1,5 @@
 <%@page import="uts.isd.model.*"%>
+<%@page import="uts.isd.model.dao.*"%>
 <%@page import="java.util.List"%>
 <%@page import="java.util.ArrayList"%>
 
@@ -14,19 +15,22 @@
   //Not logged in but submitted registration
   if (!isLoggedIn && request.getParameter("doRegister") != null)
   {
-    //Log user in and mock user object
-    status = 1; //New user
+    //Create a connection to the DB for the customers table
+    ICustomer dbCustomer = new DBCustomer();
+    customer = new Customer();
+    customer.addCustomer(request, dbCustomer);
+    
+    //Create a connection to the DB for users table
+    IUser dbUser = new DBUser();
     user = new User();
-    user.setId(1);
-    user.setCustomerId(1);
-    user.addUser(request);
+    user.setCustomerId(customer.getId()); //Link the new user to the customer we just created above.
+    //Add user to DB
+    user.addUser(request, dbUser);
+    
+    //Store objects in session so we dont have to load from DB on every page.
+    session.setAttribute("customer", customer);
     session.setAttribute("user", user);
     
-    //Mock customer
-    customer = new Customer();
-    customer.addCustomer(request);
-    customer.setId(1);
-    session.setAttribute("customer", customer);
     //Mock currency
     Currency currency = new Currency();
     currency.setId(1);

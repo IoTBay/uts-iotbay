@@ -5,7 +5,7 @@
  */
 package uts.isd.model.dao;
 
-import uts.isd.model.User;
+import uts.isd.model.Customer;
 
 import java.util.*;
 import java.sql.*;
@@ -20,12 +20,11 @@ import uts.isd.util.Logging;
  * 
  * @author rhys
  */
-
-public class DBUser implements IUser {
+public class DBCustomer implements ICustomer {
     
     private Connection conn;
         
-    public DBUser() throws SQLException, ClassNotFoundException { 
+    public DBCustomer() throws SQLException, ClassNotFoundException { 
         DBConnector connector = new DBConnector();
         this.conn = connector.openConnection();
     }
@@ -35,21 +34,21 @@ public class DBUser implements IUser {
     }
     
     @Override
-    public User getUserById(int id) 
+    public Customer getCustomerById(int id)
     {
         try {
             //Using SQL prepared statements: https://stackoverflow.com/questions/3451269/parameterized-oracle-sql-query-in-java
             //this protects against SQL Injection attacks. Each parameter must have a ? in the query, and a corresponding parameter
             //set.
-            PreparedStatement p = this.conn.prepareStatement("SELECT * FROM Users WHERE ID = ?");
+            PreparedStatement p = this.conn.prepareStatement("SELECT * FROM Customers WHERE ID = ?");
             p.setInt(1, id);
             ResultSet rs = p.executeQuery();
             if (!rs.next())
             {
-                System.out.println("getUserById returned no records for ID: "+id);
+                System.out.println("getCustomerById returned no records for ID: "+id);
                 return null; //No records returned
             }
-            return new User(rs);
+            return new Customer(rs);
         }
         catch (Exception e)
         {
@@ -59,13 +58,13 @@ public class DBUser implements IUser {
     }
 
     @Override
-    public User getUserByEmail(String email) 
+    public Customer getCustomerByEmail(String email) 
     {
         try {
             //Using SQL prepared statements: https://stackoverflow.com/questions/3451269/parameterized-oracle-sql-query-in-java
             //this protects against SQL Injection attacks. Each parameter must have a ? in the query, and a corresponding parameter
             //set.
-            PreparedStatement p = this.conn.prepareStatement("SELECT * FROM Users WHERE Email = ?");
+            PreparedStatement p = this.conn.prepareStatement("SELECT * FROM Customers WHERE Email = ?");
             p.setString(1, email);
             ResultSet rs = p.executeQuery();
             if (!rs.next())
@@ -83,133 +82,113 @@ public class DBUser implements IUser {
     }
 
     @Override
-    public Iterable<User> getUsersByFirstName(String firstName) 
+    public Iterable<Customer> getAllCustomers() 
     {
         try {
             //Using SQL prepared statements: https://stackoverflow.com/questions/3451269/parameterized-oracle-sql-query-in-java
             //this protects against SQL Injection attacks. Each parameter must have a ? in the query, and a corresponding parameter
             //set.
-            PreparedStatement p = this.conn.prepareStatement("SELECT * FROM Users WHERE FirstName = ?");
-            p.setString(1, firstName);
+            PreparedStatement p = this.conn.prepareStatement("SELECT * FROM Customers");
             ResultSet rs = p.executeQuery();
             
             //Build list of user objects to return
-            List<User> users = new ArrayList<User>();
+            List<Customer> customers = new ArrayList<Customer>();
             
             while (rs.next())
             {
-                users.add(new User(rs));
+                customers.add(new Customer(rs));
             }
-            return users;
+            return customers;
         }
         catch (Exception e)
         {
-            Logging.logMessage("Unable to getUsersByFirstName", e);
-            return null;
-        }
-    }
-
-    @Override
-    public Iterable<User> getAllUsers() 
-    {
-        try {
-            //Using SQL prepared statements: https://stackoverflow.com/questions/3451269/parameterized-oracle-sql-query-in-java
-            //this protects against SQL Injection attacks. Each parameter must have a ? in the query, and a corresponding parameter
-            //set.
-            PreparedStatement p = this.conn.prepareStatement("SELECT * FROM Users");
-            ResultSet rs = p.executeQuery();
-            
-            //Build list of user objects to return
-            List<User> users = new ArrayList<User>();
-            
-            while (rs.next())
-            {
-                users.add(new User(rs));
-            }
-            return users;
-        }
-        catch (Exception e)
-        {
-            Logging.logMessage("Unable to getAllUsers", e);
+            Logging.logMessage("Unable to getAllCustomers", e);
             return null;
         }
     }
     
      @Override
-    public boolean addUser(User u)
+    public boolean addCustomer(Customer c)
     {
         try {
             //Using SQL prepared statements: https://stackoverflow.com/questions/3451269/parameterized-oracle-sql-query-in-java
             //this protects against SQL Injection attacks. Each parameter must have a ? in the query, and a corresponding parameter
             //set.
-            PreparedStatement p = this.conn.prepareStatement("INSERT  INTO Users (CustomerID, Email, Password, AccessLevel, Biography, BirthDate, Gender, CreatedDate, CreatedBy) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
-            p.setInt(1, u.getCustomerId());
-            p.setString(2, u.getEmail());
-            p.setBytes(3, u.getPasswordBytes());
-            p.setInt(4, u.getAccessLevel());
-            p.setString(5, u.getBiography());
-            p.setDate(6, new java.sql.Date(u.getBirthDate().getTime()));
-            p.setInt(7, u.getGender());
-            p.setDate(8, new java.sql.Date(new java.util.Date().getTime()));
-            p.setInt(9, 0); //TODO: Pass in current user object
+            PreparedStatement p = this.conn.prepareStatement("INSERT  INTO Customers (Email, FirstName, LastName, CreatedDate, CreatedBy) VALUES (?, ?, ?, ?, ?)",
+                    //Added this to return the primary key of this new record
+                    //https://db.apache.org/derby/docs/10.2/ref/crefjavstateautogen.html
+                    Statement.RETURN_GENERATED_KEYS);
+            p.setString(1, c.getEmail());
+            p.setString(2, c.getFirstName());
+            p.setString(3, c.getLastName());
+            p.setDate(4, new java.sql.Date(new java.util.Date().getTime()));
+            p.setInt(5, 0); //TODO: Pass in current user object
             
             //Was insert successful?
-            return (p.executeUpdate() > 0);
+            boolean added = (p.executeUpdate() > 0);
+            
+            //Now that customer is added, try and get the last inserted record ID.
+            ResultSet rs = p.getGeneratedKeys();
+            int id = -1;
+            if(rs.next())
+                id = rs.getInt(1);
+            
+            //https://stackoverflow.com/questions/35670858/rs-getgeneratedkeys-not-working-in-derby
+            //This should set the new record's ID field on the passed in object
+            c.setId(id);
+            
+            return added;
         }
         catch (Exception e)
         {
-            Logging.logMessage("Unable to addUser", e);
+            Logging.logMessage("Unable to addCustomer", e);
             return false;
         }
     }
 
     @Override
-    public boolean updateUser(User u) {
+    public boolean updateCustomer(Customer c) {
         try {
             //Using SQL prepared statements: https://stackoverflow.com/questions/3451269/parameterized-oracle-sql-query-in-java
             //this protects against SQL Injection attacks. Each parameter must have a ? in the query, and a corresponding parameter
             //set.
-            PreparedStatement p = this.conn.prepareStatement("UPDATE Users SET CustomerID = ?,  Email = ?, Password = ?, AccessLevel = ?, Biography = ?, BirthDate = ?, Gender = ?, ModifiedDate = ?, ModifiedBy = ? WHERE ID = ?");
-            p.setInt(1, u.getCustomerId());
-            p.setString(2, u.getEmail());
-            p.setBytes(3, u.getPasswordBytes());
-            p.setInt(4, u.getAccessLevel());
-            p.setString(5, u.getBiography());
-            p.setDate(6, new java.sql.Date(u.getBirthDate().getTime()));
-            p.setInt(7, u.getGender());
+            PreparedStatement p = this.conn.prepareStatement("UPDATE Customers SET Email = ?, FirstName = ?, LastName = ?, ModifiedDate = ?, ModifiedBy = ? WHERE ID = ?");
+            p.setString(1, c.getEmail());
+            p.setString(2, c.getFirstName());
+            p.setString(3, c.getLastName());
             
             //Modified Date
-            p.setDate(8, new java.sql.Date(new java.util.Date().getTime()));
-            p.setInt(9, 0); //TODO: Pass in current user object
+            p.setDate(4, new java.sql.Date(new java.util.Date().getTime()));
+            p.setInt(5, 0); //TODO: Pass in current user object
             //WHERE ID = ?
-            p.setInt(10, u.getId());
+            p.setInt(6, c.getId());
             
             //Was update successful?
             return (p.executeUpdate() > 0);
         }
         catch (Exception e)
         {
-            Logging.logMessage("Unable to updateUser", e);
+            Logging.logMessage("Unable to updateCustomer", e);
             return false;
         }
     }
 
     @Override
-    public boolean deleteUserById(int id) {
+    public boolean deleteCustomerById(int id) {
         try {
             //Using SQL prepared statements: https://stackoverflow.com/questions/3451269/parameterized-oracle-sql-query-in-java
             //this protects against SQL Injection attacks. Each parameter must have a ? in the query, and a corresponding parameter
             //set.
-            PreparedStatement p = this.conn.prepareStatement("DELETE FROM Users WHERE ID = ?");
+            PreparedStatement p = this.conn.prepareStatement("DELETE FROM Customers WHERE ID = ?");
             //WHERE ID = ?
-            p.setInt(10, id);
+            p.setInt(1, id);
             
             //Was update successful?
             return (p.executeUpdate() > 0);
         }
         catch (Exception e)
         {
-            Logging.logMessage("Unable to deleteUserById", e);
+            Logging.logMessage("Unable to deleteCustomerById", e);
             return false;
         }
     }
