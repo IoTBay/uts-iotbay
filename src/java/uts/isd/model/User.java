@@ -83,13 +83,18 @@ public class User implements Serializable {
         this.email = email;
     }
     
+    public void loadRequest(ServletRequest request)
+    {
+        this.loadRequest(request, null);
+    }
+    
     /**
      * This method populates this instance's properties based on form inputs.
      * 
      * @param request The controller's HTTPServlet POST request properties.
-     * @return boolean - Returns true if adding the properties was successful. Otherwise false.
+     * @param changedBy The customer who made this request.
      */
-    public boolean addUser(ServletRequest request, IUser db)
+    public void loadRequest(ServletRequest request, Customer changedBy)
     {
         if (request.getParameter("id") != null)
             this.id = Integer.parseInt(request.getParameter("id"));
@@ -97,7 +102,9 @@ public class User implements Serializable {
         if (request.getParameter("customerId") != null)
             this.customerId = Integer.parseInt(request.getParameter("customerId"));
         this.email = request.getParameter("email");
-        this.setPassword(request.getParameter("password"));
+        
+        if (request.getParameter("password") != null)
+            this.setPassword(request.getParameter("password"));
 
         if (request.getParameter("accessLevel") != null)
             this.accessLevel = Integer.parseInt(request.getParameter("accessLevel"));
@@ -110,16 +117,27 @@ public class User implements Serializable {
             this.birthDate = new SimpleDateFormat("yyyy-MM-dd").parse(dob);
         } catch (ParseException ex) {
             Logging.logMessage("Unable to parse Date for addUser", ex);
-            return false;
+            return;
         }
         
         this.sex = Integer.parseInt(request.getParameter("sex"));
 
         this.createdDate = new Date();
         this.modifiedDate = new Date();
-        this.createdBy = 0;
-        this.modifiedBy = 0;
-        
+        if (changedBy != null)
+        {
+            this.createdBy = changedBy.getId();
+            this.modifiedBy = changedBy.getId();
+        }
+        else
+        {
+            this.createdBy = 0;
+            this.modifiedBy = 0;
+        }
+    }
+
+    public boolean add(IUser db)
+    {
         try
         {
             //Assumes the User object (this) has been populated already.
@@ -130,13 +148,44 @@ public class User implements Serializable {
         }
         catch (Exception e)
         {
-            Logging.logMessage("Failed to addUser", e);
-        }
-        
-        
-        return true;
+            Logging.logMessage("Failed to add user", e);
+            return false;
+        }        
     }
-
+    
+    public boolean update(IUser db)
+    {
+        try
+        {
+            //Assumes the User object (this) has been populated already.
+            //Takes object properties and inserts into DB.
+            boolean updated = db.updateUser(this);
+            //Always close DB when done.
+            return updated;
+        }
+        catch (Exception e)
+        {
+            Logging.logMessage("Failed to update user", e);
+            return false;
+        }        
+    }
+    
+    public boolean delete(IUser db)
+    {
+        try
+        {
+            //Assumes the User object (this) has been populated already.
+            //Takes object properties and inserts into DB.
+            boolean deleted = db.deleteUserById(this.id);
+            //Always close DB when done.
+            return deleted;
+        }
+        catch (Exception e)
+        {
+            Logging.logMessage("Failed to delete user", e);
+            return false;
+        }        
+    }
 
     public int getId() {
         return id;

@@ -1,3 +1,4 @@
+<%@page import="uts.isd.util.URL"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@page import="uts.isd.model.*"%> 
 <%@page import="java.util.List"%>
@@ -21,8 +22,8 @@
     <title>IOTBay</title>
 
     <!-- Bootstrap core CSS -->
-    <link rel="stylesheet" href="<%= request.getRequestURL() + "/../css/bootstrap.min.css" %>">
-    <link rel="stylesheet" href="<%= request.getRequestURL() + "/../css/style.css" %>">
+    <link rel="stylesheet" href="<%= URL.Absolute("css/bootstrap.min.css", request) %>">
+    <link rel="stylesheet" href="<%= URL.Absolute("css/style.css", request) %>">
     <meta name="theme-color" content="#563d7c">
   </head>
   <body>
@@ -55,7 +56,7 @@
             //User is logged in
     %>
     <div class="account">
-        <a href="view_profile.jsp" class="btn btn-outline-light">
+        <a href="<%= URL.Absolute("user/profile", request) %>" class="btn btn-outline-light">
         <svg class="bi bi-person-fill" width="1.2em" height="1.2em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
             <path fill-rule="evenodd" d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H3zm5-6a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/>
         </svg>
@@ -64,12 +65,12 @@
     </div>
     &nbsp;
     <div>
-        <a href="logout.jsp" class="btn btn-outline-light">Logout</a>
+        <a href="<%= URL.Absolute("user/logout", request) %>" class="btn btn-outline-light">Logout</a>
     </div>
     <% } else { %>
-    <a href="register.jsp" class="btn btn-outline-light">Register</a>
+    <a href="<%= URL.Absolute("user/register", request) %>" class="btn btn-outline-light">Register</a>
     &nbsp;
-    <a href="login.jsp" class="btn btn-outline-light">Login</a>
+    <a href="<%= URL.Absolute("user/login", request) %>" class="btn btn-outline-light">Login</a>
     <% } %>
     &nbsp;&nbsp;&nbsp;&nbsp;
     <div class="cart">
@@ -101,8 +102,8 @@
                 </div>
                 <hr>
                 <div class="dropdown-item">
-                    <a href="view_cart.jsp" class="btn btn-outline-primary">View Cart</a>
-                    <a href="checkout.jsp" class="btn btn-primary">Checkout</a>
+                    <a href="<%= URL.Absolute("orders/view_cart", request) %>" class="btn btn-outline-primary">View Cart</a>
+                    <a href="<%= URL.Absolute("orders/checkout", request) %>" class="btn btn-primary">Checkout</a>
                 </div>
             </div>
             &nbsp;&nbsp;&nbsp;                                                        

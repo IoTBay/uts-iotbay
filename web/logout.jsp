@@ -1,3 +1,4 @@
+<%@page import="uts.isd.util.URL"%>
 <%@page import="uts.isd.model.*"%>
 <%@page import="java.util.List"%>
 <%@page import="java.util.ArrayList"%>
@@ -19,13 +20,13 @@
     <%
         if (!isLoggedIn) {
     %>
-        <p>You are not logged in! Log in <a href="login.jsp">here</a>.</p>
+        <p>You are not logged in! Log in <a href="<%= URL.Absolute("user/login", request) %>">here</a>.</p>
     <%
     } else {
     %>
         <p>Bye, <%= customer.getFirstName() %>! Come back soon.</p>
-        <p>Click <a href="index.jsp">here</a> to look at more products.</p>
-        <p>Click <a href="login.jsp">here</a> to log back in.</p>
+        <p>Click <a href="<%= URL.Absolute("", request) %>">here</a> to look at more products.</p>
+        <p>Click <a href="<%= URL.Absolute("user/login", request) %>">here</a> to log back in.</p>
     <% } %>
         <hr>
     </div> <!-- /container -->
