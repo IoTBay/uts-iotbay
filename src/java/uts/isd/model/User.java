@@ -65,7 +65,7 @@ public class User implements Serializable {
             this.birthDate = rs.getDate("BirthDate");
             this.sex = rs.getInt("Gender");
             this.biography = rs.getString("Biography");
-            this.passwordResetHash = rs.getString("PasswordResetHash");
+            //this.passwordResetHash = rs.getString("PasswordResetHash");
             
             this.createdDate = rs.getDate("CreatedDate");
             this.createdBy = rs.getInt("CreatedBy");

@@ -49,20 +49,18 @@ public class Product {
      * 
      * @param rs The SQL ResultSet row to populate values from.
      */
-    public User(ResultSet rs)
+    public Product(ResultSet rs)
     {
         try
         {
             this.id = rs.getInt("ID");
-            this.customerId = rs.getInt("CustomerID");
+            this.categoryId = rs.getInt("CategoryID");
             //this.defaultCurrencyId = 
-            this.email = rs.getString("Email");
-            this.password = rs.getBytes("Password");
-            this.accessLevel = rs.getInt("AccessLevel");
-            this.birthDate = rs.getDate("BirthDate");
-            this.sex = rs.getInt("Gender");
-            this.biography = rs.getString("Biography");
-            this.passwordResetHash = rs.getString("PasswordResetHash");
+            this.name = rs.getString("Name");
+            this.description = rs.getString("Description");
+            this.image = rs.getString("Image");
+            this.initialQuantity = rs.getInt("InitialQuantity");
+            this.currentQuantity = rs.getInt("CurrentQuantity");
             
             this.createdDate = rs.getDate("CreatedDate");
             this.createdBy = rs.getInt("CreatedBy");

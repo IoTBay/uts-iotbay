@@ -72,7 +72,7 @@ public class DBCustomer implements ICustomer {
                 Logging.logMessage("getUserByEmail returned no records for Email: "+email);
                 return null; //No records returned
             }
-            return new User(rs);
+            return new Customer(rs);
         }
         catch (Exception e)
         {
