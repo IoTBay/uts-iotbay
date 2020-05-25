@@ -1,5 +1,6 @@
 # Build folder
 build/
+nbproject/
 
 # Compiled class file
 *.class
