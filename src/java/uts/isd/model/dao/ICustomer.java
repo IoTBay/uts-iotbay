@@ -26,7 +26,7 @@ public interface ICustomer {
      * @return Customer object containing the customer record.
      */
 
-    public Customer getCusomerById(int id);
+    public Customer getCustomerById(int id);
 
     /**
      * Returns a single customer based on their unique email

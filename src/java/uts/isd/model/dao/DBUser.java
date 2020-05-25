@@ -41,7 +41,7 @@ public class DBUser implements IUser {
             //Using SQL prepared statements: https://stackoverflow.com/questions/3451269/parameterized-oracle-sql-query-in-java
             //this protects against SQL Injection attacks. Each parameter must have a ? in the query, and a corresponding parameter
             //set.
-            PreparedStatement p = this.conn.prepareStatement("SELECT * FROM Users WHERE ID = ?");
+            PreparedStatement p = this.conn.prepareStatement("SELECT * FROM APP.Users WHERE ID = ?");
             p.setInt(1, id);
             ResultSet rs = p.executeQuery();
             if (!rs.next())
@@ -65,7 +65,7 @@ public class DBUser implements IUser {
             //Using SQL prepared statements: https://stackoverflow.com/questions/3451269/parameterized-oracle-sql-query-in-java
             //this protects against SQL Injection attacks. Each parameter must have a ? in the query, and a corresponding parameter
             //set.
-            PreparedStatement p = this.conn.prepareStatement("SELECT * FROM Users WHERE Email = ?");
+            PreparedStatement p = this.conn.prepareStatement("SELECT * FROM APP.Users WHERE Email = ?");
             p.setString(1, email);
             ResultSet rs = p.executeQuery();
             if (!rs.next())
@@ -89,7 +89,7 @@ public class DBUser implements IUser {
             //Using SQL prepared statements: https://stackoverflow.com/questions/3451269/parameterized-oracle-sql-query-in-java
             //this protects against SQL Injection attacks. Each parameter must have a ? in the query, and a corresponding parameter
             //set.
-            PreparedStatement p = this.conn.prepareStatement("SELECT * FROM Users WHERE FirstName = ?");
+            PreparedStatement p = this.conn.prepareStatement("SELECT * FROM APP.Users WHERE FirstName = ?");
             p.setString(1, firstName);
             ResultSet rs = p.executeQuery();
             
@@ -116,7 +116,7 @@ public class DBUser implements IUser {
             //Using SQL prepared statements: https://stackoverflow.com/questions/3451269/parameterized-oracle-sql-query-in-java
             //this protects against SQL Injection attacks. Each parameter must have a ? in the query, and a corresponding parameter
             //set.
-            PreparedStatement p = this.conn.prepareStatement("SELECT * FROM Users");
+            PreparedStatement p = this.conn.prepareStatement("SELECT * FROM APP.Users");
             ResultSet rs = p.executeQuery();
             
             //Build list of user objects to return
@@ -142,7 +142,7 @@ public class DBUser implements IUser {
             //Using SQL prepared statements: https://stackoverflow.com/questions/3451269/parameterized-oracle-sql-query-in-java
             //this protects against SQL Injection attacks. Each parameter must have a ? in the query, and a corresponding parameter
             //set.
-            PreparedStatement p = this.conn.prepareStatement("INSERT  INTO Users (CustomerID, Email, Password, AccessLevel, Biography, BirthDate, Gender, CreatedDate, CreatedBy) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            PreparedStatement p = this.conn.prepareStatement("INSERT  INTO APP.Users (CustomerID, Email, Password, AccessLevel, Biography, BirthDate, Gender, CreatedDate, CreatedBy) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
             p.setInt(1, u.getCustomerId());
             p.setString(2, u.getEmail());
             p.setBytes(3, u.getPasswordBytes());
@@ -151,7 +151,7 @@ public class DBUser implements IUser {
             p.setDate(6, new java.sql.Date(u.getBirthDate().getTime()));
             p.setInt(7, u.getGender());
             p.setDate(8, new java.sql.Date(new java.util.Date().getTime()));
-            p.setInt(9, 0); //TODO: Pass in current user object
+            p.setInt(9, 1); //TODO: Pass in current user object
             
             //Was insert successful?
             return (p.executeUpdate() > 0);
@@ -169,7 +169,7 @@ public class DBUser implements IUser {
             //Using SQL prepared statements: https://stackoverflow.com/questions/3451269/parameterized-oracle-sql-query-in-java
             //this protects against SQL Injection attacks. Each parameter must have a ? in the query, and a corresponding parameter
             //set.
-            PreparedStatement p = this.conn.prepareStatement("UPDATE Users SET CustomerID = ?,  Email = ?, Password = ?, AccessLevel = ?, Biography = ?, BirthDate = ?, Gender = ?, ModifiedDate = ?, ModifiedBy = ? WHERE ID = ?");
+            PreparedStatement p = this.conn.prepareStatement("UPDATE APP.Users SET CustomerID = ?,  Email = ?, Password = ?, AccessLevel = ?, Biography = ?, BirthDate = ?, Gender = ?, ModifiedDate = ?, ModifiedBy = ? WHERE ID = ?");
             p.setInt(1, u.getCustomerId());
             p.setString(2, u.getEmail());
             p.setBytes(3, u.getPasswordBytes());
@@ -180,7 +180,7 @@ public class DBUser implements IUser {
             
             //Modified Date
             p.setDate(8, new java.sql.Date(new java.util.Date().getTime()));
-            p.setInt(9, 0); //TODO: Pass in current user object
+            p.setInt(9, 1); //TODO: Pass in current user object
             //WHERE ID = ?
             p.setInt(10, u.getId());
             
@@ -200,7 +200,7 @@ public class DBUser implements IUser {
             //Using SQL prepared statements: https://stackoverflow.com/questions/3451269/parameterized-oracle-sql-query-in-java
             //this protects against SQL Injection attacks. Each parameter must have a ? in the query, and a corresponding parameter
             //set.
-            PreparedStatement p = this.conn.prepareStatement("DELETE FROM Users WHERE ID = ?");
+            PreparedStatement p = this.conn.prepareStatement("DELETE FROM APP.Users WHERE ID = ?");
             //WHERE ID = ?
             p.setInt(10, id);
             
