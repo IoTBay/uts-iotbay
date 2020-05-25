@@ -19,6 +19,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.ServletRequest;
+import uts.isd.util.Hash;
 import uts.isd.util.Logging;
 
 /**
@@ -31,7 +32,7 @@ public class User implements Serializable {
     private int customerId;
     private int defaultCurrencyId;
     private String email;
-    private byte[] password;
+    private String password;
     private int accessLevel;
     private Date birthDate;
     private int sex;
@@ -59,7 +60,7 @@ public class User implements Serializable {
             this.customerId = rs.getInt("CustomerID");
             //this.defaultCurrencyId = 
             this.email = rs.getString("Email");
-            this.password = rs.getBytes("Password");
+            this.password = rs.getString("Password");
             this.accessLevel = rs.getInt("AccessLevel");
             this.birthDate = rs.getDate("BirthDate");
             this.sex = rs.getInt("Gender");
@@ -96,14 +97,8 @@ public class User implements Serializable {
         if (request.getParameter("customerId") != null)
             this.customerId = Integer.parseInt(request.getParameter("customerId"));
         this.email = request.getParameter("email");
-        try
-        {
-            this.setPassword(request.getParameter("password"));
-        }
-        catch (Exception e)
-        {
-            Logging.logMessage("Unable to hash password when adding user", e);
-        }
+        this.setPassword(request.getParameter("password"));
+
         if (request.getParameter("accessLevel") != null)
             this.accessLevel = Integer.parseInt(request.getParameter("accessLevel"));
         else
@@ -169,22 +164,12 @@ public class User implements Serializable {
 
     public String getPassword() 
     {
-        //Convert back to string before returning
-        //https://mkyong.com/java/how-do-convert-byte-array-to-string-in-java/
-        return new String(this.password, StandardCharsets.UTF_8);
-    }
-    
-    public byte[] getPasswordBytes()
-    {
         return this.password;
     }
 
-    public void setPassword(String password) throws NoSuchAlgorithmException
+    public void setPassword(String password)
     {
-        //Build SHA256 hash of password.
-        //https://www.baeldung.com/sha-256-hashing-java
-        MessageDigest digest = MessageDigest.getInstance("SHA-256");
-        this.password = digest.digest(password.getBytes(StandardCharsets.UTF_8));
+        this.password = Hash.SHA256(password);
     }
 
     public int getAccessLevel() {

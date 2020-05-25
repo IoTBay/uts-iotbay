@@ -9,6 +9,7 @@ import uts.isd.model.User;
 
 import java.util.*;
 import java.sql.*;
+import uts.isd.util.Hash;
 import uts.isd.util.Logging;
 
 /**
@@ -33,6 +34,34 @@ public class DBUser implements IUser {
     public void close() throws SQLException {
         this.conn.close();
     }
+    
+    @Override
+    public User authenticateUser(String email, String password)
+    {
+        try {
+            String passwordHash = Hash.SHA256(password);
+            
+            //Using SQL prepared statements: https://stackoverflow.com/questions/3451269/parameterized-oracle-sql-query-in-java
+            //this protects against SQL Injection attacks. Each parameter must have a ? in the query, and a corresponding parameter
+            //set.
+            PreparedStatement p = this.conn.prepareStatement("SELECT * FROM APP.Users WHERE Email = ? AND Password = ?");
+            p.setString(1, email);
+            p.setString(2, passwordHash);
+            ResultSet rs = p.executeQuery();
+            if (!rs.next())
+            {
+                System.out.println("authenticateUser returned no records for email: "+email);
+                return null; //No records returned
+            }
+            return new User(rs);
+        }
+        catch (Exception e)
+        {
+            Logging.logMessage("Unable to authenticateUser", e);
+            return null;
+        }
+    }
+
     
     @Override
     public User getUserById(int id) 
@@ -145,7 +174,7 @@ public class DBUser implements IUser {
             PreparedStatement p = this.conn.prepareStatement("INSERT  INTO APP.Users (CustomerID, Email, Password, AccessLevel, Biography, BirthDate, Gender, CreatedDate, CreatedBy) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
             p.setInt(1, u.getCustomerId());
             p.setString(2, u.getEmail());
-            p.setBytes(3, u.getPasswordBytes());
+            p.setString(3, u.getPassword());
             p.setInt(4, u.getAccessLevel());
             p.setString(5, u.getBiography());
             p.setDate(6, new java.sql.Date(u.getBirthDate().getTime()));
@@ -172,7 +201,7 @@ public class DBUser implements IUser {
             PreparedStatement p = this.conn.prepareStatement("UPDATE APP.Users SET CustomerID = ?,  Email = ?, Password = ?, AccessLevel = ?, Biography = ?, BirthDate = ?, Gender = ?, ModifiedDate = ?, ModifiedBy = ? WHERE ID = ?");
             p.setInt(1, u.getCustomerId());
             p.setString(2, u.getEmail());
-            p.setBytes(3, u.getPasswordBytes());
+            p.setString(3, u.getPassword());
             p.setInt(4, u.getAccessLevel());
             p.setString(5, u.getBiography());
             p.setDate(6, new java.sql.Date(u.getBirthDate().getTime()));
