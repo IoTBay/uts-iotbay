@@ -223,7 +223,7 @@ public class UsersController extends HttpServlet {
                 
                 //Now load index.jsp
                 Logging.logMessage("Logged in OK. RequestDispatcher to index.jsp");
-                response.sendRedirect(request.getContextPath() + "/index.jsp");
+                response.sendRedirect(request.getContextPath() + "/");
                 //request.getRequestDispatcher("/index.jsp");
             }
         }

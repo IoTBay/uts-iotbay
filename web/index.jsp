@@ -40,7 +40,7 @@
   <%
       if (!isLoggedIn) {
   %>
-    <p>Welcome anonymous user, <a href="register.jsp">register</a> or <a href="login.jsp">login</a>, or look at some categories to continue.</p>
+    <p>Welcome anonymous user, <a href="<%= URL.Absolute("user/register", request) %>">register</a> or <a href="<%= URL.Absolute("user/login", request) %>">login</a>, or look at some categories to continue.</p>
   <% } else { %>
     <p>Welcome back, <%= customer.getFirstName() %>! We see you are now logged in:</p>
     <ul>
