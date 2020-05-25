@@ -1,3 +1,4 @@
+<%@page import="uts.isd.util.Flash"%>
 <%@page import="uts.isd.model.*"%>
 <%@page import="uts.isd.model.dao.*"%>
 <%@page import="java.util.List"%>
@@ -7,10 +8,14 @@
     IUser dbUser = new DBUser();
     User user = dbUser.authenticateUser(request.getParameter("email"), request.getParameter("password"));
     
+    Flash flash = Flash.getInstance(session);
+    
     if (user == null)
     {
         //User not logged in - throw error.
         System.out.println("ERROR: Did not auth");
+        //Setup flash messages
+        flash.add(Flash.MessageType.Error, "Your username and/or password were incorrect for user "+request.getParameter("email"));
     }
     else
     {
@@ -20,6 +25,10 @@
         ICustomer dbCustomer = new DBCustomer();
         Customer customer = dbCustomer.getCustomerById(user.getCustomerId());
         session.setAttribute("customer", customer);
+        
+        //Setup flash messages
+        flash.add(Flash.MessageType.Success, "You logged in successfully. Welcome back!");
+
  
         //For now mock everything else till they are implemented.
         

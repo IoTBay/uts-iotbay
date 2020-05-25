@@ -61,14 +61,27 @@ public class Flash {
     public String displayMessages()
     {
         String messages = "";
+        List<Integer> deleteIndexes = new ArrayList<Integer>();
         
-        for (FlashMessage message : this.messages)
+        for (int i = 0; i < this.messages.size(); i++)
         {
+            FlashMessage message = this.messages.get(i);
+            
             if (message.IsDisplayed())
-                this.messages.remove(message);
+            {
+                deleteIndexes.add(i);
+                continue;
+            }
             
             messages += message.outputMessage();
-            this.messages.remove(message);
+            message.setDisplayed();
+            deleteIndexes.add(i);
+        }
+        
+        //Remove messages that have been displayed.
+        for (int index: deleteIndexes)
+        {
+            this.messages.remove(index);
         }
         
         //Update session
@@ -93,6 +106,11 @@ public class Flash {
         public boolean IsDisplayed()
         {
             return this.isDisplayed;
+        }
+        
+        public void setDisplayed()
+        {
+            this.isDisplayed = true;
         }
         
         public String outputMessage()

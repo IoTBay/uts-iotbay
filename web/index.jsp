@@ -1,3 +1,4 @@
+<%@page import="uts.isd.util.Flash"%>
 <%@page import="uts.isd.model.*"%>
 <%@page import="java.util.List"%>
 <%@page import="java.util.ArrayList"%>
@@ -6,6 +7,10 @@
     User user = (User)session.getAttribute("user");
     Customer customer = (Customer)session.getAttribute("customer");
     boolean isLoggedIn = (user != null);
+    
+    //Setup flash messages
+    Flash flash = Flash.getInstance(session);
+
 %>
 
 <main role="main">
@@ -28,6 +33,9 @@
   </div>
 
   <div class="container">
+  <%= flash.displayMessages() %>
+
+      
   <%
       if (!isLoggedIn) {
   %>

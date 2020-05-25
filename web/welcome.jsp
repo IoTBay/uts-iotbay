@@ -1,3 +1,4 @@
+<%@page import="uts.isd.util.Flash"%>
 <%@page import="uts.isd.model.*"%>
 <%@page import="uts.isd.model.dao.*"%>
 <%@page import="java.util.List"%>
@@ -9,6 +10,9 @@
   User user = (User)session.getAttribute("user");
   Customer customer = (Customer)session.getAttribute("customer");
   boolean isLoggedIn = (user != null && customer != null);
+  
+  //Setup flash messages
+  Flash flash = Flash.getInstance(session);
   
   int status = 0;
   
@@ -25,7 +29,12 @@
     user = new User();
     user.setCustomerId(customer.getId()); //Link the new user to the customer we just created above.
     //Add user to DB
-    user.addUser(request, dbUser);
+    boolean added = user.addUser(request, dbUser);
+    
+    if (added)
+        flash.add(Flash.MessageType.Success, "New user "+user.getEmail()+" added successfully!");
+    else
+        flash.add(Flash.MessageType.Error, "Failed to add new user: "+user.getEmail());
     
     //Store objects in session so we dont have to load from DB on every page.
     session.setAttribute("customer", customer);
@@ -111,6 +120,8 @@
     <div style="margin-top: 50px;"></div>
     <div class="container">
 
+        <%= flash.displayMessages() %>
+        
         <% if (status == 1) { //New user %>
         <h1>Welcome, <%= customer.getFirstName() %>!</h1>
         <p>Hi, <%= customer.getFirstName() %>! We've just setup your new account. Your current details are below:</p>
