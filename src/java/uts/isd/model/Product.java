@@ -5,8 +5,10 @@
  */
 package uts.isd.model;
 
+import java.sql.ResultSet;
 import java.util.Date;
 import javax.servlet.ServletRequest;
+import uts.isd.util.Logging;
 
 /**
  *
@@ -39,6 +41,37 @@ public class Product {
         this.name = name;
         this.price = price;
         this.description = description;
+    }
+    
+    /**
+     * This constructor takes an SQL ResultSet and grabs the values from the DB Record
+     * to populate each property in the user model.
+     * 
+     * @param rs The SQL ResultSet row to populate values from.
+     */
+    public Product(ResultSet rs)
+    {
+        try
+        {
+            this.id = rs.getInt("ID");
+            this.categoryId = rs.getInt("CategoryID");
+            //this.defaultCurrencyId = 
+            this.name = rs.getString("Name");
+            this.description = rs.getString("Description");
+            this.image = rs.getString("Image");
+            this.initialQuantity = rs.getInt("InitialQuantity");
+            this.currentQuantity = rs.getInt("CurrentQuantity");
+            
+            this.createdDate = rs.getDate("CreatedDate");
+            this.createdBy = rs.getInt("CreatedBy");
+            this.modifiedDate = rs.getDate("ModifiedDate");
+            this.modifiedBy = rs.getInt("ModifiedBy");
+        }
+        catch (Exception e)
+        {
+            Logging.logMessage("Unable to load User from ResultSet for ID", e);
+        }
+        
     }
     
     /**

@@ -5,7 +5,13 @@
  */
 package uts.isd.model;
 
+import uts.isd.model.dao.*;
+
 import java.io.Serializable;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.sql.ResultSet;
 import java.text.ParseException;
 import java.util.Date;
 import java.text.SimpleDateFormat;
@@ -13,12 +19,15 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.ServletRequest;
+import uts.isd.util.Hash;
+import uts.isd.util.Logging;
 
 /**
  *
  * @author rhys
  */
 public class User implements Serializable {
+    
     private int id;
     private int customerId;
     private int defaultCurrencyId;
@@ -35,14 +44,43 @@ public class User implements Serializable {
     private Date modifiedDate;
     private int modifiedBy;
     
-    public User()
+    public User() {  }
+    
+    /**
+     * This constructor takes an SQL ResultSet and grabs the values from the DB Record
+     * to populate each property in the user model.
+     * 
+     * @param rs The SQL ResultSet row to populate values from.
+     */
+    public User(ResultSet rs)
     {
+        try
+        {
+            this.id = rs.getInt("ID");
+            this.customerId = rs.getInt("CustomerID");
+            //this.defaultCurrencyId = 
+            this.email = rs.getString("Email");
+            this.password = rs.getString("Password");
+            this.accessLevel = rs.getInt("AccessLevel");
+            this.birthDate = rs.getDate("BirthDate");
+            this.sex = rs.getInt("Gender");
+            this.biography = rs.getString("Biography");
+            //this.passwordResetHash = rs.getString("PasswordResetHash");
+            
+            this.createdDate = rs.getDate("CreatedDate");
+            this.createdBy = rs.getInt("CreatedBy");
+            this.modifiedDate = rs.getDate("ModifiedDate");
+            this.modifiedBy = rs.getInt("ModifiedBy");
+        }
+        catch (Exception e)
+        {
+            Logging.logMessage("Unable to load User from ResultSet for ID", e);
+        }
         
     }
 
-    public User(String email, String password) {
+    public User(String email) {
         this.email = email;
-        this.password = password;
     }
     
     /**
@@ -51,7 +89,7 @@ public class User implements Serializable {
      * @param request The controller's HTTPServlet POST request properties.
      * @return boolean - Returns true if adding the properties was successful. Otherwise false.
      */
-    public boolean addUser(ServletRequest request)
+    public boolean addUser(ServletRequest request, IUser db)
     {
         if (request.getParameter("id") != null)
             this.id = Integer.parseInt(request.getParameter("id"));
@@ -59,7 +97,8 @@ public class User implements Serializable {
         if (request.getParameter("customerId") != null)
             this.customerId = Integer.parseInt(request.getParameter("customerId"));
         this.email = request.getParameter("email");
-        this.password = request.getParameter("password");
+        this.setPassword(request.getParameter("password"));
+
         if (request.getParameter("accessLevel") != null)
             this.accessLevel = Integer.parseInt(request.getParameter("accessLevel"));
         else
@@ -70,7 +109,7 @@ public class User implements Serializable {
         try {
             this.birthDate = new SimpleDateFormat("yyyy-MM-dd").parse(dob);
         } catch (ParseException ex) {
-            Logger.getLogger(User.class.getName()).log(Level.SEVERE, null, ex);
+            Logging.logMessage("Unable to parse Date for addUser", ex);
             return false;
         }
         
@@ -80,6 +119,20 @@ public class User implements Serializable {
         this.modifiedDate = new Date();
         this.createdBy = 0;
         this.modifiedBy = 0;
+        
+        try
+        {
+            //Assumes the User object (this) has been populated already.
+            //Takes object properties and inserts into DB.
+            boolean added = db.addUser(this);
+            //Always close DB when done.
+            return added;
+        }
+        catch (Exception e)
+        {
+            Logging.logMessage("Failed to addUser", e);
+        }
+        
         
         return true;
     }
@@ -109,12 +162,14 @@ public class User implements Serializable {
         this.email = email;
     }
 
-    public String getPassword() {
-        return password;
+    public String getPassword() 
+    {
+        return this.password;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    public void setPassword(String password)
+    {
+        this.password = Hash.SHA256(password);
     }
 
     public int getAccessLevel() {
@@ -134,7 +189,7 @@ public class User implements Serializable {
         try {
             this.birthDate = new SimpleDateFormat("yyyy-MM-dd").parse(s);
         } catch (ParseException ex) {
-            Logger.getLogger(User.class.getName()).log(Level.SEVERE, null, ex);
+            Logging.logMessage("Unable to parse Date for setBirthDate", ex);
         }
     }
     
@@ -156,6 +211,11 @@ public class User implements Serializable {
 
     public void setBiography(String biography) {
         this.biography = biography;
+    }
+    
+    public int getGender()
+    {
+        return this.sex;
     }
     
     public String getSex() {
