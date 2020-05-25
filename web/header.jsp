@@ -21,8 +21,8 @@
     <title>IOTBay</title>
 
     <!-- Bootstrap core CSS -->
-    <link rel="stylesheet" href="css/bootstrap.min.css">
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="<%= request.getRequestURL() + "/../css/bootstrap.min.css" %>">
+    <link rel="stylesheet" href="<%= request.getRequestURL() + "/../css/style.css" %>">
     <meta name="theme-color" content="#563d7c">
   </head>
   <body>

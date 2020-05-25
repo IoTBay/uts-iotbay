@@ -14,7 +14,7 @@ import java.sql.Connection;
 
 public abstract class DB {   
 
-protected String URL = "jdbc:derby://localhost:1527/";//replace this string with your jdbc:derby local host url   
+protected String URL = "jdbc:derby://localhost:1527/iotdb";//replace this string with your jdbc:derby local host url   
 protected String db = "iotdb";//name of the database   
 protected String dbuser = "iotdb";//db root user   
 protected String dbpass = "iotdb"; //db root password   
