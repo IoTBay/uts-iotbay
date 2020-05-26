@@ -14,78 +14,54 @@ import javax.servlet.ServletRequest;
  */
 public class Product {
     
-    private int id;
-    private int categoryId;
-    private int currencyId;
+    private String id; 
+    private String categoryId;
+    private String currencyId;
     private String name;
-    private double price;
+    private String price;
     private String description;
     private String image;
-    private int initialQuantity;
-    private int currentQuantity;
+    private String initialQuantity;
+    private String currentQuantity;
     private String lastReorderDate;
+    private String createdDate;
+    private String createdBy;
+    private String modifiedDate;
+    private String modifiedBy;
     
-    private Date createdDate;
-    private int createdBy;
-    private Date modifiedDate;
-    private int modifiedBy;
+    //insert a constructor to initialize the fields
 
-    public Product() {
-    }
-    
-    public Product(int id, int categoryId, String name, double price, String description) {
-        this.id = id;
-        this.categoryId = categoryId;
+    public Product(String name, String description, String initialQuantity, String price, String id) {
         this.name = name;
-        this.price = price;
         this.description = description;
-    }
-    
-    /**
-     * This method populates this instance's properties based on form inputs.
-     * 
-     * @param request The controller's HTTPServlet POST request properties.
-     * @return boolean - Returns true if adding the properties was successful. Otherwise false.
-     */
-    public boolean addProduct(ServletRequest request)
-    {
-        if (request.getParameter("id") != null)
-            this.id = Integer.parseInt(request.getParameter("id"));
-        
-        this.categoryId = Integer.parseInt(request.getParameter("categoryId"));
-        this.price = Double.parseDouble(request.getParameter("productId"));
-        this.name = request.getParameter("name");
-        this.description = request.getParameter("description");
-
-        this.createdDate = new Date();
-        this.modifiedDate = new Date();
-        this.createdBy = 0;
-        this.modifiedBy = 0;
-        
-        return true;
+        this.initialQuantity = initialQuantity;
+        this.price = price;
+        this.id = id;
     }
 
-    public int getId() {
+   //insert getters and setters
+
+    public String getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 
-    public int getCategoryId() {
+    public String getCategoryId() {
         return categoryId;
     }
 
-    public void setCategoryId(int categoryId) {
+    public void setCategoryId(String categoryId) {
         this.categoryId = categoryId;
     }
-    
-    public int getCurrencyId() {
-        return this.currencyId;
+
+    public String getCurrencyId() {
+        return currencyId;
     }
-    
-    public void setCurrencyId(int currencyId) {
+
+    public void setCurrencyId(String currencyId) {
         this.currencyId = currencyId;
     }
 
@@ -97,11 +73,11 @@ public class Product {
         this.name = name;
     }
 
-    public double getPrice() {
+    public String getPrice() {
         return price;
     }
 
-    public void setPrice(double price) {
+    public void setPrice(String price) {
         this.price = price;
     }
 
@@ -121,19 +97,19 @@ public class Product {
         this.image = image;
     }
 
-    public int getInitialQuantity() {
+    public String getInitialQuantity() {
         return initialQuantity;
     }
 
-    public void setInitialQuantity(int initialQuantity) {
+    public void setInitialQuantity(String initialQuantity) {
         this.initialQuantity = initialQuantity;
     }
 
-    public int getCurrentQuantity() {
+    public String getCurrentQuantity() {
         return currentQuantity;
     }
 
-    public void setCurrentQuantity(int currentQuantity) {
+    public void setCurrentQuantity(String currentQuantity) {
         this.currentQuantity = currentQuantity;
     }
 
@@ -144,20 +120,39 @@ public class Product {
     public void setLastReorderDate(String lastReorderDate) {
         this.lastReorderDate = lastReorderDate;
     }
-    
-    public Date getCreatedDate() {
-        return this.createdDate;
+
+    public String getCreatedDate() {
+        return createdDate;
     }
-    
-    public Date getModifiedDate() {
-        return this.modifiedDate;
+
+    public void setCreatedDate(String createdDate) {
+        this.createdDate = createdDate;
     }
-    
-    public int getCreatedBy() {
-        return this.createdBy;
+
+    public String getCreatedBy() {
+        return createdBy;
     }
-    
-    public int getModifiedBy() {
-        return this.modifiedBy;
+
+    public void setCreatedBy(String createdBy) {
+        this.createdBy = createdBy;
     }
+
+    public String getModifiedDate() {
+        return modifiedDate;
+    }
+
+    public void setModifiedDate(String modifiedDate) {
+        this.modifiedDate = modifiedDate;
+    }
+
+    public String getModifiedBy() {
+        return modifiedBy;
+    }
+
+    public void setModifiedBy(String modifiedBy) {
+        this.modifiedBy = modifiedBy;
+    }
+
+   
+      
 }
