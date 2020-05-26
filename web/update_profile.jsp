@@ -1,4 +1,7 @@
+<%@page import="uts.isd.util.URL"%>
+<%@page import="uts.isd.util.Flash"%>
 <%@page import="uts.isd.model.*"%>
+<%@page import="uts.isd.model.dao.*"%>
 <%@page import="java.util.List"%>
 <%@page import="java.util.ArrayList"%>
 <jsp:include page="header.jsp" />
@@ -14,14 +17,22 @@
   <%
       if (!isLoggedIn) {
   %>
-    <p>Sorry, you're not logged in! <a href="register.jsp">Register</a> or <a href="login.jsp">login</a> to see this page.</p>
+  <p>Sorry, you're not logged in! <a href="<%= URL.Absolute("user/register", request) %>">Register</a> or <a href="<%= URL.Absolute("user/login", request) %>">login</a> to see this page.</p>
   
     <% } else if (isLoggedIn && request.getParameter("doUpdate") == null) { %>
     <p>Form was not submitted properly.</p>
  <%
     } else {
-        customer.addCustomer(request);
-        user.addUser(request);
+        ICustomer dbCustomer = new DBCustomer();
+        IUser dbUser = new DBUser();
+
+        customer.loadRequest(request, customer);
+        user.loadRequest(request, customer);
+        if (customer.update(dbCustomer) && user.update(dbUser))
+            Flash.getInstance(session).add(Flash.MessageType.Success, "Your profile has been updated successfully");
+        else
+            Flash.getInstance(session).add(Flash.MessageType.Error, "Your profile could not be updated");
+
         session.setAttribute("customer", customer);
         session.setAttribute("user", user);
   %>
