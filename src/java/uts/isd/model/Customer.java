@@ -58,13 +58,18 @@ public class Customer implements Serializable {
         this.lastName = lastName;
     }
     
+    public void loadRequest(ServletRequest request)
+    {
+        this.loadRequest(request, null);
+    }
+    
     /**
      * This method populates this instance's properties based on form inputs.
      * 
      * @param request The controller's HTTPServlet POST request properties.
-     * @return boolean - Returns true if adding the properties was successful. Otherwise false.
+     * @param changedBy The customer who is making this request 
      */
-    public boolean addCustomer(ServletRequest request, ICustomer db)
+    public void loadRequest(ServletRequest request, Customer changedBy)
     {
         if (request.getParameter("id") != null)
             this.id = Integer.parseInt(request.getParameter("id"));
@@ -75,9 +80,15 @@ public class Customer implements Serializable {
 
         this.createdDate = new Date();
         this.modifiedDate = new Date();
-        this.createdBy = 0;
-        this.modifiedBy = 0;
-        
+        if (changedBy != null)
+        {
+            this.createdBy = changedBy.getId(); //Set this properly
+            this.modifiedBy = changedBy.getId(); //Set this properly.
+        }
+    }
+    
+    public boolean add(ICustomer db)
+    {
         try
         {
             //Assumes the User object (this) has been populated already.
@@ -88,11 +99,43 @@ public class Customer implements Serializable {
         }
         catch (Exception e)
         {
-            Logging.logMessage("Failed to addCustomer", e);
+            Logging.logMessage("Failed to add customer", e);
+            return false;
         }
-        
-        
-        return true;
+    }
+    
+    public boolean update(ICustomer db)
+    {
+        try
+        {
+            //Assumes the User object (this) has been populated already.
+            //Takes object properties and updates in DB.
+            boolean updated = db.updateCustomer(this);
+            //Always close DB when done.
+            return updated;
+        }
+        catch (Exception e)
+        {
+            Logging.logMessage("Failed to update customer", e);
+            return false;
+        }
+    }
+    
+    public boolean delete(ICustomer db)
+    {
+        try
+        {
+            //Assumes the User object (this) has been populated already.
+            //Takes object properties and updates in DB.
+            boolean deleted = db.deleteCustomerById(this.id);
+            //Always close DB when done.
+            return deleted;
+        }
+        catch (Exception e)
+        {
+            Logging.logMessage("Failed to delete customer", e);
+            return false;
+        }
     }
 
 
