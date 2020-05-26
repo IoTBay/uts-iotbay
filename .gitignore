@@ -1,5 +1,11 @@
 # Build folder
-build/
+build/*
+!build/build.xml
+
+# Netbeans project
+nbproject/*
+
+
 
 # Compiled class file
 *.class

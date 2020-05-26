@@ -5,8 +5,10 @@
  */
 package uts.isd.model;
 
+import java.sql.ResultSet;
 import java.util.Date;
 import javax.servlet.ServletRequest;
+import uts.isd.util.Logging;
 
 /**
  *
@@ -14,54 +16,109 @@ import javax.servlet.ServletRequest;
  */
 public class Product {
     
-    private String id; 
-    private String categoryId;
-    private String currencyId;
+    private int id;
+    private int categoryId;
+    private int currencyId;
     private String name;
-    private String price;
+    private double price;
     private String description;
     private String image;
-    private String initialQuantity;
-    private String currentQuantity;
+    private int initialQuantity;
+    private int currentQuantity;
     private String lastReorderDate;
-    private String createdDate;
-    private String createdBy;
-    private String modifiedDate;
-    private String modifiedBy;
     
-    //insert a constructor to initialize the fields
+    private Date createdDate;
+    private int createdBy;
+    private Date modifiedDate;
+    private int modifiedBy;
 
-    public Product(String name, String description, String initialQuantity, String price, String id) {
-        this.name = name;
-        this.description = description;
-        this.initialQuantity = initialQuantity;
-        this.price = price;
+    public Product() {
+    }
+    
+    public Product(int id, int categoryId, String name, double price, String description) {
         this.id = id;
+        this.categoryId = categoryId;
+        this.name = name;
+        this.price = price;
+        this.description = description;
+    }
+    
+    /**
+     * This constructor takes an SQL ResultSet and grabs the values from the DB Record
+     * to populate each property in the user model.
+     * 
+     * @param rs The SQL ResultSet row to populate values from.
+     */
+    public Product(ResultSet rs)
+    {
+        try
+        {
+            this.id = rs.getInt("ID");
+            this.categoryId = rs.getInt("CategoryID");
+            //this.defaultCurrencyId = 
+            this.name = rs.getString("Name");
+            this.description = rs.getString("Description");
+            this.image = rs.getString("Image");
+            this.initialQuantity = rs.getInt("InitialQuantity");
+            this.currentQuantity = rs.getInt("CurrentQuantity");
+            
+            this.createdDate = rs.getDate("CreatedDate");
+            this.createdBy = rs.getInt("CreatedBy");
+            this.modifiedDate = rs.getDate("ModifiedDate");
+            this.modifiedBy = rs.getInt("ModifiedBy");
+        }
+        catch (Exception e)
+        {
+            Logging.logMessage("Unable to load User from ResultSet for ID", e);
+        }
+        
+    }
+    
+    /**
+     * This method populates this instance's properties based on form inputs.
+     * 
+     * @param request The controller's HTTPServlet POST request properties.
+     * @return boolean - Returns true if adding the properties was successful. Otherwise false.
+     */
+    public boolean addProduct(ServletRequest request)
+    {
+        if (request.getParameter("id") != null)
+            this.id = Integer.parseInt(request.getParameter("id"));
+        
+        this.categoryId = Integer.parseInt(request.getParameter("categoryId"));
+        this.price = Double.parseDouble(request.getParameter("productId"));
+        this.name = request.getParameter("name");
+        this.description = request.getParameter("description");
+
+        this.createdDate = new Date();
+        this.modifiedDate = new Date();
+        this.createdBy = 0;
+        this.modifiedBy = 0;
+        
+        return true;
     }
 
-   //insert getters and setters
-
-    public String getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(int id) {
         this.id = id;
     }
 
-    public String getCategoryId() {
+    public int getCategoryId() {
         return categoryId;
     }
 
-    public void setCategoryId(String categoryId) {
+    public void setCategoryId(int categoryId) {
         this.categoryId = categoryId;
     }
-
-    public String getCurrencyId() {
-        return currencyId;
+    
+    public int getCurrencyId() {
+        return this.currencyId;
     }
-
-    public void setCurrencyId(String currencyId) {
+    
+    public void setCurrencyId(int currencyId) {
         this.currencyId = currencyId;
     }
 
@@ -73,11 +130,11 @@ public class Product {
         this.name = name;
     }
 
-    public String getPrice() {
+    public double getPrice() {
         return price;
     }
 
-    public void setPrice(String price) {
+    public void setPrice(double price) {
         this.price = price;
     }
 
@@ -97,19 +154,19 @@ public class Product {
         this.image = image;
     }
 
-    public String getInitialQuantity() {
+    public int getInitialQuantity() {
         return initialQuantity;
     }
 
-    public void setInitialQuantity(String initialQuantity) {
+    public void setInitialQuantity(int initialQuantity) {
         this.initialQuantity = initialQuantity;
     }
 
-    public String getCurrentQuantity() {
+    public int getCurrentQuantity() {
         return currentQuantity;
     }
 
-    public void setCurrentQuantity(String currentQuantity) {
+    public void setCurrentQuantity(int currentQuantity) {
         this.currentQuantity = currentQuantity;
     }
 
@@ -120,39 +177,20 @@ public class Product {
     public void setLastReorderDate(String lastReorderDate) {
         this.lastReorderDate = lastReorderDate;
     }
-
-    public String getCreatedDate() {
-        return createdDate;
+    
+    public Date getCreatedDate() {
+        return this.createdDate;
     }
-
-    public void setCreatedDate(String createdDate) {
-        this.createdDate = createdDate;
+    
+    public Date getModifiedDate() {
+        return this.modifiedDate;
     }
-
-    public String getCreatedBy() {
-        return createdBy;
+    
+    public int getCreatedBy() {
+        return this.createdBy;
     }
-
-    public void setCreatedBy(String createdBy) {
-        this.createdBy = createdBy;
+    
+    public int getModifiedBy() {
+        return this.modifiedBy;
     }
-
-    public String getModifiedDate() {
-        return modifiedDate;
-    }
-
-    public void setModifiedDate(String modifiedDate) {
-        this.modifiedDate = modifiedDate;
-    }
-
-    public String getModifiedBy() {
-        return modifiedBy;
-    }
-
-    public void setModifiedBy(String modifiedBy) {
-        this.modifiedBy = modifiedBy;
-    }
-
-   
-      
 }
