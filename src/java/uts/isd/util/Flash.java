@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package uts.isd.util;
+package uts.isd.util;   
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -30,7 +30,8 @@ public class Flash {
     
     public static Flash getInstance(HttpSession session)
     {
-        if (Flash.instance != null)
+        //Check to make sure session is valid to avoid session already invalidated error.
+        if (Flash.instance != null && Flash.instance.sessionMatches(session))
             return Flash.instance;
         
         Flash.instance = new Flash(session);
@@ -50,6 +51,11 @@ public class Flash {
         }
     }
     
+    public boolean sessionMatches(HttpSession session)
+    {
+        return (this.session != null && this.session.equals(session));
+    }
+    
     public void add(MessageType type, String message)
     {
         FlashMessage m = new FlashMessage(type, message);
@@ -61,14 +67,19 @@ public class Flash {
     public String displayMessages()
     {
         String messages = "";
+        List<Integer> deleteIndexes = new ArrayList<Integer>();
         
-        for (FlashMessage message : this.messages)
+        for (int i = 0; i < this.messages.size(); i++)
         {
-            if (message.IsDisplayed())
-                this.messages.remove(message);
-            
+            FlashMessage message = this.messages.get(i);
             messages += message.outputMessage();
-            this.messages.remove(message);
+            deleteIndexes.add(i);
+        }
+        
+        //Remove messages that have been displayed.
+        for (int index: deleteIndexes)
+        {
+            this.messages.remove(index);
         }
         
         //Update session
@@ -81,18 +92,11 @@ public class Flash {
         
         private MessageType type;
         private String value;
-        private boolean isDisplayed;
         
         public FlashMessage(MessageType type, String value)
         {
             this.type = type;
             this.value = value;
-            this.isDisplayed = false;
-        }
-        
-        public boolean IsDisplayed()
-        {
-            return this.isDisplayed;
         }
         
         public String outputMessage()
@@ -115,7 +119,6 @@ public class Flash {
             out += "  "+ this.value +"\n";
             out += "</div>\n\n";
             
-            this.isDisplayed = true;
             return out;
         }
     }
