@@ -15,9 +15,9 @@
     <div style='text-align: center'> 
     <div class="btn-group" role="group" aria-label="Basic example">
         <a href="add_product.jsp" class="btn btn-primary btn-lg">Add Product</a>
-        <a href="add_product.jsp" class="btn btn-primary btn-lg">Update Product</a>
-        <a href="add_product.jsp" class="btn btn-primary btn-lg">Delete Product</a>
-        <a href="add_product.jsp" class="btn btn-primary btn-lg">Show All Products</a>
+        <a href="update_product.jsp" class="btn btn-primary btn-lg">Update Product</a>
+        //<a href="add_product.jsp" class="btn btn-primary btn-lg">Delete Product</a>
+        //<a href="add_product.jsp" class="btn btn-primary btn-lg">Show All Products</a>
     </div>
     </div>     
     </main>

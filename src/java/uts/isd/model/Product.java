@@ -5,8 +5,11 @@
  */
 package uts.isd.model;
 
+import java.sql.ResultSet;
 import java.util.Date;
 import javax.servlet.ServletRequest;
+import uts.isd.model.dao.IProduct;
+import uts.isd.util.Logging;
 
 /**
  *
@@ -42,6 +45,37 @@ public class Product {
     }
     
     /**
+     * This constructor takes an SQL ResultSet and grabs the values from the DB Record
+     * to populate each property in the user model.
+     * 
+     * @param rs The SQL ResultSet row to populate values from.
+     */
+    public Product(ResultSet rs)
+    {
+        try
+        {
+            this.id = rs.getInt("ID");
+            this.categoryId = rs.getInt("CategoryID");
+            //this.defaultCurrencyId = 
+            this.name = rs.getString("Name");
+            this.description = rs.getString("Description");
+            this.image = rs.getString("Image");
+            this.initialQuantity = rs.getInt("InitialQuantity");
+            this.currentQuantity = rs.getInt("CurrentQuantity");
+            
+            this.createdDate = rs.getDate("CreatedDate");
+            this.createdBy = rs.getInt("CreatedBy");
+            this.modifiedDate = rs.getDate("ModifiedDate");
+            this.modifiedBy = rs.getInt("ModifiedBy");
+        }
+        catch (Exception e)
+        {
+            Logging.logMessage("Unable to load User from ResultSet for ID", e);
+        }
+        
+    }
+    
+    /**
      * This method populates this instance's properties based on form inputs.
      * 
      * @param request The controller's HTTPServlet POST request properties.
@@ -56,7 +90,6 @@ public class Product {
         this.price = Double.parseDouble(request.getParameter("productId"));
         this.name = request.getParameter("name");
         this.description = request.getParameter("description");
-
         this.createdDate = new Date();
         this.modifiedDate = new Date();
         this.createdBy = 0;
@@ -159,5 +192,9 @@ public class Product {
     
     public int getModifiedBy() {
         return this.modifiedBy;
+    }
+
+    public void add(IProduct dbProduct) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }
