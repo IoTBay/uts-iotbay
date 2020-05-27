@@ -18,6 +18,7 @@ import javax.servlet.http.HttpSession;
 import uts.isd.model.*;
 import uts.isd.model.dao.*;
 import uts.isd.util.*;
+import uts.isd.validation.*;
 
 /**
  *
@@ -250,6 +251,11 @@ public class UsersController extends HttpServlet {
     protected void doRegisterPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         
+        Validator validator = new Validator(new ValidationMethod[] {
+            new ValidateEmail("Email", "email"),
+            new ValidateLongerThan(2, "First Name", "firstName")
+        });
+        
         HttpSession session = request.getSession();
         
         //We need to figure out if the user is logging out now, or not.
@@ -268,6 +274,11 @@ public class UsersController extends HttpServlet {
             //Not logged in but submitted registration
             if (!isLoggedIn && request.getParameter("doRegister") != null)
             {
+                if (!validator.validate(request))
+                {
+                    response.sendRedirect(request.getHeader("referer"));
+                }
+                
                 //Create a connection to the DB for the customers table
                 ICustomer dbCustomer = new DBCustomer();
                 customer = new Customer();
