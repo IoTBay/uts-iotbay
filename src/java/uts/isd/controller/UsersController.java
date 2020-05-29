@@ -18,11 +18,8 @@ import javax.servlet.http.HttpSession;
 import uts.isd.model.*;
 import uts.isd.model.dao.*;
 import uts.isd.util.*;
+import uts.isd.validation.*;
 
-/**
- *
- * @author rhys
- */
 public class UsersController extends HttpServlet {
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
@@ -71,6 +68,10 @@ public class UsersController extends HttpServlet {
             case "/logout":
                 doLogoutGet(request, response);
                 break;
+                
+            case "/cancel":
+                doCancelGet(request, response);
+                break;
         }
     }
 
@@ -110,6 +111,10 @@ public class UsersController extends HttpServlet {
                 
             case "/edit":
                 doProfileEditPost(request, response);
+                break;
+                
+            case "/cancel":
+                doCancelPost(request, response);
                 break;
         }
     }
@@ -253,6 +258,11 @@ public class UsersController extends HttpServlet {
     
     protected void doRegisterPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        
+        Validator validator = new Validator(new ValidationMethod[] {
+            new ValidateEmail("Email", "email"),
+            new ValidateLongerThan(2, "First Name", "firstName")
+        });
               
         HttpSession session = request.getSession();
         
@@ -272,6 +282,10 @@ public class UsersController extends HttpServlet {
             //Not logged in but submitted registration
             if (!isLoggedIn && request.getParameter("doRegister") != null)
             {
+                if (!validator.validate(request))
+                {
+                    response.sendRedirect(request.getHeader("referer"));
+                }
                 //Create a connection to the DB for the customers table
                 ICustomer dbCustomer = new DBCustomer();
                 customer = new Customer();
@@ -474,10 +488,69 @@ public class UsersController extends HttpServlet {
         Customer customer = (Customer)session.getAttribute("customer");
         //Store for later
         boolean isLoggedIn = (user != null);
+        
         session.invalidate();
              
     }
     
+    protected void doCancelGet(HttpServletRequest request, HttpServletResponse response)
+        throws ServletException, IOException {
+        RequestDispatcher requestDispatcher; 
+        requestDispatcher = request.getRequestDispatcher("/cancel_registration.jsp");
+        requestDispatcher.forward(request, response);
+    }
+    
+    protected void doCancelPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        
+        HttpSession session = request.getSession();
+                
+        //Invalidate the session BEFORE including the header, so it shows correctly.
+        
+        User user = (User)session.getAttribute("user");
+        
+        boolean isLoggedIn = (user != null);
+
+        //Setup flash messages
+        Flash flash = Flash.getInstance(session);
+
+        Logging.logMessage("Updating profile");
+        
+        try
+        {
+            //submitted form
+            if (request.getParameter("doCancel") != null)
+            {
+                //Create a connection to the DB for users table
+                IUser dbUser = new DBUser();
+                //set Access level to 0 to invalidate the account
+                user.setAccessLevel(0);
+                
+                boolean updated = (user.update(dbUser));
+                Logging.logMessage("Updated profile");
+
+                if (updated){
+                    flash.add(Flash.MessageType.Success, "Your profile was cancelled successfully!");
+                    session.setAttribute("userCancelled" , true);
+                    }
+                else{
+                    flash.add(Flash.MessageType.Error, "Failed to cancel your profile");
+                }
+                
+            }
+            else
+            {
+                flash.add(Flash.MessageType.Error, "Form submission failed");
+            }
+            RequestDispatcher requestDispatcher;
+            requestDispatcher = request.getRequestDispatcher("/index.jsp");
+            requestDispatcher.forward(request, response);
+        }
+        catch (Exception e)
+        {
+            Logging.logMessage("Unable to cancel account");
+            return;
+        }
+    }
     /**
      * Returns a short description of the servlet.
      *

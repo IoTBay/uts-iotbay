@@ -44,7 +44,7 @@ public class DBUser implements IUser {
             //Using SQL prepared statements: https://stackoverflow.com/questions/3451269/parameterized-oracle-sql-query-in-java
             //this protects against SQL Injection attacks. Each parameter must have a ? in the query, and a corresponding parameter
             //set.
-            PreparedStatement p = this.conn.prepareStatement("SELECT * FROM APP.Users WHERE Email = ? AND Password = ?");
+            PreparedStatement p = this.conn.prepareStatement("SELECT * FROM APP.Users WHERE Email = ? AND Password = ? AND AccessLevel > 0");
             p.setString(1, email);
             p.setString(2, passwordHash);
             ResultSet rs = p.executeQuery();
@@ -213,6 +213,7 @@ public class DBUser implements IUser {
             //WHERE ID = ?
             p.setInt(10, u.getId());
             
+            Logging.logMessage("updating user " + p.toString());
             //Was update successful?
             return (p.executeUpdate() > 0);
         }
@@ -222,7 +223,7 @@ public class DBUser implements IUser {
             return false;
         }
     }
-
+    
     @Override
     public boolean deleteUserById(int id) {
         try {
