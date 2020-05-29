@@ -15,23 +15,17 @@ public class ValidateRequired extends ValidationMethod {
     
     private int length;
     
-    public ValidateRequired(String name, String field)
-    {
-        this.name = name;
-        this.field = field;
-    }
+    public ValidateRequired() { }
     
     @Override
-    public boolean validate(HttpServletRequest request) 
+    public boolean validate(String field, String value, HttpServletRequest request) 
     {
-        this.value = request.getParameter(this.field);
-        String s = (String)this.value;
-        return (s != null && !s.isEmpty());
+        return (value != null && !value.isEmpty());
     }
 
     @Override
     public String getError() {
-        return this.name+" is required";
+        return "is required";
     }
     
 }

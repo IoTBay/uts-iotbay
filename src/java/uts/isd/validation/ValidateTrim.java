@@ -13,18 +13,15 @@ import javax.servlet.http.HttpServletRequest;
  */
 public class ValidateTrim extends ValidationMethod {
         
-    public ValidateTrim(String name, String field)
+    public ValidateTrim()
     {
-        this.name = name;
-        this.field = field;
     }
     
     @Override
-    public boolean validate(HttpServletRequest request) 
+    public boolean validate(String field, String value, HttpServletRequest request) 
     {
-        this.value = request.getParameter(this.field);
-        String s = (String)this.value;
-        request.setAttribute(this.field, s.trim());
+        String s = request.getParameter(field).trim();
+        request.setAttribute(field, s);
         return true;
     }
 

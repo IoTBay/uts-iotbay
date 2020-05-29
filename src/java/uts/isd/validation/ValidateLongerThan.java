@@ -15,23 +15,20 @@ public class ValidateLongerThan extends ValidationMethod {
     
     private int length;
     
-    public ValidateLongerThan(int length, String name, String field)
+    public ValidateLongerThan(int length)
     {
         this.length = length;
-        this.name = name;
-        this.field = field;
     }
     
     @Override
-    public boolean validate(HttpServletRequest request) 
+    public boolean validate(String field, String value, HttpServletRequest request) 
     {
-        this.value = request.getParameter(this.field);
-        return (((String)this.value).length() > this.length);
+        return (value.length() > this.length);
     }
 
     @Override
     public String getError() {
-        return this.name+" length must be grater than "+this.length;
+        return "length must be grater than "+this.length;
     }
     
 }

@@ -17,16 +17,12 @@ public class ValidateEmail extends ValidationMethod {
     
     private final String pattern = "^(.+)@(.+)\\.(.+)$";
 
-    public ValidateEmail(String name, String field)
-    {
-        this.name = name;
-        this.field = field;
-    }
+    public ValidateEmail() { }
     
     @Override
-    public boolean validate(HttpServletRequest request) 
+    public boolean validate(String field, String value, HttpServletRequest request) 
     {
-        this.value = request.getParameter(this.field);
+        this.value = value;
         
         Pattern r = Pattern.compile(pattern);
         Matcher m = r.matcher((String)this.value);
@@ -35,7 +31,7 @@ public class ValidateEmail extends ValidationMethod {
 
     @Override
     public String getError() {
-        return this.name+" does not contain a valid email";
+        return "does not contain a valid email";
     }
     
 }

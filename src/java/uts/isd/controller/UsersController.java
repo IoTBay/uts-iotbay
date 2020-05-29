@@ -133,11 +133,15 @@ public class UsersController extends HttpServlet {
         try {
             HttpSession session = request.getSession();
             
-            Validator validator = new Validator(new ValidationMethod[] {
-                new ValidateRequired("Email", "email"),
-                new ValidateEmail("Email", "email"),
-                new ValidateTrim("Email", "email"),
-                new ValidateRequired("Password", "password")
+            Validator validator = new Validator(new ValidatorFieldRules[] {
+                new ValidatorFieldRules("Email", "email", new ValidationMethod[] {
+                    new ValidateRequired(),
+                    new ValidateEmail(),
+                    new ValidateTrim()
+                }),
+                new ValidatorFieldRules("Password", "password", new ValidationMethod[] {
+                    new ValidateRequired()
+                })
             });
             
             if (!validator.validate(request))
@@ -269,10 +273,16 @@ public class UsersController extends HttpServlet {
     protected void doRegisterPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         
-        Validator validator = new Validator(new ValidationMethod[] {
-            new ValidateEmail("Email", "email"),
-            new ValidateLongerThan(2, "First Name", "firstName")
-        });
+           Validator validator = new Validator(new ValidatorFieldRules[] {
+                new ValidatorFieldRules("Email", "email", new ValidationMethod[] {
+                    new ValidateRequired(),
+                    new ValidateEmail(),
+                    new ValidateTrim()
+                }),
+                new ValidatorFieldRules("First Name", "firstName", new ValidationMethod[] {
+                    new ValidateRequired()
+                })
+            });
         
         HttpSession session = request.getSession();
         
