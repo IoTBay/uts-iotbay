@@ -16,6 +16,18 @@ import uts.isd.model.User;
  */
 public interface IUser {
     
+    /**
+     * This method looks for the relevant user and makes sure the entered
+     * username and password are correct.
+     * 
+     * If they are correct, a User object is returned. Otherwise NULL is returned.
+     * 
+     * @param email Email address of user to authenticate.
+     * @param password Plaintext password of user to hash then authenticate.
+     * @return User object if authenticated, otherwise NULL.
+     */
+    public User authenticateUser(String email, String password);
+    
     /* Select queries */
 
     /**

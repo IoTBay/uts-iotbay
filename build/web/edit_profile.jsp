@@ -1,3 +1,4 @@
+<%@page import="uts.isd.util.URL"%>
 <%@page import="uts.isd.model.*"%>
 <%@page import="java.util.List"%>
 <%@page import="java.util.ArrayList"%>
@@ -16,10 +17,10 @@
   <%
       if (!isLoggedIn) {
   %>
-    <p>Sorry, you're not logged in! <a href="register.jsp">Register</a> or <a href="login.jsp">login</a> to see this page.</p>
+    <p>Sorry, you're not logged in! <a href="<%= URL.Absolute("user/register", request) %>">Register</a> or <a href="<%= URL.Absolute("user/login", request) %>">login</a> to see this page.</p>
   <% } else { %>
     <p><%= customer.getFirstName() %>, please update your profile details below:</p>
-    <form method="post" action="update_profile.jsp">
+    <form method="post" action="<%= URL.Absolute("user/edit", request) %>">
         <div class="form-group row">
           <label for="firstName" class="col-sm-2 col-form-label">First Name</label>
           <div class="col-sm-10">

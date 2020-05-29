@@ -12,11 +12,11 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import uts.isd.model.Product;
 import uts.isd.util.Logging;
-
 /**
  *
  * @author C_fin
  */
+
 public class DBManager implements IProduct{
     
     private Connection conn;
@@ -30,11 +30,34 @@ public class DBManager implements IProduct{
         this.conn.close();
     }
     
+    public Product authenticateProduct(String name)
+    {
+        try {
+            //Using SQL prepared statements: https://stackoverflow.com/questions/3451269/parameterized-oracle-sql-query-in-java
+            //this protects against SQL Injection attacks. Each parameter must have a ? in the query, and a corresponding parameter
+            //set.
+            PreparedStatement p = this.conn.prepareStatement("SELECT * FROM APP.Products WHERE name = ?");
+            p.setString(1, name);
+            ResultSet rs = p.executeQuery();
+            if (!rs.next())
+            {
+                System.out.println("authenticateUser returned no records for product: "+name);
+                return null; //No records returned
+            }
+            return new Product(rs);
+        }
+        catch (Exception e)
+        {
+            Logging.logMessage("error", e);
+            return null;
+        }
+    }
+
     @Override
     public Product getProductById(int id) 
     {
         try {
-            PreparedStatement p = this.conn.prepareStatement("SELECT * FROM Products WHERE ID = ?");
+            PreparedStatement p = this.conn.prepareStatement("SELECT * FROM APP.Products WHERE ID = ?");
             p.setInt(1, id);
             ResultSet rs = p.executeQuery();
             if (!rs.next())
@@ -55,7 +78,7 @@ public class DBManager implements IProduct{
     public Product getProductByName(String name) 
     {
         try {
-            PreparedStatement p = this.conn.prepareStatement("SELECT * FROM Products WHERE NAME = ?");
+            PreparedStatement p = this.conn.prepareStatement("SELECT * FROM APP.Products WHERE NAME = ?");
             p.setString(1, name);
             ResultSet rs = p.executeQuery();
             if (!rs.next())
@@ -76,7 +99,7 @@ public class DBManager implements IProduct{
     public Iterable<Product> getAllProducts() 
     {
         try {
-            PreparedStatement p = this.conn.prepareStatement("SELECT * FROM Products");
+            PreparedStatement p = this.conn.prepareStatement("SELECT * FROM APP.Products");
             ResultSet rs = p.executeQuery();
             
             //Build list of user objects to return
@@ -99,7 +122,7 @@ public class DBManager implements IProduct{
     public boolean addProduct(Product pr)
     {
         try {
-            PreparedStatement p = this.conn.prepareStatement("INSERT  INTO Products (id,categoryId,currencyId,name,price,description,image,initialQuantity,currentQuantity,lastReorderDate,createdDate,createdBy,modifiedDate,modifiedBy) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            PreparedStatement p = this.conn.prepareStatement("INSERT  INTO APP.Products (id,categoryId,currencyId,name,price,description,image,initialQuantity,currentQuantity,lastReorderDate,createdDate,createdBy,modifiedDate,modifiedBy) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
             p.setInt(1, pr.getId());
             p.setInt(2, pr.getCategoryId());
             p.setInt(3, pr.getCurrencyId());
@@ -128,7 +151,7 @@ public class DBManager implements IProduct{
     public boolean updateProduct(Product pr) {
         try {
             //PreparedStatement p = this.conn.prepareStatement("UPDATE Users SET CustomerID = ?,  Email = ?,  ModifiedBy = ? WHERE ID = ?");
-            PreparedStatement p = this.conn.prepareStatement("UPDATE Products SET id = ?,categoryId = ?,currencyId = ?,name = ?,price = ?,description = ?,image = ?,initialQuantity = ?,currentQuantity = ?,lastReorderDate = ?,createdDate = ?,createdBy = ?,modifiedDate = ?,modifiedBy = ? WHERE ID = ?");
+            PreparedStatement p = this.conn.prepareStatement("UPDATE APP.Products SET id = ?,categoryId = ?,currencyId = ?,name = ?,price = ?,description = ?,image = ?,initialQuantity = ?,currentQuantity = ?,lastReorderDate = ?,createdDate = ?,createdBy = ?,modifiedDate = ?,modifiedBy = ? WHERE ID = ?");
             p.setInt(1, pr.getId());
             p.setInt(2, pr.getCategoryId());
             p.setInt(3, pr.getCurrencyId());
@@ -159,7 +182,7 @@ public class DBManager implements IProduct{
     @Override
     public boolean deleteProductById(int id) {
         try {
-            PreparedStatement p = this.conn.prepareStatement("DELETE FROM Products WHERE ID = ?");
+            PreparedStatement p = this.conn.prepareStatement("DELETE FROM APP.Products WHERE ID = ?");
             //WHERE ID = ?
             p.setInt(10, id);
             //Was update successful?
@@ -170,6 +193,5 @@ public class DBManager implements IProduct{
             Logging.logMessage("Unable to deleteProductById", e);
             return false;
         }
-    } 
-   
+    }
 }

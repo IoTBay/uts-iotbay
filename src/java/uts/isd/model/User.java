@@ -19,6 +19,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.ServletRequest;
+import uts.isd.util.Hash;
 import uts.isd.util.Logging;
 
 /**
@@ -31,7 +32,7 @@ public class User implements Serializable {
     private int customerId;
     private int defaultCurrencyId;
     private String email;
-    private byte[] password;
+    private String password;
     private int accessLevel;
     private Date birthDate;
     private int sex;
@@ -59,12 +60,12 @@ public class User implements Serializable {
             this.customerId = rs.getInt("CustomerID");
             //this.defaultCurrencyId = 
             this.email = rs.getString("Email");
-            this.password = rs.getBytes("Password");
+            this.password = rs.getString("Password");
             this.accessLevel = rs.getInt("AccessLevel");
             this.birthDate = rs.getDate("BirthDate");
             this.sex = rs.getInt("Gender");
             this.biography = rs.getString("Biography");
-            this.passwordResetHash = rs.getString("PasswordResetHash");
+            //this.passwordResetHash = rs.getString("PasswordResetHash");
             
             this.createdDate = rs.getDate("CreatedDate");
             this.createdBy = rs.getInt("CreatedBy");
@@ -82,13 +83,18 @@ public class User implements Serializable {
         this.email = email;
     }
     
+    public void loadRequest(ServletRequest request)
+    {
+        this.loadRequest(request, null);
+    }
+    
     /**
      * This method populates this instance's properties based on form inputs.
      * 
      * @param request The controller's HTTPServlet POST request properties.
-     * @return boolean - Returns true if adding the properties was successful. Otherwise false.
+     * @param changedBy The customer who made this request.
      */
-    public boolean addUser(ServletRequest request, IUser db)
+    public void loadRequest(ServletRequest request, Customer changedBy)
     {
         if (request.getParameter("id") != null)
             this.id = Integer.parseInt(request.getParameter("id"));
@@ -96,14 +102,10 @@ public class User implements Serializable {
         if (request.getParameter("customerId") != null)
             this.customerId = Integer.parseInt(request.getParameter("customerId"));
         this.email = request.getParameter("email");
-        try
-        {
+        
+        if (request.getParameter("password") != null)
             this.setPassword(request.getParameter("password"));
-        }
-        catch (Exception e)
-        {
-            Logging.logMessage("Unable to hash password when adding user", e);
-        }
+
         if (request.getParameter("accessLevel") != null)
             this.accessLevel = Integer.parseInt(request.getParameter("accessLevel"));
         else
@@ -115,16 +117,27 @@ public class User implements Serializable {
             this.birthDate = new SimpleDateFormat("yyyy-MM-dd").parse(dob);
         } catch (ParseException ex) {
             Logging.logMessage("Unable to parse Date for addUser", ex);
-            return false;
+            return;
         }
         
         this.sex = Integer.parseInt(request.getParameter("sex"));
 
         this.createdDate = new Date();
         this.modifiedDate = new Date();
-        this.createdBy = 0;
-        this.modifiedBy = 0;
-        
+        if (changedBy != null)
+        {
+            this.createdBy = changedBy.getId();
+            this.modifiedBy = changedBy.getId();
+        }
+        else
+        {
+            this.createdBy = 0;
+            this.modifiedBy = 0;
+        }
+    }
+
+    public boolean add(IUser db)
+    {
         try
         {
             //Assumes the User object (this) has been populated already.
@@ -135,13 +148,44 @@ public class User implements Serializable {
         }
         catch (Exception e)
         {
-            Logging.logMessage("Failed to addUser", e);
-        }
-        
-        
-        return true;
+            Logging.logMessage("Failed to add user", e);
+            return false;
+        }        
     }
-
+    
+    public boolean update(IUser db)
+    {
+        try
+        {
+            //Assumes the User object (this) has been populated already.
+            //Takes object properties and inserts into DB.
+            boolean updated = db.updateUser(this);
+            //Always close DB when done.
+            return updated;
+        }
+        catch (Exception e)
+        {
+            Logging.logMessage("Failed to update user", e);
+            return false;
+        }        
+    }
+    
+    public boolean delete(IUser db)
+    {
+        try
+        {
+            //Assumes the User object (this) has been populated already.
+            //Takes object properties and inserts into DB.
+            boolean deleted = db.deleteUserById(this.id);
+            //Always close DB when done.
+            return deleted;
+        }
+        catch (Exception e)
+        {
+            Logging.logMessage("Failed to delete user", e);
+            return false;
+        }        
+    }
 
     public int getId() {
         return id;
@@ -169,22 +213,12 @@ public class User implements Serializable {
 
     public String getPassword() 
     {
-        //Convert back to string before returning
-        //https://mkyong.com/java/how-do-convert-byte-array-to-string-in-java/
-        return new String(this.password, StandardCharsets.UTF_8);
-    }
-    
-    public byte[] getPasswordBytes()
-    {
         return this.password;
     }
 
-    public void setPassword(String password) throws NoSuchAlgorithmException
+    public void setPassword(String password)
     {
-        //Build SHA256 hash of password.
-        //https://www.baeldung.com/sha-256-hashing-java
-        MessageDigest digest = MessageDigest.getInstance("SHA-256");
-        this.password = digest.digest(password.getBytes(StandardCharsets.UTF_8));
+        this.password = Hash.SHA256(password);
     }
 
     public int getAccessLevel() {

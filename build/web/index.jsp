@@ -1,3 +1,5 @@
+<%@page import="uts.isd.util.URL"%>
+<%@page import="uts.isd.util.Flash"%>
 <%@page import="uts.isd.model.*"%>
 <%@page import="java.util.List"%>
 <%@page import="java.util.ArrayList"%>
@@ -6,6 +8,10 @@
     User user = (User)session.getAttribute("user");
     Customer customer = (Customer)session.getAttribute("customer");
     boolean isLoggedIn = (user != null);
+    
+    //Setup flash messages
+    Flash flash = Flash.getInstance(session);
+
 %>
 
 <main role="main">
@@ -19,19 +25,22 @@
 </svg>&nbsp;IOT Bay!</h1>
       <p>Welcome to IoT Bay, the one-stop-shop for internet of things devices. Take a look around, or login to get started!</p>
       <% if (!isLoggedIn) { %>
-      <p><a class="btn btn-primary btn-lg" href="register.jsp" role="button">Register here &raquo;</a></p>
+      <p><a class="btn btn-primary btn-lg" href="<%= URL.Absolute("user/register", request) %>" role="button">Register here &raquo;</a></p>
       <% } else { %>
-      <p><a class="btn btn-primary btn-lg" href="categories.jsp" role="button">View Categories &raquo;</a></p>
+      <p><a class="btn btn-primary btn-lg" href="<%= URL.Absolute("products/categories", request) %>" role="button">View Categories &raquo;</a></p>
       <% } %>
     </div>
     </div>
   </div>
 
   <div class="container">
+  <%= flash.displayMessages() %>
+
+      
   <%
       if (!isLoggedIn) {
   %>
-    <p>Welcome anonymous user, <a href="register.jsp">register</a> or <a href="login.jsp">login</a>, or look at some categories to continue.</p>
+    <p>Welcome anonymous user, <a href="<%= URL.Absolute("user/register", request) %>">register</a> or <a href="<%= URL.Absolute("user/login", request) %>">login</a>, or look at some categories to continue.</p>
   <% } else { %>
     <p>Welcome back, <%= customer.getFirstName() %>! We see you are now logged in:</p>
     <ul>

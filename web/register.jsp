@@ -1,3 +1,4 @@
+<%@page import="uts.isd.util.URL"%>
 <%@page import="uts.isd.model.*"%>
 <%@page import="java.util.List"%>
 <%@page import="java.util.ArrayList"%>
@@ -18,7 +19,7 @@
     <%
         if (isLoggedIn) {
     %>
-        <p>You are already logged in. Please go <a href="index.jsp">here</a>.</p>
+        <p>You are already logged in. Please go <a href="<%= URL.Absolute("", request) %>">here</a>.</p>
     <%
     } else {
     %>
@@ -26,7 +27,7 @@
         <h2>Registration form</h2>
         <p class="lead">Hi there! We hope you like IOT Bay. Please create an account for a wealth of user-only features like saved addresses.</p>
     </div>
-    <form method="post" action="welcome.jsp">
+    <form method="post" action="<%= URL.Absolute("user/register", request) %>">
         <div class="col-md-8 order-md-1">
           <h4 class="mb-3">User Details</h4>
           <form class="needs-validation" novalidate>

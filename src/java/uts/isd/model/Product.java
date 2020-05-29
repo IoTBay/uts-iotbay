@@ -27,7 +27,6 @@ public class Product {
     private int initialQuantity;
     private int currentQuantity;
     private String lastReorderDate;
-    
     private Date createdDate;
     private int createdBy;
     private Date modifiedDate;
@@ -36,13 +35,13 @@ public class Product {
     public Product() {
     }
     
-    public Product(int id, int categoryId, String name, double price, String description) {
+    /*public Product(int id, int categoryId, String name, double price, String description) {
         this.id = id;
         this.categoryId = categoryId;
         this.name = name;
         this.price = price;
         this.description = description;
-    }
+    } */
     
     /**
      * This constructor takes an SQL ResultSet and grabs the values from the DB Record
@@ -62,7 +61,6 @@ public class Product {
             this.image = rs.getString("Image");
             this.initialQuantity = rs.getInt("InitialQuantity");
             this.currentQuantity = rs.getInt("CurrentQuantity");
-            
             this.createdDate = rs.getDate("CreatedDate");
             this.createdBy = rs.getInt("CreatedBy");
             this.modifiedDate = rs.getDate("ModifiedDate");
@@ -73,6 +71,46 @@ public class Product {
             Logging.logMessage("Unable to load User from ResultSet for ID", e);
         }
         
+    }
+    
+    public void loadRequest(ServletRequest request)
+    {
+        this.loadRequest(request, null);
+    }
+    
+    public void loadRequest(ServletRequest request, Product changedBy)
+    {
+        if (request.getParameter("name") != null)
+            this.name = request.getParameter("name");
+            this.categoryId = Integer.parseInt(request.getParameter("categoryId"));
+            this.price = Double.parseDouble(request.getParameter("productId"));
+            this.description = request.getParameter("description");
+            this.createdDate = new Date();
+            this.modifiedDate = new Date();
+            this.createdBy = 0;
+            this.modifiedBy = 0;
+        if (changedBy != null)
+        {
+            this.createdBy = changedBy.getId(); //Set this properly
+            this.modifiedBy = changedBy.getId(); //Set this properly.
+        } 
+    }
+    
+    public boolean add(IProduct pr)
+    {
+        try
+        {
+            //Assumes the User object (this) has been populated already.
+            //Takes object properties and inserts into DB.
+            boolean added = pr.addProduct(this);
+            //Always close DB when done.
+            return added;
+        }
+        catch (Exception e)
+        {
+            Logging.logMessage("Failed to add product", e);
+            return false;
+        }        
     }
     
     /**
@@ -96,6 +134,23 @@ public class Product {
         this.modifiedBy = 0;
         
         return true;
+    }
+    
+    public boolean update(IProduct db)
+    {
+        try
+        {
+            //Assumes the User object (this) has been populated already.
+            //Takes object properties and updates in DB.
+            boolean updated = db.updateProduct(this);
+            //Always close DB when done.
+            return updated;
+        }
+        catch (Exception e)
+        {
+            Logging.logMessage("Failed to update product", e);
+            return false;
+        }
     }
 
     public int getId() {
@@ -194,7 +249,4 @@ public class Product {
         return this.modifiedBy;
     }
 
-    public void add(IProduct dbProduct) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
 }
