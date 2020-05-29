@@ -5,8 +5,6 @@
  */
 package uts.isd.validation;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
 
 /**

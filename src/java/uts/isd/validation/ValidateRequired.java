@@ -5,19 +5,17 @@
  */
 package uts.isd.validation;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
 
 /**
  *
  * @author rhys
  */
-public class ValidateEmail extends ValidationMethod {
+public class ValidateRequired extends ValidationMethod {
     
-    private final String pattern = "^(.+)@(.+)\\.(.+)$";
-
-    public ValidateEmail(String name, String field)
+    private int length;
+    
+    public ValidateRequired(String name, String field)
     {
         this.name = name;
         this.field = field;
@@ -27,15 +25,13 @@ public class ValidateEmail extends ValidationMethod {
     public boolean validate(HttpServletRequest request) 
     {
         this.value = request.getParameter(this.field);
-        
-        Pattern r = Pattern.compile(pattern);
-        Matcher m = r.matcher((String)this.value);
-        return m.matches();
+        String s = (String)this.value;
+        return (s != null && !s.isEmpty());
     }
 
     @Override
     public String getError() {
-        return this.name+" does not contain a valid email";
+        return this.name+" is required";
     }
     
 }
