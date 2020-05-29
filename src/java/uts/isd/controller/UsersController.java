@@ -67,6 +67,10 @@ public class UsersController extends HttpServlet {
             case "/edit":
                 doProfileEditGet(request, response);
                 break;
+                
+            case "/logout":
+                doLogoutGet(request, response);
+                break;
         }
     }
 
@@ -249,7 +253,7 @@ public class UsersController extends HttpServlet {
     
     protected void doRegisterPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
+              
         HttpSession session = request.getSession();
         
         //We need to figure out if the user is logging out now, or not.
@@ -382,7 +386,7 @@ public class UsersController extends HttpServlet {
         
     }
     
-     protected void doProfileEditGet(HttpServletRequest request, HttpServletResponse response)
+    protected void doProfileEditGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         
         RequestDispatcher requestDispatcher; 
@@ -427,10 +431,10 @@ public class UsersController extends HttpServlet {
                 boolean updated = (customer.update(dbCustomer) && user.update(dbUser));
                 Logging.logMessage("Updated profile");
 
-                if (updated)
-                    flash.add(Flash.MessageType.Success, "Your profile was updated successfully!");
-                else
-                    flash.add(Flash.MessageType.Error, "Failed to update your profile");
+                if (updated){
+                    flash.add(Flash.MessageType.Success, "Your profile was updated successfully!");}
+                else{
+                    flash.add(Flash.MessageType.Error, "Failed to update your profile");}
             }
             else
             {
@@ -448,6 +452,31 @@ public class UsersController extends HttpServlet {
         }
     }
 
+    /**
+     * Logout requests 
+     */
+    protected void doLogoutGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        RequestDispatcher requestDispatcher; 
+        requestDispatcher = request.getRequestDispatcher("/logout.jsp");
+        requestDispatcher.forward(request, response);
+    }
+    
+    protected void doLogoutPost(HttpServletRequest request, HttpServletResponse response)
+        throws ServletException, IOException {
+        
+        HttpSession session = request.getSession();
+                
+        //We need to figure out if the user is logging out now, or not.
+        //then invalidate the session BEFORE including the header, so it shows correctly.
+        
+        User user = (User)session.getAttribute("user");
+        Customer customer = (Customer)session.getAttribute("customer");
+        //Store for later
+        boolean isLoggedIn = (user != null);
+        session.invalidate();
+             
+    }
     
     /**
      * Returns a short description of the servlet.
