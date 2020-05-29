@@ -18,6 +18,7 @@ import javax.servlet.http.HttpServletRequest;
  */
 public class ValidatorFieldRules implements Serializable {
     
+    private String name;
     private String field;
     private String value;
     private boolean valid;
@@ -25,18 +26,18 @@ public class ValidatorFieldRules implements Serializable {
     private List<ValidationMethod> rules;
     
     
-    public ValidatorFieldRules(String field, String value)
+    public ValidatorFieldRules(String name, String field)
     {
+        this.name = name;
         this.field = field;
-        this.value = value;
         this.valid = true;
         this.rules = new ArrayList<ValidationMethod>();
     }
     
-    public ValidatorFieldRules(String field, String value, ValidationMethod[] rules)
+    public ValidatorFieldRules(String name, String field, ValidationMethod[] rules)
     {
+        this.name = name;
         this.field = field;
-        this.value = value;
         this.valid = true;
         this.rules = new ArrayList<ValidationMethod>();
         
@@ -47,6 +48,11 @@ public class ValidatorFieldRules implements Serializable {
     public void addRule(ValidationMethod rule)
     {
         this.rules.add(rule);
+    }
+    
+    public String getName()
+    {
+        return this.name;
     }
     
     public String getField()
@@ -71,7 +77,7 @@ public class ValidatorFieldRules implements Serializable {
     
     public boolean validate(HttpServletRequest request)
     {
-        this.value = (String)request.getAttribute(this.field);
+        this.value = (String)request.getParameter(this.field);
         
         for (ValidationMethod rule : this.rules)
         {

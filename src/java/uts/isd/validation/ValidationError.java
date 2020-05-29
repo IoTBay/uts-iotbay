@@ -21,7 +21,7 @@ public class ValidationError implements Serializable
     {
         this.field = fieldRules.getField();
         this.value = fieldRules.getValue();
-        this.error = this.field +" "+rule.getError();
+        this.error = fieldRules.getName() +" "+rule.getError();
     }
 
     public String getError()
