@@ -145,6 +145,11 @@ public class UsersController extends HttpServlet {
                 System.out.println("ERROR: Did not auth");
                 //Setup flash messages
                 flash.add(Flash.MessageType.Error, "Your username and/or password were incorrect for user "+request.getParameter("email"));
+                
+                //Re-load the login page
+                 RequestDispatcher requestDispatcher; 
+                requestDispatcher = request.getRequestDispatcher("/login.jsp");
+                requestDispatcher.forward(request, response);
             }
             else
             {
@@ -365,6 +370,10 @@ public class UsersController extends HttpServlet {
                 order.addOrderLine(line2);
                 session.setAttribute("order", order);
                 
+            }
+            else
+            {
+                flash.add(Flash.MessageType.Error, "You can't register if you are already logged in!");
             }
             
             RequestDispatcher requestDispatcher; 
