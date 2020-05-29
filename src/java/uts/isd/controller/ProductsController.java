@@ -38,19 +38,16 @@ public class ProductsController extends HttpServlet {
         switch (request.getPathInfo())
         {
             case "/inventory_management":
-                //doLoginGet(request, response);
+                //
                 break;
-                
             case "/add_product":
                 addProductGet(request, response);
                 break;
-                
             case "/view_product":
-                //doProfileViewGet(request, response);
+                //doFindProductGet(request, response);
                 break;
-                
             case "/update_product":
-                //doProfileEditGet(request, response);
+                //ProductUpdateGet(request, response);
                 break;
         }
     }
@@ -64,23 +61,23 @@ public class ProductsController extends HttpServlet {
         switch (request.getPathInfo())
         {
             case "/inventory_management":
-                //doLoginPost(request, response);
+                //
                 break;
             case "/add_product":
-                addProductGet(request, response);
+                addProductPost(request, response);
                 break;
             case "/view_product":
-                //doProfileEditPost(request, response);
+                //
                 break;
             case "/update_product":
-                //doProfileEditPost(request, response);
+                //ProductUpdatePost(request, response);
                 break;
         }
     }
    
     protected void doFindProductGet(HttpServletRequest request, HttpServletResponse response)throws ServletException, IOException {
         RequestDispatcher requestDispatcher; 
-        requestDispatcher = request.getRequestDispatcher("/add_product.jsp");
+        requestDispatcher = request.getRequestDispatcher("");
         requestDispatcher.forward(request, response);
     }
     
@@ -89,7 +86,17 @@ public class ProductsController extends HttpServlet {
             HttpSession session = request.getSession();
             //Create a connection to the DB for Products table
             IProduct dbManager = new DBManager();
-            Product product = dbManager.
+            Product product = dbManager.authenticateProduct(request.getParameter("name"));
+            // flash object for success/fail message
+            Flash flash = Flash.getInstance(session);
+            // If product does not exist in the database, it can be added
+            if (product == null) {
+                session.setAttribute("product",product);
+               //Setup flash messages
+                flash.add(Flash.MessageType.Success, "Product added succesfully");   
+            } 
+        } catch (Exception e) {
+            Logging.logMessage("error", e);
         }
     }
     
@@ -99,7 +106,7 @@ public class ProductsController extends HttpServlet {
         requestDispatcher.forward(request, response);
     } 
     
-    protected void addProductPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+   protected void addProductPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         HttpSession session = request.getSession();
         Product product = (Product)session.getAttribute("product");
         boolean isProduct = (product != null);
@@ -108,27 +115,100 @@ public class ProductsController extends HttpServlet {
         int status = 0;
         
         try {
-            if (isProduct){
+            if (isProduct){ //I think there is a problem here
                //create a connection to the DB for the Products table
                IProduct dbProduct = new DBManager();
                product = new Product();
                product.add(dbProduct);
+               boolean added = product.add(dbProduct); 
               
-               /*if(added)
-                   flash.add(flash.MessageType.Success, "New product " +product.getName() + "added successfully");
+               if(added)
+                   flash.add(Flash.MessageType.Success, "New product "+product.getName()+" added successfully");
                else
                    flash.add(Flash.MessageType.Error, "Failed to add new product: "+product.getName());
                //Store objects in the session so we don't have to load from the database on every page
-               session.setAttribute("product", product); */
+               session.setAttribute("product", product);
             }
-           /* RequestDispatcher requestDispatcher; 
+            RequestDispatcher requestDispatcher; 
             requestDispatcher = request.getRequestDispatcher("/add_product.jsp");
-            requestDispatcher.forward(request, response); */
+            requestDispatcher.forward(request, response);
         }
         catch (Exception e){
             Logging.logMessage("Unable to register new product", e);
             return;
         }
-    }
+    } 
     
+    protected void ProductViewGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        
+        RequestDispatcher requestDispatcher; 
+        requestDispatcher = request.getRequestDispatcher("/view_product.jsp");
+        requestDispatcher.forward(request, response);
+        
+    }  
+  
+    protected void ProductUpdateGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        
+        RequestDispatcher requestDispatcher; 
+        requestDispatcher = request.getRequestDispatcher("/edit_product.jsp");
+        requestDispatcher.forward(request, response);
+        
+    }
+  
+    protected void ProductUpdatePost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        
+        HttpSession session = request.getSession();
+        
+        //We need to make sure the product exists 
+        Product product = (Product)session.getAttribute("product");
+        boolean productExists = (product != null);
+
+        //Setup flash messages
+        Flash flash = Flash.getInstance(session);
+
+        Logging.logMessage("Update product");
+        
+        try
+        {
+            //Is Logged in and submitted form
+            if (productExists)
+            {
+                //Create a connection to the DB for the customers table
+                IProduct dbManager = new DBManager();
+                //Don't create a new customer, use the current logged in customer.
+                //customer = new Customer();
+                product.loadRequest(request);
+                
+                boolean updated = (product.update(dbManager));
+                Logging.logMessage("Updated product");
+
+                if (updated)
+                    flash.add(Flash.MessageType.Success, "The product was successfully updated!");
+                else
+                    flash.add(Flash.MessageType.Error, "Failed to update product");
+            }
+            else
+            {
+                flash.add(Flash.MessageType.Error, "submission failed");
+            }
+            
+            RequestDispatcher requestDispatcher; 
+            requestDispatcher = request.getRequestDispatcher("/view_product.jsp");
+            requestDispatcher.forward(request, response);
+        }
+        catch (Exception e)
+        {
+            Logging.logMessage("Unable to update product");
+            return;
+        }
+    }
+  
+  @Override
+    public String getServletInfo() {
+        return "Short description";
+    }// </editor-fold>
+  
 }

@@ -10,18 +10,28 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html>
-<jsp:include page="header.jsp" />
-<main role="main">
-    <div style='text-align: center'> 
-    <div class="btn-group" role="group" aria-label="Basic example">
-        <a href="add_product.jsp" class="btn btn-primary btn-lg">Add Product</a>
-        <a href="update_product.jsp" class="btn btn-primary btn-lg">Update Product</a>
-        //<a href="add_product.jsp" class="btn btn-primary btn-lg">Delete Product</a>
-        //<a href="add_product.jsp" class="btn btn-primary btn-lg">Show All Products</a>
+    <div style='padding-bottom: 100px'>
+        <jsp:include page="header.jsp" />
     </div>
-    </div>     
+    
+<main role="main">
+    <div style='text-align: center'>
+        <h1> Inventory Management </h1>
+    </div>
+    <div id="col" class="col-md-12 align-self-center" style='padding-top: 100px' style='padding-bottom: 100px'>
+        <div style='text-align: center'> 
+        <div class="btn-group" role="group" aria-label="Basic example">
+            <a href="add_product.jsp" class="btn btn-primary btn-lg">Add Product</a>
+            <a href="update_product.jsp" class="btn btn-primary btn-lg">Update Product</a>
+            <a href="" class="btn btn-primary btn-lg">Delete Product</a>
+            <a href="add_product.jsp" class="btn btn-primary btn-lg">View Products</a>
+        </div>
+        </div> 
+    </div>
     </main>
+<div style='padding-top: 100px'>
 <jsp:include page="footer.jsp" />
+<div>
 </html>
 
 

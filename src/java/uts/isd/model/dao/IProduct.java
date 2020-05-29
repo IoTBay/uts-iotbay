@@ -20,6 +20,8 @@ public interface IProduct {
      * @return Product object containing the product record.
      */
 
+    public Product authenticateProduct(String name);
+    
     public Product getProductById(int id);
     /**
      * Returns a single product based on unique id
