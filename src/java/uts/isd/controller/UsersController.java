@@ -133,6 +133,18 @@ public class UsersController extends HttpServlet {
         try {
             HttpSession session = request.getSession();
             
+            Validator validator = new Validator(new ValidationMethod[] {
+                new ValidateRequired("Email", "email"),
+                new ValidateEmail("Email", "email"),
+                //new ValidateTrim("Email", "email"),
+                new ValidateRequired("Password", "password")
+            });
+            
+            if (!validator.validate(request))
+            {
+                response.sendRedirect(request.getHeader("referer"));
+            }
+            
             //Create a connection to the DB for users table
             IUser dbUser = new DBUser();
             User user = dbUser.authenticateUser(request.getParameter("email"), request.getParameter("password"));
