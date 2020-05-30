@@ -1,4 +1,7 @@
 
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
 <%@page import="uts.isd.util.*"%>
 <%@page import="uts.isd.model.*"%>
 <%@page import="java.util.List"%>
@@ -21,21 +24,14 @@
       if (!isLoggedIn) {
   %>
     <p>Sorry, you're not logged in! <a href="<%= URL.Absolute("user/register", request) %>">Register</a> or <a href="<%= URL.Absolute("user/login", request) %>">login</a> to see this page.</p>
-  <% } else if (isLoggedIn && user.getAccessLevel() == 0 ) { %>
-    <p> This account is inactive. </</p>
   <% } else { %>
-    <p>Welcome back, <%= customer.getFirstName() %>! Your current details are below:</p>
-    <ul>
-        <li>First Name: <%= customer.getFirstName() %></li>
-        <li>Last Name: <%= customer.getLastName() %></li>
-        <li>Email: <%= customer.getEmail() %></li>
-        <li>Age: <%= user.getBirthDate() %> (<%= user.getAge() %> years old)</li>
-        <li>Gender: <%= user.getSex() %></li>
-    </ul>
-    <hr>
-    <a href="<%= URL.Absolute("user/edit", request) %>" class="btn btn-primary">Edit Profile</a>
-    <a href="<%= URL.Absolute("user/cancel", request) %>" class="btn btn-primary">Cancel Account</a>
+    <p>Are you sure you want to cancel your account?</p>
+    <form method="post" action="<%= URL.Absolute("user/cancel", request) %>">
+        <input type="submit" name="doCancel" value="Cancel" class="btn btn-primary">
+    </form>
   <% } %>
+  <hr>
+  <a href="<%= URL.Absolute("user/profile", request) %>" class="btn btn-primary">Go Back</a>
     
     <hr>
   
@@ -43,4 +39,5 @@
 
 </main>
 <jsp:include page="footer.jsp" />
+</html>
 </html>

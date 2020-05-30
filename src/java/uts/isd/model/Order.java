@@ -32,6 +32,22 @@ public class Order {
 
     
     List<OrderLine> orderLines;
+    
+    public enum Status {
+        Draft,
+        Submitted,
+        PaymentProcessing,
+        PaymentSuccessful,
+        PickingOrder,
+        AwaitingPickup,
+        Delivering,
+        Completed,
+        
+        //Failed statuses
+        OutOfStock,
+        PaymentFailed,
+        OnHold
+    }
 
     public Order() {
         this.orderLines = new ArrayList<>();

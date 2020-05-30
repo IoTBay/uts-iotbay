@@ -11,7 +11,8 @@ import java.security.MessageDigest;
 /**
  * This class simplifies the hashing of a plaintext string into a hex-encoded hashed version of that string.
  * 
- * @author rhys
+ * @author Rhys Hanrahan 11000801
+ * @since 2020-05-25
  */
 public class Hash {
     
