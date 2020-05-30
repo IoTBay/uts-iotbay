@@ -40,7 +40,6 @@ public class Customer implements Serializable {
             this.email = rs.getString("Email");
             this.firstName = rs.getString("FirstName");
             this.lastName = rs.getString("LastName");
-
             this.createdDate = rs.getDate("CreatedDate");
             this.createdBy = rs.getInt("CreatedBy");
             this.modifiedDate = rs.getDate("ModifiedDate");
