@@ -5,34 +5,30 @@
  */
 package uts.isd.validation;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
 
+/**
+ *
+ * @author rhys
+ */
 public class ValidateLongerThan extends ValidationMethod {
     
     private int length;
-    private String name;
-    private String field;
-    private String value;
     
-    public ValidateLongerThan(int length, String name, String field)
+    public ValidateLongerThan(int length)
     {
         this.length = length;
-        this.name = name;
-        this.field = field;
     }
     
     @Override
-    public boolean validate(HttpServletRequest request) 
+    public boolean validate(String field, String value, HttpServletRequest request) 
     {
-        this.value = request.getParameter(this.field);
-        return (((String)this.value).length() > this.length);
+        return (value.length() > this.length);
     }
 
     @Override
     public String getError() {
-        return this.name+" length must be grater than "+this.length;
+        return "length must be grater than "+this.length;
     }
     
 }

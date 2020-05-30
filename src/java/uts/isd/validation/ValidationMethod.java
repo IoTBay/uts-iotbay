@@ -7,24 +7,16 @@ package uts.isd.validation;
 
 import javax.servlet.http.HttpServletRequest;
 
+/**
+ *
+ * @author rhys
+ */
 public abstract class ValidationMethod {
     
-    protected String name;
-    protected String field;
-    protected Object value;
+    protected String value;
         
-    public abstract boolean validate(HttpServletRequest request);
+    public abstract boolean validate(String field, String value, HttpServletRequest request);
     public abstract String getError();
-
-    public String getName()
-    {
-        return this.name;
-    }
-    
-    public String getField()
-    {
-        return this.field;
-    }
     
     public Object getValue()
     {

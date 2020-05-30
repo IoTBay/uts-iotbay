@@ -5,33 +5,27 @@
  */
 package uts.isd.validation;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
 
 /**
  *
  * @author rhys
  */
-public class ValidateEmail extends ValidationMethod {
+public class ValidateRequired extends ValidationMethod {
     
-    private final String pattern = "^(.+)@(.+)\\.(.+)$";
-
-    public ValidateEmail() { }
+    private int length;
+    
+    public ValidateRequired() { }
     
     @Override
     public boolean validate(String field, String value, HttpServletRequest request) 
     {
-        this.value = value;
-        
-        Pattern r = Pattern.compile(pattern);
-        Matcher m = r.matcher((String)this.value);
-        return m.matches();
+        return (value != null && !value.isEmpty());
     }
 
     @Override
     public String getError() {
-        return "does not contain a valid email";
+        return "is required";
     }
     
 }

@@ -141,6 +141,23 @@ public class UsersController extends HttpServlet {
         try {
             HttpSession session = request.getSession();
             
+            Validator validator = new Validator(new ValidatorFieldRules[] {
+                new ValidatorFieldRules("Email", "email", new ValidationMethod[] {
+                    new ValidateRequired(),
+                    new ValidateEmail(),
+                    new ValidateTrim()
+                }),
+                new ValidatorFieldRules("Password", "password", new ValidationMethod[] {
+                    new ValidateRequired()
+                })
+            });
+            
+            if (!validator.validate(request))
+            {
+                response.sendRedirect(request.getHeader("referer"));
+                return;
+            }
+            
             //Create a connection to the DB for users table
             IUser dbUser = new DBUser();
             User user = dbUser.authenticateUser(request.getParameter("email"), request.getParameter("password"));
@@ -153,6 +170,11 @@ public class UsersController extends HttpServlet {
                 System.out.println("ERROR: Did not auth");
                 //Setup flash messages
                 flash.add(Flash.MessageType.Error, "Your username and/or password were incorrect for user "+request.getParameter("email"));
+                
+                //Re-load the login page
+                 RequestDispatcher requestDispatcher; 
+                requestDispatcher = request.getRequestDispatcher("/login.jsp");
+                requestDispatcher.forward(request, response);
             }
             else
             {
@@ -259,11 +281,17 @@ public class UsersController extends HttpServlet {
     protected void doRegisterPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         
-        Validator validator = new Validator(new ValidationMethod[] {
-            new ValidateEmail("Email", "email"),
-            new ValidateLongerThan(2, "First Name", "firstName")
+       Validator validator = new Validator(new ValidatorFieldRules[] {
+            new ValidatorFieldRules("Email", "email", new ValidationMethod[] {
+                new ValidateRequired(),
+                new ValidateEmail(),
+                new ValidateTrim()
+            }),
+            new ValidatorFieldRules("First Name", "firstName", new ValidationMethod[] {
+                new ValidateRequired()
+            })
         });
-              
+        
         HttpSession session = request.getSession();
         
         //We need to figure out if the user is logging out now, or not.
@@ -286,6 +314,7 @@ public class UsersController extends HttpServlet {
                 {
                     response.sendRedirect(request.getHeader("referer"));
                 }
+              
                 //Create a connection to the DB for the customers table
                 ICustomer dbCustomer = new DBCustomer();
                 customer = new Customer();
@@ -372,6 +401,10 @@ public class UsersController extends HttpServlet {
                 order.addOrderLine(line2);
                 session.setAttribute("order", order);
                 
+            }
+            else
+            {
+                flash.add(Flash.MessageType.Error, "You can't register if you are already logged in!");
             }
             
             RequestDispatcher requestDispatcher; 
