@@ -141,6 +141,10 @@ public class UsersController extends HttpServlet {
         try {
             HttpSession session = request.getSession();
             
+            /*
+            Can specify rules by giving a list of ValidationMethod classes
+            OR See below - can specify a string to give a list of rules.
+            
             Validator validator = new Validator(new ValidatorFieldRules[] {
                 new ValidatorFieldRules("Email", "email", new ValidationMethod[] {
                     new ValidateRequired(),
@@ -150,6 +154,12 @@ public class UsersController extends HttpServlet {
                 new ValidatorFieldRules("Password", "password", new ValidationMethod[] {
                     new ValidateRequired()
                 })
+            });
+            */
+            
+            Validator validator = new Validator(new ValidatorFieldRules[] {
+                new ValidatorFieldRules("Email", "email", "required|trim|email"),
+                new ValidatorFieldRules("Password", "password", "required|longerthan[2]")
             });
             
             if (!validator.validate(request))
