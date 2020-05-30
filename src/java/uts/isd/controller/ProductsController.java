@@ -12,8 +12,10 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import uts.isd.model.Customer;
 import uts.isd.model.Product;
-import uts.isd.model.dao.DBManager;
+import uts.isd.model.User;
+import uts.isd.model.dao.DBProduct;
 import uts.isd.model.dao.IProduct;
 import uts.isd.util.Flash;
 import uts.isd.util.Logging;
@@ -40,14 +42,14 @@ public class ProductsController extends HttpServlet {
             case "/inventory_management":
                 //
                 break;
-            case "/add_product":
+            case "/add":
                 addProductGet(request, response);
                 break;
-            case "/view_product":
+            case "/view":
                 //doFindProductGet(request, response);
                 break;
-            case "/update_product":
-                //ProductUpdateGet(request, response);
+            case "/update":
+                ProductUpdateGet(request, response);
                 break;
         }
     }
@@ -63,14 +65,14 @@ public class ProductsController extends HttpServlet {
             case "/inventory_management":
                 //
                 break;
-            case "/add_product":
+            case "/add":
                 addProductPost(request, response);
                 break;
-            case "/view_product":
+            case "/view":
                 //
                 break;
-            case "/update_product":
-                //ProductUpdatePost(request, response);
+            case "/update":
+                ProductUpdatePost(request, response);
                 break;
         }
     }
@@ -85,8 +87,8 @@ public class ProductsController extends HttpServlet {
         try {
             HttpSession session = request.getSession();
             //Create a connection to the DB for Products table
-            IProduct dbManager = new DBManager();
-            Product product = dbManager.authenticateProduct(request.getParameter("name"));
+            IProduct dbProduct = new DBProduct();
+            Product product = dbProduct.authenticateProduct(request.getParameter("name"));
             // flash object for success/fail message
             Flash flash = Flash.getInstance(session);
             // If product does not exist in the database, it can be added
@@ -108,17 +110,20 @@ public class ProductsController extends HttpServlet {
     
    protected void addProductPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         HttpSession session = request.getSession();
-        Product product = (Product)session.getAttribute("product");
-        boolean isProduct = (product != null);
+        User user = (User)session.getAttribute("user");
+        Customer customer = (Customer)session.getAttribute("customer");
+        boolean isLoggedIn = (user != null && customer != null);
+       
         //Setup flash messages
         Flash flash = Flash.getInstance(session);
         int status = 0;
         
         try {
-            if (isProduct){ //I think there is a problem here
+            if (isLoggedIn){ 
                //create a connection to the DB for the Products table
-               IProduct dbProduct = new DBManager();
-               product = new Product();
+               IProduct dbProduct = new DBProduct();
+               Product product = new Product();
+               product.loadRequest(request, user);
                product.add(dbProduct);
                boolean added = product.add(dbProduct); 
               
@@ -127,7 +132,6 @@ public class ProductsController extends HttpServlet {
                else
                    flash.add(Flash.MessageType.Error, "Failed to add new product: "+product.getName());
                //Store objects in the session so we don't have to load from the database on every page
-               session.setAttribute("product", product);
             }
             RequestDispatcher requestDispatcher; 
             requestDispatcher = request.getRequestDispatcher("/add_product.jsp");
@@ -139,51 +143,42 @@ public class ProductsController extends HttpServlet {
         }
     } 
     
-    protected void ProductViewGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        
+    protected void ProductUpdateGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         RequestDispatcher requestDispatcher; 
-        requestDispatcher = request.getRequestDispatcher("/view_product.jsp");
-        requestDispatcher.forward(request, response);
-        
-    }  
-  
-    protected void ProductUpdateGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        
-        RequestDispatcher requestDispatcher; 
-        requestDispatcher = request.getRequestDispatcher("/edit_product.jsp");
+        requestDispatcher = request.getRequestDispatcher("/update_product.jsp");
         requestDispatcher.forward(request, response);
         
     }
   
     protected void ProductUpdatePost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
         HttpSession session = request.getSession();
+        User user = (User)session.getAttribute("user");
+        Customer customer = (Customer)session.getAttribute("customer");
+        boolean isLoggedIn = (user != null && customer != null);
         
         //We need to make sure the product exists 
         Product product = (Product)session.getAttribute("product");
         boolean productExists = (product != null);
+        
 
         //Setup flash messages
         Flash flash = Flash.getInstance(session);
-
+        int status = 0;
         Logging.logMessage("Update product");
         
         try
         {
             //Is Logged in and submitted form
-            if (productExists)
+            if (isLoggedIn && productExists)
             {
-                //Create a connection to the DB for the customers table
-                IProduct dbManager = new DBManager();
-                //Don't create a new customer, use the current logged in customer.
+                //Create a connection to the DB for the products table
+                IProduct dbProduct = new DBProduct();
+                //Don't create a new product, use the product that fits the search criteria.
                 //customer = new Customer();
                 product.loadRequest(request);
-                
-                boolean updated = (product.update(dbManager));
-                Logging.logMessage("Updated product");
+                boolean updated = (product.update(dbProduct));
+                Logging.logMessage("SOMETHING IS HAPPENING HERE BUT I DON'T KNOW WHAT");
 
                 if (updated)
                     flash.add(Flash.MessageType.Success, "The product was successfully updated!");
@@ -196,7 +191,7 @@ public class ProductsController extends HttpServlet {
             }
             
             RequestDispatcher requestDispatcher; 
-            requestDispatcher = request.getRequestDispatcher("/view_product.jsp");
+            requestDispatcher = request.getRequestDispatcher("/update_product.jsp");
             requestDispatcher.forward(request, response);
         }
         catch (Exception e)
@@ -205,6 +200,15 @@ public class ProductsController extends HttpServlet {
             return;
         }
     }
+    
+    protected void ProductViewGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        
+        RequestDispatcher requestDispatcher; 
+        requestDispatcher = request.getRequestDispatcher("/view_product.jsp");
+        requestDispatcher.forward(request, response);
+        
+    }  
   
   @Override
     public String getServletInfo() {

@@ -17,11 +17,11 @@ import uts.isd.util.Logging;
  * @author C_fin
  */
 
-public class DBManager implements IProduct{
+public class DBProduct implements IProduct{
     
     private Connection conn;
         
-    public DBManager() throws SQLException, ClassNotFoundException { 
+    public DBProduct() throws SQLException, ClassNotFoundException { 
         DBConnector connector = new DBConnector();
         this.conn = connector.openConnection();
     }
@@ -30,6 +30,7 @@ public class DBManager implements IProduct{
         this.conn.close();
     }
     
+    // Search the database for products with name that == the search name
     public Product authenticateProduct(String name)
     {
         try {
@@ -52,7 +53,29 @@ public class DBManager implements IProduct{
             return null;
         }
     }
+    
+    @Override
+    public Product getProductByName(String name) //for looking through database
+    {
+        try {
+            PreparedStatement p = this.conn.prepareStatement("SELECT * FROM APP.Products WHERE NAME = ?");
+            p.setString(1, name);
+            ResultSet rs = p.executeQuery();
+            if (!rs.next())
+            {
+                Logging.logMessage("getProductByname returned no records for name: "+name);
+                return null; //No records returned
+            }
+            return new Product(rs);
+        }
+        catch (Exception e)
+        {
+            Logging.logMessage("Unable to getProductByName", e);
+            return null;
+        }
+    }
 
+    // Search the database for products with ID that == the search ID - Search by ID used in findProducts and Update
     @Override
     public Product getProductById(int id) 
     {
@@ -73,28 +96,8 @@ public class DBManager implements IProduct{
             return null;
         }
     }
-
-    @Override
-    public Product getProductByName(String name) 
-    {
-        try {
-            PreparedStatement p = this.conn.prepareStatement("SELECT * FROM APP.Products WHERE NAME = ?");
-            p.setString(1, name);
-            ResultSet rs = p.executeQuery();
-            if (!rs.next())
-            {
-                Logging.logMessage("getProductByname returned no records for name: "+name);
-                return null; //No records returned
-            }
-            return new Product(rs);
-        }
-        catch (Exception e)
-        {
-            Logging.logMessage("Unable to getProductByName", e);
-            return null;
-        }
-    }
-
+    
+    //Use this to show all of the products in the database - use this for displaying in table
     @Override
     public Iterable<Product> getAllProducts() 
     {
@@ -118,25 +121,26 @@ public class DBManager implements IProduct{
         }
     }
     
+    //Adding a new product to the database 
     @Override
     public boolean addProduct(Product pr)
     {
         try {
-            PreparedStatement p = this.conn.prepareStatement("INSERT  INTO APP.Products (id,categoryId,currencyId,name,price,description,image,initialQuantity,currentQuantity,lastReorderDate,createdDate,createdBy,modifiedDate,modifiedBy) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-            p.setInt(1, pr.getId());
-            p.setInt(2, pr.getCategoryId());
-            p.setInt(3, pr.getCurrencyId());
-            p.setString(4, pr.getName());
-            p.setDouble(5, pr.getPrice());
-            p.setString(6, pr.getDescription());
-            p.setString(7, pr.getImage());
-            p.setInt(8, pr.getInitialQuantity());
-            p.setInt(9, pr.getCurrentQuantity());
-            p.setDate(10, new java.sql.Date(new java.util.Date().getTime()));
+            PreparedStatement p = this.conn.prepareStatement("INSERT  INTO APP.Products (categoryId,name,price,description,image,initialQuantity,currentQuantity,lastReorderDate,createdDate,createdBy,modifiedDate,modifiedBy) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            //p.setInt(1, pr.getId());
+            p.setInt(1, pr.getCategoryId());
+            //p.setInt(3, pr.getCurrencyId());
+            p.setString(2, pr.getName());
+            p.setDouble(3, pr.getPrice());
+            p.setString(4, pr.getDescription());
+            p.setString(5, pr.getImage());
+            p.setInt(6, pr.getInitialQuantity());
+            p.setInt(7, pr.getCurrentQuantity());
+            p.setDate(8, new java.sql.Date(new java.util.Date().getTime()));
+            p.setDate(9, new java.sql.Date(new java.util.Date().getTime()));
+            p.setInt(10, pr.getCreatedBy());
             p.setDate(11, new java.sql.Date(new java.util.Date().getTime()));
-            p.setInt(12, pr.getCreatedBy());
-            p.setDate(13, new java.sql.Date(new java.util.Date().getTime()));
-            p.setInt(14, pr.getModifiedBy());
+            p.setInt(12, pr.getModifiedBy());
             //Was insert successful?
             return (p.executeUpdate() > 0);
         }
@@ -147,6 +151,7 @@ public class DBManager implements IProduct{
         }
     }
 
+    //Updating an existing product in the database - this method only inserts, it does not check product exists 
     @Override
     public boolean updateProduct(Product pr) {
         try {
@@ -179,6 +184,7 @@ public class DBManager implements IProduct{
         }
     }
 
+    //Delete products 
     @Override
     public boolean deleteProductById(int id) {
         try {

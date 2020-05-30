@@ -49,6 +49,8 @@ public class Product {
      * 
      * @param rs The SQL ResultSet row to populate values from.
      */
+    
+    //For searching 
     public Product(ResultSet rs)
     {
         try
@@ -78,17 +80,21 @@ public class Product {
         this.loadRequest(request, null);
     }
     
-    public void loadRequest(ServletRequest request, Product changedBy)
+    //load values from the fields into the object 
+    public void loadRequest(ServletRequest request, User changedBy)
     {
-        if (request.getParameter("name") != null)
+        if (request.getParameter("name") != null) 
             this.name = request.getParameter("name");
-            this.categoryId = Integer.parseInt(request.getParameter("categoryId"));
-            this.price = Double.parseDouble(request.getParameter("productId"));
-            this.description = request.getParameter("description");
-            this.createdDate = new Date();
-            this.modifiedDate = new Date();
-            this.createdBy = 0;
-            this.modifiedBy = 0;
+        Logging.logMessage("the categor is " + request.getParameter("categoryId"));
+        this.categoryId = Integer.parseInt(request.getParameter("categoryId"));
+        this.price = Double.parseDouble(request.getParameter("price"));
+        this.description = request.getParameter("description");
+        this.initialQuantity = Integer.parseInt(request.getParameter("initialQuantity"));
+        this.currentQuantity = Integer.parseInt(request.getParameter("initialQuantity"));
+        this.createdDate = new Date();
+        this.modifiedDate = new Date();
+        this.createdBy = 1;
+        this.modifiedBy = 1;
         if (changedBy != null)
         {
             this.createdBy = changedBy.getId(); //Set this properly
@@ -119,11 +125,11 @@ public class Product {
      * @param request The controller's HTTPServlet POST request properties.
      * @return boolean - Returns true if adding the properties was successful. Otherwise false.
      */
+    
     public boolean addProduct(ServletRequest request)
     {
         if (request.getParameter("id") != null)
             this.id = Integer.parseInt(request.getParameter("id"));
-        
         this.categoryId = Integer.parseInt(request.getParameter("categoryId"));
         this.price = Double.parseDouble(request.getParameter("productId"));
         this.name = request.getParameter("name");
@@ -132,7 +138,6 @@ public class Product {
         this.modifiedDate = new Date();
         this.createdBy = 0;
         this.modifiedBy = 0;
-        
         return true;
     }
     

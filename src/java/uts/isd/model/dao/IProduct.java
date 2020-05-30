@@ -4,6 +4,7 @@
  * and open the template in the editor.
  */
 package uts.isd.model.dao;
+import javax.servlet.ServletRequest;
 import uts.isd.model.Product;
 import uts.isd.model.User;
 
@@ -64,4 +65,7 @@ public interface IProduct {
      */
 
     public boolean deleteProductById(int id);
+ 
 }
+
+    

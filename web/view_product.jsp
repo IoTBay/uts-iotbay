@@ -15,7 +15,7 @@
         <title>View Product</title>
     </head>
     <body>
-        <form method="post" action="<%= URL.Absolute("product/view_product", request) %>">
+        <form method="post" action="<%= URL.Absolute("", request) %>">
         <%
             Product product = (Product) session.getAttribute("product");
         %>
