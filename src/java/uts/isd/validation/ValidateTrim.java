@@ -8,8 +8,10 @@ package uts.isd.validation;
 import javax.servlet.http.HttpServletRequest;
 
 /**
- *
- * @author rhys
+ * Does not perform any validation, but trims whitespace from the field's value.
+ * 
+ * @author Rhys Hanrahan 11000801
+ * @since 2020-05-29
  */
 public class ValidateTrim extends ValidationMethod {
         

@@ -12,8 +12,10 @@ import javax.servlet.http.HttpSession;
 import uts.isd.util.Flash;
 
 /**
- *
- * @author rhys
+ * This class is the beginnings of the logic to perform form input validation.
+ * 
+ * @author Rhys Hanrahan 11000801
+ * @since 2020-05-29
  */
 public class Validator {
     
