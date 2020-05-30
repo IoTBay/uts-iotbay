@@ -27,8 +27,6 @@ public class Validator {
         this.validatorFields = new ArrayList<ValidatorFieldRules>();
     }
     
-    
-    
     /**
      * 
      * @param rules A list of validation rules to add to this validator.
@@ -45,6 +43,7 @@ public class Validator {
     {
         Flash f = Flash.getInstance(request.getSession());
         boolean valid = true;
+
         for (ValidatorFieldRules field : this.validatorFields)
         {
             if (!field.validate(request))
