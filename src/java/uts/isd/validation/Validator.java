@@ -19,12 +19,14 @@ import uts.isd.util.Flash;
 public class Validator {
     
     private List<ValidatorFieldRules> validatorFields;
+    private HttpSession session;
     
     public static final String SESSION_KEY = "_validator_fields";
     
-    public Validator() 
+    public Validator(HttpSession session) 
     {
-        this.validatorFields = new ArrayList<ValidatorFieldRules>();
+        this.session = session;
+        this.loadFields();
     }
     
     /**
@@ -33,10 +35,28 @@ public class Validator {
      */
     public Validator(ValidatorFieldRules[] fields) 
     {
+        this.session = session;
         this.validatorFields = new ArrayList<ValidatorFieldRules>();
         
         for (ValidatorFieldRules field : fields)
             this.validatorFields.add(field);
+    }
+    
+    /**
+     * Load the validation fields values
+     * into array from the previous page request.
+     * 
+     * This allows form fields to be re-populated from the failed validation.
+     */
+    private void loadFields()
+    {
+        if (this.session == null)
+            return;
+        
+        if (this.session.getAttribute(SESSION_KEY) == null)
+            return;
+        
+        this.validatorFields = (List<ValidatorFieldRules>)this.session.getAttribute(SESSION_KEY);
     }
     
     public boolean validate(HttpServletRequest request)
@@ -72,10 +92,13 @@ public class Validator {
     
     public String repopulate(String fieldName)
     {
+        if (this.validatorFields == null)
+            return "";
+        
         for (ValidatorFieldRules field : this.validatorFields)
         {
             if (field.getField().equals(fieldName))
-                return field.getValue().toString();
+                return field.getValue();
         }
         return "";
     }

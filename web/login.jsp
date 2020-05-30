@@ -1,9 +1,11 @@
+<%@page import="uts.isd.validation.Validator"%>
 <%@page import="uts.isd.util.Flash"%>
 <%@page import="uts.isd.util.URL"%>
 <%@page import="uts.isd.model.*"%> 
 <jsp:include page="header.jsp" />
 <%
   Flash flash = Flash.getInstance(session);
+  Validator v = new Validator(session);
 %>
 <main role="main">
   <div style="margin-top: 50px;"></div>
@@ -17,9 +19,9 @@
         <span style="font-size: 40pt;">&nbsp;IOTBay</span>
         <h1 class="h3 mb-3 font-weight-normal">Please sign in</h1>
         <label for="email" class="sr-only">Email address</label>
-        <input type="text" id="email" name="email" class="form-control" placeholder="Email address" autofocus>
+        <input type="text" id="email" name="email" class="form-control" placeholder="Email address" value="<%= v.repopulate("email") %>" autofocus>
         <label for="password" class="sr-only">Password</label>
-        <input type="password" id="password" name="password" class="form-control" placeholder="Password">
+        <input type="password" id="password" name="password" class="form-control" placeholder="Password" value="<%= v.repopulate("password") %>">
         <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
     </form>
     <hr>
