@@ -17,14 +17,13 @@ public class DBConnector extends DB {
         conn = DriverManager.getConnection(URL, dbuser, dbpass);
     }
 
-    public Connection openConnection() 
-    {
+    public Connection openConnection()
+    { 
         return this.conn;
     }
 
-    public void closeConnection() throws SQLException 
+    public void closeConnection() throws SQLException
     {
         this.conn.close();
     }
-
 }

@@ -76,7 +76,6 @@ public class User implements Serializable {
         {
             Logging.logMessage("Unable to load User from ResultSet for ID", e);
         }
-        
     }
 
     public User(String email) {
