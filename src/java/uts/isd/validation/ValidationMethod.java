@@ -17,6 +17,7 @@ import javax.servlet.http.HttpServletRequest;
  * You should also implement any new method in the ValidatorFieldRules parseRulesString.
  * 
  * @author Rhys Hanrahan 11000801
+ * @since 2020-05-29
  */
 public abstract class ValidationMethod {
     

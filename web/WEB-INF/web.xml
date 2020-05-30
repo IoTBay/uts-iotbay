@@ -4,9 +4,17 @@
         <servlet-name>UsersController</servlet-name>
         <servlet-class>uts.isd.controller.UsersController</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>OrdersController</servlet-name>
+        <servlet-class>uts.isd.controller.OrdersController</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>UsersController</servlet-name>
         <url-pattern>/user/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>OrdersController</servlet-name>
+        <url-pattern>/OrdersController/*</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>

@@ -5,10 +5,13 @@
  */
 package uts.isd.model;
 
+import java.sql.ResultSet;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Date;
 import javax.servlet.ServletRequest;
+import uts.isd.model.dao.IOrder;
+import uts.isd.util.Logging;
 
 /**
  *
@@ -54,12 +57,48 @@ public class Order {
     }
     
     /**
+     * This constructor takes an SQL ResultSet and grabs the values from the DB Record
+     * to populate each property in the user model.
+     * 
+     * @param rs The SQL ResultSet row to populate values from.
+     */
+    public Order(ResultSet rs)
+    {
+        try
+        {
+            this.id = rs.getInt("ID");
+            this.customerId = rs.getInt("CustomerID");
+            this.userId = rs.getInt("UserID");
+            //this.defaultCurrencyId = rs.getInt("CurrencyID");
+            this.billingAddressId = rs.getInt("BillingAddressID");
+            this.shippingAddressId = rs.getInt("ShippingAddressID");
+            this.paymentMethodId = rs.getInt("PaymentMethodID");
+            this.totalCost = rs.getDouble("TotalCost");
+            this.status = rs.getInt("Status");
+            
+            this.createdDate = rs.getDate("CreatedDate");
+            this.createdBy = rs.getInt("CreatedBy");
+            this.modifiedDate = rs.getDate("ModifiedDate");
+            this.modifiedBy = rs.getInt("ModifiedBy");            
+        }
+        catch (Exception e)
+        {
+            Logging.logMessage("Unable to load Order from ResultSet for ID", e);
+        }
+    }
+
+    public void loadRequest(ServletRequest request)
+    {
+        this.loadRequest(request, null);
+    }
+    
+    /**
      * This method populates this instance's properties based on form inputs.
      * 
      * @param request The controller's HTTPServlet POST request properties.
-     * @return boolean - Returns true if adding the properties was successful. Otherwise false.
+     * @param changedBy The customer who made this request.
      */
-    public boolean addOrder(ServletRequest request)
+    public void loadRequest(ServletRequest request, Customer changedBy)
     {
         if (request.getParameter("id") != null)
             this.id = Integer.parseInt(request.getParameter("id"));
@@ -77,14 +116,76 @@ public class Order {
 
         this.createdDate = new Date();
         this.modifiedDate = new Date();
-        this.createdBy = 0;
-        this.modifiedBy = 0;
         
-        this.orderLines = new ArrayList<>();
+        if (changedBy != null)
+        {
+            this.createdBy = changedBy.getId();
+            this.modifiedBy = changedBy.getId();
+        }
+        else
+        {
+            this.createdBy = 1;
+            this.modifiedBy = 1;
+        }
         
-        return true;
+        this.orderLines = new ArrayList<>();        
     }
-
+    
+    public void loadOrderLines()
+    {
+        
+    }
+    
+    public boolean add(IOrder db)
+    {
+        try
+        {
+            //Assumes the User object (this) has been populated already.
+            //Takes object properties and inserts into DB.
+            boolean added = db.addOrder(this);
+            //Always close DB when done.
+            return added;
+        }
+        catch (Exception e)
+        {
+            Logging.logMessage("Failed to add order", e);
+            return false;
+        }        
+    }
+    
+    public boolean update(IOrder db)
+    {
+        try
+        {
+            //Assumes the User object (this) has been populated already.
+            //Takes object properties and inserts into DB.
+            boolean updated = db.updateOrder(this);
+            //Always close DB when done.
+            return updated;
+        }
+        catch (Exception e)
+        {
+            Logging.logMessage("Failed to update order", e);
+            return false;
+        }        
+    }
+    
+    public boolean delete(IOrder db)
+    {
+        try
+        {
+            //Assumes the User object (this) has been populated already.
+            //Takes object properties and inserts into DB.
+            boolean deleted = db.deleteOrderById(this.id);
+            //Always close DB when done.
+            return deleted;
+        }
+        catch (Exception e)
+        {
+            Logging.logMessage("Failed to delete order", e);
+            return false;
+        }        
+    }
 
     public int getId() {
         return id;
