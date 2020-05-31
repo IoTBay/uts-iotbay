@@ -8,8 +8,10 @@ package uts.isd.validation;
 import javax.servlet.http.HttpServletRequest;
 
 /**
- *
- * @author rhys
+ * Validates that a field contains a value that is not null or empty.
+ * 
+ * @author Rhys Hanrahan 11000801
+ * @since 2020-05-29
  */
 public class ValidateRequired extends ValidationMethod {
     

@@ -8,6 +8,8 @@ package uts.isd.validation;
 import java.io.Serializable;
 
 /**
+ * Each instance of this class contains all the info required related to a particular validation error.
+ * 
  * @author Rhys Hanrahan - 11000801
  * @since 2020-05-29
  */

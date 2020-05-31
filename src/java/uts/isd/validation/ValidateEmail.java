@@ -10,8 +10,10 @@ import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
 
 /**
- *
- * @author rhys
+ * Validates that a string is in the format of an email.
+ * 
+ * @author Rhys Hanrahan 11000801
+ * @since 2020-05-29
  */
 public class ValidateEmail extends ValidationMethod {
     

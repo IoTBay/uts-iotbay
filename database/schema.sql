@@ -73,12 +73,12 @@ CREATE TABLE Orders (
    ID INTEGER NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),
    CustomerID INTEGER NOT NULL,
    UserID INTEGER,
+   CurrencyID INTEGER NOT NULL DEFAULT 1,
    BillingAddressID INTEGER NOT NULL,
    ShippingAddressID INTEGER NOT NULL,
    PaymentMethodID INTEGER NOT NULL,
-   CardName VARCHAR(80) NOT NULL,
-   CardNumber VARCHAR(19) NOT NULL,
-   CardCVV VARCHAR(3) NOT NULL,
+   TotalCost DECIMAL(10,2) NOT NULL,
+   Status INTEGER NOT NULL DEFAULT 0,
    CreatedDate TIMESTAMP  NOT NULL,
    CreatedBy INTEGER NOT NULL,
    ModifiedDate TIMESTAMP,
@@ -102,6 +102,7 @@ CREATE TABLE OrderLines (
 CREATE TABLE Products (
    ID INTEGER NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),
    Name VARCHAR(20) NOT NULL,
+   CurrencyID INTEGER NOT NULL,
    Description VARCHAR(100),
    InitialQuantity INTEGER NOT NULL,
    CurrentQuantity INTEGER NOT NULL,
@@ -160,6 +161,7 @@ CREATE TABLE PaymentTransactions (
    ID INTEGER NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),
    CustomerID INTEGER NOT NULL,
    OrderID INTEGER NOT NULL,
+   CurrencyID INTEGER NOT NULL,
    Amount DECIMAL(10,2) NOT NULL,
    Description VARCHAR(255),
    PaymentGatewayTransaction VARCHAR(255) NOT NULL UNIQUE,
@@ -239,6 +241,10 @@ ALTER TABLE Orders
 ADD FOREIGN KEY (UserID)
 REFERENCES Users (ID);
 
+ALTER TABLE Orders
+ADD FOREIGN KEY (CurrencyID)
+REFERENCES Currencies (ID);
+
 ALTER TABLE Orders                                                         
 ADD FOREIGN KEY (BillingAddressID)                                                        
 REFERENCES Addresses (ID); 
@@ -288,6 +294,10 @@ ADD FOREIGN KEY (OrderID)
 REFERENCES Orders (ID);
 
 ALTER TABLE PaymentTransactions
+ADD FOREIGN KEY (CurrencyID)
+REFERENCES Currencies (ID);
+
+ALTER TABLE PaymentTransactions
 ADD FOREIGN KEY (CreatedBy)
 REFERENCES Customers (ID);
 
@@ -328,6 +338,10 @@ REFERENCES Customers (ID);
 ALTER TABLE Products
 ADD FOREIGN KEY (CategoryID)
 REFERENCES ProductCategories (ID);
+
+ALTER TABLE Products
+ADD FOREIGN KEY (CurrencyID)
+REFERENCES Currencies (ID);
 
 ALTER TABLE Products
 ADD FOREIGN KEY (CreatedBy)
