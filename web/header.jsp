@@ -102,8 +102,8 @@
                 </div>
                 <hr>
                 <div class="dropdown-item">
-                    <a href="<%= URL.Absolute("orders/view_cart", request) %>" class="btn btn-outline-primary">View Cart</a>
-                    <a href="<%= URL.Absolute("orders/checkout", request) %>" class="btn btn-primary">Checkout</a>
+                    <a href="<%= URL.Absolute("order/cart", request) %>" class="btn btn-outline-primary">View Cart</a>
+                    <a href="<%= URL.Absolute("order/checkout", request) %>" class="btn btn-primary">Checkout</a>
                 </div>
             </div>
             &nbsp;&nbsp;&nbsp;                                                        
