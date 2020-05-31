@@ -5,6 +5,8 @@
  */
 package uts.isd.model.dao;
 
+import java.util.List;
+import uts.isd.model.Customer;
 import uts.isd.model.Order;
 import uts.isd.model.OrderLine;
 
@@ -27,6 +29,15 @@ public interface IOrder {
      * @return Order object containing the order record.
      */
     public Order getOrderById(int id);
+    
+    /**
+     * 
+     * Returns the current draft order for the customer.
+     *
+     * @param customer The customer object to get the draft for.
+     * @return Order object containing the order record.
+     */
+    public Order getCartOrderByCustomer(Customer customer);
 
     /**
      * Returns a list of orders based on their customer 
@@ -50,7 +61,7 @@ public interface IOrder {
      * @param orderId The order's ID
      * @return  List of order lines related to the order.
      */
-    public Iterable<OrderLine> getOrderLines(int orderId);
+    public List<OrderLine> getOrderLines(int orderId);
     
     /* Update queries */
     

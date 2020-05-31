@@ -28,6 +28,7 @@ public class Order {
     private int paymentMethodId;
     private double totalCost;
     private int status;
+    
     private Date createdDate;
     private int createdBy;
     private Date modifiedDate;
@@ -49,7 +50,8 @@ public class Order {
         //Failed statuses
         OutOfStock,
         PaymentFailed,
-        OnHold
+        OnHold,
+        Cancelled
     }
 
     public Order() {
@@ -69,7 +71,7 @@ public class Order {
             this.id = rs.getInt("ID");
             this.customerId = rs.getInt("CustomerID");
             this.userId = rs.getInt("UserID");
-            //this.defaultCurrencyId = rs.getInt("CurrencyID");
+            this.currencyId = rs.getInt("CurrencyID");
             this.billingAddressId = rs.getInt("BillingAddressID");
             this.shippingAddressId = rs.getInt("ShippingAddressID");
             this.paymentMethodId = rs.getInt("PaymentMethodID");
@@ -108,6 +110,7 @@ public class Order {
         if (request.getParameter("userId") != null)
             this.userId = Integer.parseInt(request.getParameter("userId"));
 
+        this.currencyId = Integer.parseInt("currencyId");
         this.shippingAddressId = Integer.parseInt(request.getParameter("shippingAddressId"));
         this.billingAddressId = Integer.parseInt(request.getParameter("billingAddressId"));
         this.paymentMethodId = Integer.parseInt(request.getParameter("paymentMethodId"));
@@ -129,11 +132,6 @@ public class Order {
         }
         
         this.orderLines = new ArrayList<>();        
-    }
-    
-    public void loadOrderLines()
-    {
-        
     }
     
     public boolean add(IOrder db)
@@ -201,6 +199,14 @@ public class Order {
 
     public void setCustomerId(int customerId) {
         this.customerId = customerId;
+    }
+    
+    public int getCurrencyId() {
+        return currencyId;
+    }
+    
+    public void setCurrencyId(int currencyId) {
+        this.currencyId = currencyId;
     }
 
     public int getUserId() {

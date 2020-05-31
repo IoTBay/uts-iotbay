@@ -55,13 +55,15 @@ public class OrdersController extends HttpServlet {
          *   </servlet-mapping>
          */
         Logging.logMessage("** Path Info is: "+request.getPathInfo());
-        switch (request.getPathInfo())
+        String[] segments = request.getPathInfo().split("/");
+        
+        switch (segments[1])
         {
-            case "/cart":
+            case "cart":
                 doViewCartGet(request, response);
                 break;
                 
-            case "/checkout":
+            case "checkout":
                 doCheckoutGet(request, response);
                 break;
         }
@@ -90,13 +92,15 @@ public class OrdersController extends HttpServlet {
          *   </servlet-mapping>
          */
         Logging.logMessage("** Path Info is: "+request.getPathInfo());
-        switch (request.getPathInfo())
+        String[] segments = request.getPathInfo().split("/");
+        
+        switch (segments[1])
         {
-            case "/cart":
+            case "cart":
                 doViewCartPost(request, response);
                 break;
                 
-            case "/checkout":
+            case "checkout":
                 doCheckoutPost(request, response);
                 break;
         }
@@ -109,14 +113,28 @@ public class OrdersController extends HttpServlet {
     protected void doViewCartGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException 
     {
-        //Get order and pass it to request for JSP
-        IOrder dbOrder = new DBOrder();
-        Customer customer = (Customer)request.getSession().getAttribute("customer");
-        
-        Order o = dbOrder.getCustomerOrder(customer);
-        
-        request.setAttribute("order", o);
-        request.getRequestDispatcher("/orders/view_cart.jsp").forward(request, response);
+        try
+        {   
+            //Get order and pass it to request for JSP
+            IOrder dbOrder = new DBOrder();
+            IProduct dbProduct = new DBProduct();
+            Customer customer = (Customer)request.getSession().getAttribute("customer");
+
+            Order o = dbOrder.getCartOrderByCustomer(customer);
+            o.setOrderLines(dbOrder.getOrderLines(o.getId()));
+            
+            for (OrderLine line : o.getOrderLines())
+                line.setProduct(dbProduct.getProductById(line.getProductId()));
+
+            request.setAttribute("order", o);
+            RequestDispatcher requestDispatcher; 
+            requestDispatcher = request.getRequestDispatcher("/orders/view_cart.jsp");
+            requestDispatcher.forward(request, response);
+        } 
+        catch (Exception e)
+        {
+            Logging.logMessage("Unable to doViewCardGet", e);
+        }
     }
     
     protected void doViewCartPost(HttpServletRequest request, HttpServletResponse response)
