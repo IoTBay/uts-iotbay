@@ -10,6 +10,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.List;
 import uts.isd.model.Product;
 import uts.isd.util.Logging;
 /**
@@ -32,7 +33,7 @@ public class DBProduct implements IProduct{
     
     //Use this to show all of the products in the database - use this for displaying in table
     @Override
-    public Iterable<Product> getAllProducts() 
+    public List<Product> getAllProducts() 
     {
         try {
             PreparedStatement p = this.conn.prepareStatement("SELECT * FROM APP.Products");

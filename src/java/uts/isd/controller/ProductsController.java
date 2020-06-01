@@ -7,6 +7,7 @@ package uts.isd.controller;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.List;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -47,7 +48,7 @@ public class ProductsController extends HttpServlet {
                 addProductGet(request, response);
                 break;
             case "/view":
-                //doFindProductGet(request, response);
+                viewProductsGet(request, response);
                 break;
             case "/update":
                 ProductUpdateGet(request, response);
@@ -70,7 +71,7 @@ public class ProductsController extends HttpServlet {
                 addProductPost(request, response);
                 break;
             case "/view":
-                //
+                //viewProductsPost(request, response);
                 break;
             case "/update":
                 ProductUpdatePost(request, response);
@@ -220,25 +221,21 @@ public class ProductsController extends HttpServlet {
         }
     }
     
-    protected void ProductViewGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+    protected void viewProductsGet(HttpServletRequest request, HttpServletResponse response)throws ServletException, IOException {
+        
+        try{
+            IProduct dbProduct = new DBProduct();
+            List<Product> products = dbProduct.getAllProducts();
+            request.setAttribute("products", products);
+        } catch (Exception e) {
+            Logging.logMessage("Unable to update product");
+            return;
+        }
         
         RequestDispatcher requestDispatcher; 
         requestDispatcher = request.getRequestDispatcher("/view_product.jsp");
         requestDispatcher.forward(request, response);
-        
-    }  
-    
-    protected void AllProductsGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-       try { 
-           IProduct dbProduct = new DBProduct();
-           Iterable<Product> products = dbProduct.getAllProducts();
-       
-       } catch (Exception e) {
-       
-       }
-    }
+    } 
     
     protected void deleteProductGet(HttpServletRequest request, HttpServletResponse response)throws ServletException, IOException {
         
