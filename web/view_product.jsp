@@ -4,26 +4,36 @@
     Author     : C_fin
 --%>
 
+<%@page import="java.util.List"%>
+<%@page import="java.lang.Iterable"%>
 <%@page import="uts.isd.util.URL"%>
 <%@page import="uts.isd.model.Product"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html>
 <jsp:include page="header.jsp" />
-    <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>View Product</title>
-    </head>
-    <body>
-        <form method="post" action="<%= URL.Absolute("", request) %>">
-        <%
-            Product product = (Product) session.getAttribute("product");
-        %>
-        <h1>Product List !</h1>
-        <table id="product table">
-            <thead><th>name</th><th>Description</th><th>Initial Quantity</th><th>price</th><th>id</th></thead>
-    </table>
-    <a href="update_product.jsp"> update </a>
+<form method="post" action="<%= URL.Absolute("product/view", request) %>">
+    <%
+    List<Product> products = (List<Product>)request.getAttribute("products");
+    %>
+    <table class="table table-hover table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% for (Product p: products) { %>
+                <tr>
+                    <td><%= p.getId() %></td>
+                    <td><%= p.getName() %></td>
+                    <td><%= p.getDescription() %></td>
+                </tr>
+            <% } //Close for loop %>
+            </tbody>
+        </table>
     </form>
 </body>
 <div style='padding-top: 100px'>
