@@ -49,9 +49,6 @@
               <div class="col-md-6 mb-3">
                 <label for="phone">Phone</label>
                 <input type="text" class="form-control" id="phone" name="phone" placeholder="" value="" required>
-                <div class="invalid-feedback">
-                  Valid last name is required.
-                </div>
               </div>
             </div>
 
