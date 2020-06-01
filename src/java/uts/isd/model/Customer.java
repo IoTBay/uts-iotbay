@@ -25,6 +25,7 @@ public class Customer implements Serializable {
     private String email;
     private String firstName;
     private String lastName;
+    private String phone;
     private Date createdDate;
     private int createdBy;
     private Date modifiedDate;
@@ -40,6 +41,7 @@ public class Customer implements Serializable {
             this.email = rs.getString("Email");
             this.firstName = rs.getString("FirstName");
             this.lastName = rs.getString("LastName");
+            this.phone = rs.getString("Phone");
 
             this.createdDate = rs.getDate("CreatedDate");
             this.createdBy = rs.getInt("CreatedBy");
@@ -52,10 +54,11 @@ public class Customer implements Serializable {
         }
     }
 
-    public Customer(String email, String firstName, String lastName) {
+    public Customer(String email, String firstName, String lastName, String phone) {
         this.email = email;
         this.firstName = firstName;
         this.lastName = lastName;
+        this.phone = phone;
     }
     
     public void loadRequest(ServletRequest request)
@@ -77,6 +80,7 @@ public class Customer implements Serializable {
         this.email = request.getParameter("email");
         this.firstName = request.getParameter("firstName");
         this.lastName = request.getParameter("lastName");
+        this.phone = request.getParameter("phone");
 
         this.createdDate = new Date();
         this.modifiedDate = new Date();
@@ -171,6 +175,14 @@ public class Customer implements Serializable {
         this.lastName = lastName;
     }
     
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String email) {
+        this.phone = phone;
+    }
+
     public Date getCreatedDate() {
         return this.createdDate;
     }
