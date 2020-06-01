@@ -180,11 +180,10 @@ public class DBProduct implements IProduct{
 
     //Delete products 
     @Override
-    public boolean deleteProductById(int id) {
+    public boolean deleteProduct(Product pr) {
         try {
-            PreparedStatement p = this.conn.prepareStatement("DELETE FROM APP.Products WHERE ID = ?");
-            //WHERE ID = ?
-            p.setInt(10, id);
+            PreparedStatement p = this.conn.prepareStatement("DELETE FROM APP.Products");
+            //p.setString(1, name);
             //Was update successful?
             return (p.executeUpdate() > 0);
         }

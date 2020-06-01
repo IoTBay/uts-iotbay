@@ -40,8 +40,8 @@ public class ProductsController extends HttpServlet {
         Logging.logMessage("** Path Info is: "+request.getPathInfo());
         switch (request.getPathInfo())
         {
-            case "/inventory_management":
-                //
+            case "/delete":
+                deleteProductGet(request, response);
                 break;
             case "/add":
                 addProductGet(request, response);
@@ -63,8 +63,8 @@ public class ProductsController extends HttpServlet {
         Logging.logMessage("** Path Info is: "+request.getPathInfo());
         switch (request.getPathInfo())
         {
-            case "/inventory_management":
-                //
+            case "/delete":
+                deleteProductPost(request, response);
                 break;
             case "/add":
                 addProductPost(request, response);
@@ -83,25 +83,6 @@ public class ProductsController extends HttpServlet {
         requestDispatcher = request.getRequestDispatcher("");
         requestDispatcher.forward(request, response);
     }
-    
-    /*protected void doFindProductPost(HttpServletRequest request, HttpServletResponse response)throws ServletException, IOException {
-        try {
-            HttpSession session = request.getSession();
-            //Create a connection to the DB for Products table
-            IProduct dbProduct = new DBProduct();
-            //Product product = dbProduct.authenticateProduct(request.getParameter("name"));
-            // flash object for success/fail message
-            Flash flash = Flash.getInstance(session);
-            // If product does not exist in the database, it can be added
-            if (product == null) {
-                session.setAttribute("product",product);
-               //Setup flash messages
-                flash.add(Flash.MessageType.Success, "Product added succesfully");   
-            } 
-        } catch (Exception e) {
-            Logging.logMessage("error", e);
-        }
-    } */
     
     protected void doFindProductPost(HttpServletRequest request, HttpServletResponse response)throws ServletException, IOException {
         HttpSession session = request.getSession();
@@ -258,6 +239,63 @@ public class ProductsController extends HttpServlet {
        
        }
     }
+    
+    protected void deleteProductGet(HttpServletRequest request, HttpServletResponse response)throws ServletException, IOException {
+        
+        RequestDispatcher requestDispatcher; 
+        requestDispatcher = request.getRequestDispatcher("/delete_product.jsp");
+        requestDispatcher.forward(request, response);
+    }
+    
+    protected void deleteProductPost(HttpServletRequest request, HttpServletResponse response)throws ServletException, IOException {
+       
+        HttpSession session = request.getSession();
+        User user = (User)session.getAttribute("user");
+        Customer customer = (Customer)session.getAttribute("customer");
+        boolean isLoggedIn = (user != null && customer != null);
+        
+        //We need to make sure the product exists 
+        Product product = (Product)session.getAttribute("product");
+        boolean productExists = (product != null);
+        
+
+        //Setup flash messages
+        Flash flash = Flash.getInstance(session);
+        int status = 0;
+        Logging.logMessage("Delete product");
+        
+        try
+        {
+            //Is Logged in and submitted form
+            if (isLoggedIn && productExists)
+            {
+                //Create a connection to the DB for the products table
+                IProduct dbProduct = new DBProduct();
+                product.loadRequest(request);
+                boolean deleted = product.delete(dbProduct);
+
+                if (deleted)
+                    flash.add(Flash.MessageType.Success, "The product was successfully deleted!");
+                else
+                    flash.add(Flash.MessageType.Error, "Failed to delete product");
+            }
+            else
+            {
+                flash.add(Flash.MessageType.Error, "submission failed");
+            }
+            
+            RequestDispatcher requestDispatcher; 
+            requestDispatcher = request.getRequestDispatcher("/update_product.jsp");
+            requestDispatcher.forward(request, response);
+        }
+        catch (Exception e)
+        {
+            Logging.logMessage("Unable to update product");
+            return;
+        }
+    }
+    
+    
   
   @Override
     public String getServletInfo() {

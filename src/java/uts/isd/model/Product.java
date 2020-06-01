@@ -119,6 +119,18 @@ public class Product {
         }        
     }
     
+    public boolean delete(IProduct pr)
+    {
+        try {
+            boolean deleted = pr.deleteProduct(this);
+            return deleted; 
+        }
+        catch (Exception e) {
+            Logging.logMessage("Failed to delete product", e);
+            return false; 
+        }
+    }
+    
     /**
      * This method populates this instance's properties based on form inputs.
      * 

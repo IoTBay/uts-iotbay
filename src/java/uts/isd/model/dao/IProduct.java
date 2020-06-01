@@ -64,7 +64,7 @@ public interface IProduct {
      * @return Returns true if user was deleted, or false if it failed
      */
 
-    public boolean deleteProductById(int id);
+    public boolean deleteProduct(Product pr);
  
 }
 
