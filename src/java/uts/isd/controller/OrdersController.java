@@ -66,9 +66,10 @@ public class OrdersController extends HttpServlet {
             case "checkout":
                 doCheckoutGet(request, response);
                 break;
+                
         }
     }
-
+    
     /**
      * Handles the HTTP <code>POST</code> method.
      *

@@ -115,18 +115,30 @@ public class Validator {
      * @param fieldName The name of the HTML input field that we watch to fetch a value for. 
      * Matches the name provided for this field during the validation attempt.
      * 
+     * @param dbValue This is a value taken from the DB to use when editing a record. 
+     * This value is returned *if* there is no previous value from validation.
+     * 
      * @return String that contains the saved value from the last validation attempt.
      */
-    public String repopulate(String fieldName)
+    public String repopulate(String fieldName, String dbValue)
     {
+        //If there is a field found from the last form submission due to validation,
+        //then return that value, otherwise return dbValue if it exists,
+        //otherwise return an empty string
+        
         if (this.validatorFields == null)
-            return "";
+            return dbValue;
         
         for (ValidatorFieldRules field : this.validatorFields)
         {
             if (field.getField().equals(fieldName))
                 return field.getValue();
         }
-        return "";
+        return dbValue;
+    }
+    
+    public String repopulate(String fieldName)
+    {
+        return this.repopulate(fieldName, "");
     }
 }
