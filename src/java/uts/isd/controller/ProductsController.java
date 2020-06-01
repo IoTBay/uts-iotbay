@@ -70,9 +70,6 @@ public class ProductsController extends HttpServlet {
             case "/add":
                 addProductPost(request, response);
                 break;
-            case "/view":
-                //viewProductsPost(request, response);
-                break;
             case "/update":
                 ProductUpdatePost(request, response);
                 break;
