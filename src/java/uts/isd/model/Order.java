@@ -18,7 +18,7 @@ public class Order {
     
     private int id;
     private int customerId;
-    private int currencyId;
+    //private int currencyId;
     private int userId;
     private int billingAddressId;
     private int shippingAddressId;

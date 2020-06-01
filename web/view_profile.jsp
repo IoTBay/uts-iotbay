@@ -24,11 +24,7 @@
   <% } else { %>
     <p>Welcome back, <%= customer.getFirstName() %>! Your current details are below:</p>
     <ul>
-        <li>First Name: <%= customer.getFirstName() %></li>
-        <li>Last Name: <%= customer.getLastName() %></li>
-        <li>Email: <%= customer.getEmail() %></li>
-        <li>Age: <%= user.getBirthDate() %> (<%= user.getAge() %> years old)</li>
-        <li>Gender: <%= user.getSex() %></li>
+        <p><i>${dbProduct.getAllProducts()}</i>
     </ul>
     <hr>
     <a href="<%= URL.Absolute("user/edit", request) %>" class="btn btn-primary">Edit Profile</a>

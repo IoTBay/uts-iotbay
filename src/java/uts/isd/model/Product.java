@@ -19,7 +19,7 @@ public class Product {
     
     private int id;
     private int categoryId;
-    private int currencyId;
+    //private int currencyId;
     private String name;
     private double price;
     private String description;
@@ -174,13 +174,13 @@ public class Product {
         this.categoryId = categoryId;
     }
     
-    public int getCurrencyId() {
+    /* public int getCurrencyId() {
         return this.currencyId;
     }
     
     public void setCurrencyId(int currencyId) {
         this.currencyId = currencyId;
-    }
+    } */
 
     public String getName() {
         return name;
