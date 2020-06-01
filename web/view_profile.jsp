@@ -1,5 +1,5 @@
-<%@page import="uts.isd.util.Flash"%>
-<%@page import="uts.isd.util.URL"%>
+
+<%@page import="uts.isd.util.*"%>
 <%@page import="uts.isd.model.*"%>
 <%@page import="java.util.List"%>
 <%@page import="java.util.ArrayList"%>
@@ -21,6 +21,8 @@
       if (!isLoggedIn) {
   %>
     <p>Sorry, you're not logged in! <a href="<%= URL.Absolute("user/register", request) %>">Register</a> or <a href="<%= URL.Absolute("user/login", request) %>">login</a> to see this page.</p>
+  <% } else if (isLoggedIn && user.getAccessLevel() == 0 ) { %>
+    <p> This account is inactive. </</p>
   <% } else { %>
     <p>Welcome back, <%= customer.getFirstName() %>! Your current details are below:</p>
     <ul>
@@ -28,6 +30,7 @@
     </ul>
     <hr>
     <a href="<%= URL.Absolute("user/edit", request) %>" class="btn btn-primary">Edit Profile</a>
+    <a href="<%= URL.Absolute("user/cancel", request) %>" class="btn btn-primary">Cancel Account</a>
   <% } %>
     
     <hr>

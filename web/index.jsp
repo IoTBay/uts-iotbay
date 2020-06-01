@@ -41,7 +41,9 @@
       if (!isLoggedIn) {
   %>
     <p>Welcome anonymous user, <a href="<%= URL.Absolute("user/register", request) %>">register</a> or <a href="<%= URL.Absolute("user/login", request) %>">login</a>, or look at some categories to continue.</p>
-  <% } else { %>
+    <% } else if (session.getAttribute("userCancelled") != null) {
+        session.invalidate();
+    } else { %>
     <p>Welcome back, <%= customer.getFirstName() %>! We see you are now logged in:</p>
     <ul>
         <li>Email: <%= user.getEmail() %></li>

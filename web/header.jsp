@@ -44,8 +44,23 @@
         <a class="nav-link" href="index.jsp">Home</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="categories.jsp">Categories</a>
+          <a class="nav-link" href="<%= URL.Absolute("/categories", request) %>">Categories</a>
       </li>
+      <% if (user != null && user.isAdmin()) { %>
+      <li class="nav-item">
+        <div class=dropdown>
+            <a class="nav-link" href="#" id="dropdown-admin" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Admin</a>
+            <div class="dropdown-menu" aria-labelledby="dropdown-cart">                
+                <a class="dropdown-item" href="<%= URL.Absolute("admin/categories", request) %>">Categories</a>
+                <a class="dropdown-item" href="<%= URL.Absolute("admin/products", request) %>">Products</a>
+                <a class="dropdown-item" href="<%= URL.Absolute("admin/users", request) %>">Users</a>
+                <a class="dropdown-item" href="<%= URL.Absolute("admin/orders", request) %>">Orders</a>
+                <a class="dropdown-item" href="<%= URL.Absolute("admin/logs", request) %>">Access Logs</a>
+                <a class="dropdown-item" href="<%= URL.Absolute("admin/currencies", request) %>">Currencies</a>
+            </div>
+        </div>
+      </li>
+      <% } %>
     </ul>
     <form class="form-inline my-2 my-lg-0 ml-auto mr-auto col-lg-6">
         <input class="form-control mr-sm-2 col-lg-10" type="text" placeholder="Search" aria-label="Search">
@@ -102,8 +117,8 @@
                 </div>
                 <hr>
                 <div class="dropdown-item">
-                    <a href="<%= URL.Absolute("orders/view_cart", request) %>" class="btn btn-outline-primary">View Cart</a>
-                    <a href="<%= URL.Absolute("orders/checkout", request) %>" class="btn btn-primary">Checkout</a>
+                    <a href="<%= URL.Absolute("order/cart", request) %>" class="btn btn-outline-primary">View Cart</a>
+                    <a href="<%= URL.Absolute("order/checkout", request) %>" class="btn btn-primary">Checkout</a>
                 </div>
             </div>
             &nbsp;&nbsp;&nbsp;                                                        

@@ -18,11 +18,8 @@ import javax.servlet.http.HttpSession;
 import uts.isd.model.*;
 import uts.isd.model.dao.*;
 import uts.isd.util.*;
+import uts.isd.validation.*;
 
-/**
- *
- * @author rhys
- */
 public class UsersController extends HttpServlet {
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
@@ -67,6 +64,14 @@ public class UsersController extends HttpServlet {
             case "/edit":
                 doProfileEditGet(request, response);
                 break;
+                
+            case "/logout":
+                doLogoutGet(request, response);
+                break;
+                
+            case "/cancel":
+                doCancelGet(request, response);
+                break;
         }
     }
 
@@ -107,6 +112,10 @@ public class UsersController extends HttpServlet {
             case "/edit":
                 doProfileEditPost(request, response);
                 break;
+                
+            case "/cancel":
+                doCancelPost(request, response);
+                break;
         }
     }
     
@@ -132,6 +141,33 @@ public class UsersController extends HttpServlet {
         try {
             HttpSession session = request.getSession();
             
+            /*
+            Can specify rules by giving a list of ValidationMethod classes
+            OR See below - can specify a string to give a list of rules.
+            
+            Validator validator = new Validator(new ValidatorFieldRules[] {
+                new ValidatorFieldRules("Email", "email", new ValidationMethod[] {
+                    new ValidateRequired(),
+                    new ValidateEmail(),
+                    new ValidateTrim()
+                }),
+                new ValidatorFieldRules("Password", "password", new ValidationMethod[] {
+                    new ValidateRequired()
+                })
+            });
+            */
+            
+            Validator validator = new Validator(new ValidatorFieldRules[] {
+                new ValidatorFieldRules("Email", "email", "required|trim|email"),
+                new ValidatorFieldRules("Password", "password", "required|longerthan[2]")
+            });
+            
+            if (!validator.validate(request))
+            {
+                response.sendRedirect(request.getHeader("referer"));
+                return;
+            }
+            
             //Create a connection to the DB for users table
             IUser dbUser = new DBUser();
             User user = dbUser.authenticateUser(request.getParameter("email"), request.getParameter("password"));
@@ -144,6 +180,11 @@ public class UsersController extends HttpServlet {
                 System.out.println("ERROR: Did not auth");
                 //Setup flash messages
                 flash.add(Flash.MessageType.Error, "Your username and/or password were incorrect for user "+request.getParameter("email"));
+                
+                //Re-load the login page
+                 RequestDispatcher requestDispatcher; 
+                requestDispatcher = request.getRequestDispatcher("/login.jsp");
+                requestDispatcher.forward(request, response);
             }
             else
             {
@@ -250,6 +291,17 @@ public class UsersController extends HttpServlet {
     protected void doRegisterPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         
+       Validator validator = new Validator(new ValidatorFieldRules[] {
+            new ValidatorFieldRules("Email", "email", new ValidationMethod[] {
+                new ValidateRequired(),
+                new ValidateEmail(),
+                new ValidateTrim()
+            }),
+            new ValidatorFieldRules("First Name", "firstName", new ValidationMethod[] {
+                new ValidateRequired()
+            })
+        });
+        
         HttpSession session = request.getSession();
         
         //We need to figure out if the user is logging out now, or not.
@@ -268,6 +320,11 @@ public class UsersController extends HttpServlet {
             //Not logged in but submitted registration
             if (!isLoggedIn && request.getParameter("doRegister") != null)
             {
+                if (!validator.validate(request))
+                {
+                    response.sendRedirect(request.getHeader("referer"));
+                }
+              
                 //Create a connection to the DB for the customers table
                 ICustomer dbCustomer = new DBCustomer();
                 customer = new Customer();
@@ -355,6 +412,10 @@ public class UsersController extends HttpServlet {
                 session.setAttribute("order", order);
                 
             }
+            else
+            {
+                flash.add(Flash.MessageType.Error, "You can't register if you are already logged in!");
+            }
             
             RequestDispatcher requestDispatcher; 
             requestDispatcher = request.getRequestDispatcher("/index.jsp");
@@ -382,7 +443,7 @@ public class UsersController extends HttpServlet {
         
     }
     
-     protected void doProfileEditGet(HttpServletRequest request, HttpServletResponse response)
+    protected void doProfileEditGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         
         RequestDispatcher requestDispatcher; 
@@ -427,10 +488,10 @@ public class UsersController extends HttpServlet {
                 boolean updated = (customer.update(dbCustomer) && user.update(dbUser));
                 Logging.logMessage("Updated profile");
 
-                if (updated)
-                    flash.add(Flash.MessageType.Success, "Your profile was updated successfully!");
-                else
-                    flash.add(Flash.MessageType.Error, "Failed to update your profile");
+                if (updated){
+                    flash.add(Flash.MessageType.Success, "Your profile was updated successfully!");}
+                else{
+                    flash.add(Flash.MessageType.Error, "Failed to update your profile");}
             }
             else
             {
@@ -448,7 +509,91 @@ public class UsersController extends HttpServlet {
         }
     }
 
+    /**
+     * Logout requests 
+     */
+    protected void doLogoutGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        RequestDispatcher requestDispatcher; 
+        requestDispatcher = request.getRequestDispatcher("/logout.jsp");
+        requestDispatcher.forward(request, response);
+    }
     
+    protected void doLogoutPost(HttpServletRequest request, HttpServletResponse response)
+        throws ServletException, IOException {
+        
+        HttpSession session = request.getSession();
+                
+        //We need to figure out if the user is logging out now, or not.
+        //then invalidate the session BEFORE including the header, so it shows correctly.
+        
+        User user = (User)session.getAttribute("user");
+        Customer customer = (Customer)session.getAttribute("customer");
+        //Store for later
+        boolean isLoggedIn = (user != null);
+        
+        session.invalidate();
+             
+    }
+    
+    protected void doCancelGet(HttpServletRequest request, HttpServletResponse response)
+        throws ServletException, IOException {
+        RequestDispatcher requestDispatcher; 
+        requestDispatcher = request.getRequestDispatcher("/cancel_registration.jsp");
+        requestDispatcher.forward(request, response);
+    }
+    
+    protected void doCancelPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        
+        HttpSession session = request.getSession();
+                
+        //Invalidate the session BEFORE including the header, so it shows correctly.
+        
+        User user = (User)session.getAttribute("user");
+        
+        boolean isLoggedIn = (user != null);
+
+        //Setup flash messages
+        Flash flash = Flash.getInstance(session);
+
+        Logging.logMessage("Updating profile");
+        
+        try
+        {
+            //submitted form
+            if (request.getParameter("doCancel") != null)
+            {
+                //Create a connection to the DB for users table
+                IUser dbUser = new DBUser();
+                //set Access level to 0 to invalidate the account
+                user.setAccessLevel(0);
+                
+                boolean updated = (user.update(dbUser));
+                Logging.logMessage("Updated profile");
+
+                if (updated){
+                    flash.add(Flash.MessageType.Success, "Your profile was cancelled successfully!");
+                    session.setAttribute("userCancelled" , true);
+                    }
+                else{
+                    flash.add(Flash.MessageType.Error, "Failed to cancel your profile");
+                }
+                
+            }
+            else
+            {
+                flash.add(Flash.MessageType.Error, "Form submission failed");
+            }
+            RequestDispatcher requestDispatcher;
+            requestDispatcher = request.getRequestDispatcher("/index.jsp");
+            requestDispatcher.forward(request, response);
+        }
+        catch (Exception e)
+        {
+            Logging.logMessage("Unable to cancel account");
+            return;
+        }
+    }
     /**
      * Returns a short description of the servlet.
      *

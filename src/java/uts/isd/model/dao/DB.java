@@ -19,6 +19,6 @@ protected String db = "iotdb";//name of the database
 protected String dbuser = "iotdb";//db root user   
 protected String dbpass = "iotdb"; //db root password   
 protected String driver = "org.apache.derby.jdbc.ClientDriver"; //jdbc client driver - built in with NetBeans   
-protected Connection conn; //connection null-instance to be initialized in sub-classes
+protected static Connection conn; //connection null-instance to be initialized in sub-classes
 
 }

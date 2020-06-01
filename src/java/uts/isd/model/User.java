@@ -8,16 +8,11 @@ package uts.isd.model;
 import uts.isd.model.dao.*;
 
 import java.io.Serializable;
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.sql.ResultSet;
 import java.text.ParseException;
 import java.util.Date;
 import java.text.SimpleDateFormat;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.servlet.ServletRequest;
 import uts.isd.util.Hash;
 import uts.isd.util.Logging;
@@ -76,7 +71,6 @@ public class User implements Serializable {
         {
             Logging.logMessage("Unable to load User from ResultSet for ID", e);
         }
-        
     }
 
     public User(String email) {
@@ -185,6 +179,16 @@ public class User implements Serializable {
             Logging.logMessage("Failed to delete user", e);
             return false;
         }        
+    }
+    
+    /**
+     * This method determines if a user has access to admin functions.
+     * 
+     * @return Returns ture if user is an admin.
+     */
+    public boolean isAdmin()
+    {
+        return (this.accessLevel >= 10);
     }
 
     public int getId() {
