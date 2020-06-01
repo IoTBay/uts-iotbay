@@ -4,6 +4,7 @@
  * and open the template in the editor.
  */
 package uts.isd.model.dao;
+import java.util.List;
 import javax.servlet.ServletRequest;
 import uts.isd.model.Product;
 import uts.isd.model.User;
@@ -36,7 +37,7 @@ public interface IProduct {
      * 
      * @return List of all users
      */
-    public Iterable<Product> getAllProducts();
+    public List<Product> getAllProducts();
     
     /* Update queries */
     
@@ -64,7 +65,7 @@ public interface IProduct {
      * @return Returns true if user was deleted, or false if it failed
      */
 
-    public boolean deleteProductById(int id);
+    public boolean deleteProduct(Product pr);
  
 }
 

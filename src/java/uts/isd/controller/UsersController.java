@@ -218,14 +218,14 @@ public class UsersController extends HttpServlet {
                 //Load products
                 Product p1 = new Product();
                 p1.setId(1);
-                p1.setCurrencyId(1);
+                //p1.setCurrencyId(1);
                 p1.setCategoryId(1);
                 p1.setName("Widget");
                 p1.setDescription("This is a widget");
                 p1.setPrice(12.50);
                 Product p2 = new Product();
                 p2.setId(2);
-                p2.setCurrencyId(1);
+                //p2.setCurrencyId(1);
                 p2.setCategoryId(2);
                 p2.setName("Thingy");
                 p2.setDescription("This is a thingy");
@@ -367,14 +367,14 @@ public class UsersController extends HttpServlet {
                 //Load products
                 Product p1 = new Product();
                 p1.setId(1);
-                p1.setCurrencyId(1);
+                //p1.setCurrencyId(1);
                 p1.setCategoryId(1);
                 p1.setName("Widget");
                 p1.setDescription("This is a widget");
                 p1.setPrice(12.50);
                 Product p2 = new Product();
                 p2.setId(2);
-                p2.setCurrencyId(1);
+                //p2.setCurrencyId(1);
                 p2.setCategoryId(2);
                 p2.setName("Thingy");
                 p2.setDescription("This is a thingy");

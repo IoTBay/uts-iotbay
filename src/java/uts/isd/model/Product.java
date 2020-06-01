@@ -19,7 +19,7 @@ public class Product {
     
     private int id;
     private int categoryId;
-    private int currencyId;
+    //private int currencyId;
     private String name;
     private double price;
     private String description;
@@ -119,6 +119,18 @@ public class Product {
         }        
     }
     
+    public boolean delete(IProduct pr)
+    {
+        try {
+            boolean deleted = pr.deleteProduct(this);
+            return deleted; 
+        }
+        catch (Exception e) {
+            Logging.logMessage("Failed to delete product", e);
+            return false; 
+        }
+    }
+    
     /**
      * This method populates this instance's properties based on form inputs.
      * 
@@ -174,13 +186,13 @@ public class Product {
         this.categoryId = categoryId;
     }
     
-    public int getCurrencyId() {
+    /* public int getCurrencyId() {
         return this.currencyId;
     }
     
     public void setCurrencyId(int currencyId) {
         this.currencyId = currencyId;
-    }
+    } */
 
     public String getName() {
         return name;
