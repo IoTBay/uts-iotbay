@@ -8,6 +8,7 @@ package uts.isd.model;
 import java.sql.ResultSet;
 import java.util.Date;
 import javax.servlet.ServletRequest;
+import uts.isd.model.dao.IProduct;
 import uts.isd.util.Logging;
 
 /**
@@ -18,7 +19,7 @@ public class Product {
     
     private int id;
     private int categoryId;
-    private int currencyId;
+    //private int currencyId;
     private String name;
     private double price;
     private String description;
@@ -26,7 +27,6 @@ public class Product {
     private int initialQuantity;
     private int currentQuantity;
     private String lastReorderDate;
-    
     private Date createdDate;
     private int createdBy;
     private Date modifiedDate;
@@ -35,13 +35,13 @@ public class Product {
     public Product() {
     }
     
-    public Product(int id, int categoryId, String name, double price, String description) {
+    /*public Product(int id, int categoryId, String name, double price, String description) {
         this.id = id;
         this.categoryId = categoryId;
         this.name = name;
         this.price = price;
         this.description = description;
-    }
+    } */
     
     /**
      * This constructor takes an SQL ResultSet and grabs the values from the DB Record
@@ -49,6 +49,8 @@ public class Product {
      * 
      * @param rs The SQL ResultSet row to populate values from.
      */
+    
+    //For searching 
     public Product(ResultSet rs)
     {
         try
@@ -61,7 +63,6 @@ public class Product {
             this.image = rs.getString("Image");
             this.initialQuantity = rs.getInt("InitialQuantity");
             this.currentQuantity = rs.getInt("CurrentQuantity");
-            
             this.createdDate = rs.getDate("CreatedDate");
             this.createdBy = rs.getInt("CreatedBy");
             this.modifiedDate = rs.getDate("ModifiedDate");
@@ -74,28 +75,99 @@ public class Product {
         
     }
     
+    public void loadRequest(ServletRequest request)
+    {
+        this.loadRequest(request, null);
+    }
+    
+    //load values from the fields into the object 
+    public void loadRequest(ServletRequest request, User changedBy)
+    {
+        if (request.getParameter("name") != null) 
+            this.name = request.getParameter("name");
+        Logging.logMessage("the categor is " + request.getParameter("categoryId"));
+        this.categoryId = Integer.parseInt(request.getParameter("categoryId"));
+        this.price = Double.parseDouble(request.getParameter("price"));
+        this.description = request.getParameter("description");
+        this.initialQuantity = Integer.parseInt(request.getParameter("initialQuantity"));
+        this.currentQuantity = Integer.parseInt(request.getParameter("initialQuantity"));
+        this.createdDate = new Date();
+        this.modifiedDate = new Date();
+        this.createdBy = 1;
+        this.modifiedBy = 1;
+        if (changedBy != null)
+        {
+            this.createdBy = changedBy.getId(); //Set this properly
+            this.modifiedBy = changedBy.getId(); //Set this properly.
+        } 
+    }
+    
+    public boolean add(IProduct pr)
+    {
+        try
+        {
+            //Assumes the User object (this) has been populated already.
+            //Takes object properties and inserts into DB.
+            boolean added = pr.addProduct(this);
+            //Always close DB when done.
+            return added;
+        }
+        catch (Exception e)
+        {
+            Logging.logMessage("Failed to add product", e);
+            return false;
+        }        
+    }
+    
+    public boolean delete(IProduct pr)
+    {
+        try {
+            boolean deleted = pr.deleteProduct(this);
+            return deleted; 
+        }
+        catch (Exception e) {
+            Logging.logMessage("Failed to delete product", e);
+            return false; 
+        }
+    }
+    
     /**
      * This method populates this instance's properties based on form inputs.
      * 
      * @param request The controller's HTTPServlet POST request properties.
      * @return boolean - Returns true if adding the properties was successful. Otherwise false.
      */
+    
     public boolean addProduct(ServletRequest request)
     {
         if (request.getParameter("id") != null)
             this.id = Integer.parseInt(request.getParameter("id"));
-        
         this.categoryId = Integer.parseInt(request.getParameter("categoryId"));
         this.price = Double.parseDouble(request.getParameter("productId"));
         this.name = request.getParameter("name");
         this.description = request.getParameter("description");
-
         this.createdDate = new Date();
         this.modifiedDate = new Date();
         this.createdBy = 0;
         this.modifiedBy = 0;
-        
         return true;
+    }
+    
+    public boolean update(IProduct db)
+    {
+        try
+        {
+            //Assumes the User object (this) has been populated already.
+            //Takes object properties and updates in DB.
+            boolean updated = db.updateProduct(this);
+            //Always close DB when done.
+            return updated;
+        }
+        catch (Exception e)
+        {
+            Logging.logMessage("Failed to update product", e);
+            return false;
+        }
     }
 
     public int getId() {
@@ -114,13 +186,13 @@ public class Product {
         this.categoryId = categoryId;
     }
     
-    public int getCurrencyId() {
+    /* public int getCurrencyId() {
         return this.currencyId;
     }
     
     public void setCurrencyId(int currencyId) {
         this.currencyId = currencyId;
-    }
+    } */
 
     public String getName() {
         return name;
@@ -193,4 +265,5 @@ public class Product {
     public int getModifiedBy() {
         return this.modifiedBy;
     }
+
 }

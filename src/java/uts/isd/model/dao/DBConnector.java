@@ -14,17 +14,19 @@ public class DBConnector extends DB {
     public DBConnector() throws ClassNotFoundException, SQLException
     {
         Class.forName(driver);
-        conn = DriverManager.getConnection(URL, dbuser, dbpass);
+        
+        //Connection object is static so we don't create a bunch of new connections.
+        if (this.conn == null)
+            conn = DriverManager.getConnection(URL, dbuser, dbpass);
     }
 
-    public Connection openConnection() 
-    {
+    public Connection openConnection()
+    { 
         return this.conn;
     }
 
-    public void closeConnection() throws SQLException 
+    public void closeConnection() throws SQLException
     {
         this.conn.close();
     }
-
 }

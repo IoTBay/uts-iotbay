@@ -5,7 +5,9 @@
  */
 package uts.isd.model;
 
+import java.sql.ResultSet;
 import javax.servlet.ServletRequest;
+import uts.isd.util.Logging;
 
 /**
  *
@@ -16,18 +18,26 @@ public class OrderLine {
     private int id;
     private int orderId;
     private int productId;
+    private Product product;
     private int quantity;
     private double unitPrice;
     
     public OrderLine() {
     }
 
-    public OrderLine(int id, int orderId, int productId, int quantity, double unitPrice) {
-        this.id = id;
-        this.orderId = orderId;
-        this.productId = productId;
-        this.quantity = quantity;
-        this.unitPrice = unitPrice;
+    public OrderLine(ResultSet rs) {
+        try
+        {
+            this.id = rs.getInt("ID");
+            this.orderId = rs.getInt("OrderID");
+            this.productId = rs.getInt("ProductID");
+            this.quantity = rs.getInt("Quantity");
+            this.unitPrice = rs.getDouble("UnitPrice");
+        }
+        catch (Exception e)
+        {
+            Logging.logMessage("Unable to load OrderLine from ResultSet", e);
+        }
     }
     
     /**
@@ -71,6 +81,10 @@ public class OrderLine {
 
     public void setProductId(int productId) {
         this.productId = productId;
+    }
+    
+    public void setProduct(Product product) {
+        this.product = product;
     }
 
     public int getQuantity() {
