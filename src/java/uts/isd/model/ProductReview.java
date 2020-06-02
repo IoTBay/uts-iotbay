@@ -1,6 +1,6 @@
 /*
  * UTS Introduction to Software Development
- * IOT Bay - Assignment 1
+ * IOT Bay - Assignment 2
  * @author Rhys Hanrahan 11000801
  */
 package uts.isd.model;
@@ -10,7 +10,8 @@ import javax.servlet.ServletRequest;
 
 /**
  *
- * @author rhys
+ * @author Rhys Hanrahan 11000801
+ * @since 2020-05-16
  */
 public class ProductReview {
     private int id;

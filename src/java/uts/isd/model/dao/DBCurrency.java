@@ -1,7 +1,7 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * UTS Introduction to Software Development
+ * IOT Bay - Assignment 2
+ * @author Rhys Hanrahan 11000801
  */
 package uts.isd.model.dao;
 
@@ -19,7 +19,8 @@ import uts.isd.util.Logging;
  * 
  * In our case the DBManager class implements a repository pattern interface for the entity.
  * 
- * @author rhys
+ * @author Rhys Hanrahan 11000801
+ * @since 2020-06-02
  */
 public class DBCurrency implements ICurrency {
     

@@ -1,6 +1,6 @@
 /*
  * UTS Introduction to Software Development
- * IOT Bay - Assignment 1
+ * IOT Bay - Assignment 2
  * @author Rhys Hanrahan 11000801
  */
 package uts.isd.model;
@@ -14,8 +14,10 @@ import uts.isd.model.dao.IOrder;
 import uts.isd.util.Logging;
 
 /**
- *
- * @author rhys
+ * Order model
+ * 
+ * @author Rhys Hanrahan 11000801
+ * @since 2020-05-16
  */
 public class Order {
     

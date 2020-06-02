@@ -10,8 +10,10 @@ import javax.servlet.ServletRequest;
 import uts.isd.util.Logging;
 
 /**
- *
- * @author rhys
+ * OrderLine model
+ * 
+ * @author Rhys Hanrahan 11000801
+ * @since 2020-05-16
  */
 public class OrderLine {
     

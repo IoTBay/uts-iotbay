@@ -18,8 +18,10 @@ import uts.isd.model.dao.*;
 import uts.isd.util.Flash;
 
 /**
- *
- * @author rhys
+ * Orders controller
+ * 
+ * @author Rhys Hanrahan 11000801
+ * @since 2020-05-30
  */
 public class OrdersController extends HttpServlet {
 
