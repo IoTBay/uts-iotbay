@@ -21,7 +21,7 @@ public class Order {
     
     private int id;
     private int customerId;
-    //private int currencyId;
+    private int currencyId;
     private int userId;
     private int billingAddressId;
     private int shippingAddressId;
@@ -71,7 +71,7 @@ public class Order {
             this.id = rs.getInt("ID");
             this.customerId = rs.getInt("CustomerID");
             this.userId = rs.getInt("UserID");
-            this.currencyId = rs.getInt("CurrencyID");
+            //this.currencyId = rs.getInt("CurrencyID");
             this.billingAddressId = rs.getInt("BillingAddressID");
             this.shippingAddressId = rs.getInt("ShippingAddressID");
             this.paymentMethodId = rs.getInt("PaymentMethodID");
@@ -110,7 +110,7 @@ public class Order {
         if (request.getParameter("userId") != null)
             this.userId = Integer.parseInt(request.getParameter("userId"));
 
-        this.currencyId = Integer.parseInt("currencyId");
+        //this.currencyId = Integer.parseInt("currencyId");
         this.shippingAddressId = Integer.parseInt(request.getParameter("shippingAddressId"));
         this.billingAddressId = Integer.parseInt(request.getParameter("billingAddressId"));
         this.paymentMethodId = Integer.parseInt(request.getParameter("paymentMethodId"));

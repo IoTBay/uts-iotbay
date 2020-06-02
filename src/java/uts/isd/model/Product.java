@@ -16,10 +16,9 @@ import uts.isd.util.Logging;
  * @author rhys
  */
 public class Product {
-    
     private int id;
     private int categoryId;
-    //private int currencyId;
+    private int currencyId;
     private String name;
     private double price;
     private String description;
@@ -34,15 +33,6 @@ public class Product {
 
     public Product() {
     }
-    
-    /*public Product(int id, int categoryId, String name, double price, String description) {
-        this.id = id;
-        this.categoryId = categoryId;
-        this.name = name;
-        this.price = price;
-        this.description = description;
-    } */
-    
     /**
      * This constructor takes an SQL ResultSet and grabs the values from the DB Record
      * to populate each property in the user model.
@@ -59,7 +49,7 @@ public class Product {
             this.categoryId = rs.getInt("CategoryID");
             //this.defaultCurrencyId = 
             this.name = rs.getString("Name");
-            this.description = rs.getString("Description");
+            this.description = rs.getString("description");
             this.image = rs.getString("Image");
             this.initialQuantity = rs.getInt("InitialQuantity");
             this.currentQuantity = rs.getInt("CurrentQuantity");
@@ -75,9 +65,36 @@ public class Product {
         
     }
     
+    public Product(int id){
+        this.id = id; 
+    }
+    
     public void loadRequest(ServletRequest request)
     {
         this.loadRequest(request, null);
+    }
+    
+     public Product(int id, int categoryId, int currencyId, String name, double price, String description, String image, int initialQuantity, int currentQuantity, String lastReorderDate, Date createdDate, int createdBy, Date modifiedDate, int modifiedBy) {
+        this(categoryId, currencyId, name, price, description, image, initialQuantity, currentQuantity, lastReorderDate, createdDate, createdBy, modifiedDate,modifiedBy);
+        this.id = id;
+    }
+     
+    public Product(int categoryId, int currencyId, String name, double price, String description, String image, int initialQuantity, int currentQuantity, String lastReorderDate, Date createdDate, int createdBy, Date modifiedDate, int modifiedBy) {
+        this.categoryId = categoryId;
+        this.currencyId = currencyId;
+        this.name = name;
+        this.price = price;
+        this.description = description;
+        this.image = image; 
+        this.initialQuantity = initialQuantity; 
+        this.currentQuantity = currentQuantity;
+        this.lastReorderDate = lastReorderDate;
+        this.createdDate = createdDate;
+        this.createdBy = createdBy;
+        this.modifiedDate = modifiedDate;
+        this.modifiedBy = modifiedBy;
+                
+                     
     }
     
     //load values from the fields into the object 
@@ -150,6 +167,7 @@ public class Product {
         this.modifiedDate = new Date();
         this.createdBy = 0;
         this.modifiedBy = 0;
+        this.currencyId = 1;
         return true;
     }
     

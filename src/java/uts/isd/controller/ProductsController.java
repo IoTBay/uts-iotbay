@@ -6,6 +6,7 @@
 package uts.isd.controller;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import javax.servlet.RequestDispatcher;
@@ -53,6 +54,11 @@ public class ProductsController extends HttpServlet {
             case "/update":
                 ProductUpdateGet(request, response);
                 break;
+            case "/edit":
+                //showEditForm(request, response);
+            default:
+                listProduct(request,response);
+                break;
         }
     }
     
@@ -73,6 +79,8 @@ public class ProductsController extends HttpServlet {
             case "/update":
                 ProductUpdatePost(request, response);
                 break;
+            case "/edit":
+                //showEditForm(request, response);
         }
     }
    
@@ -161,7 +169,7 @@ public class ProductsController extends HttpServlet {
     
     protected void ProductUpdateGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         RequestDispatcher requestDispatcher; 
-        requestDispatcher = request.getRequestDispatcher("/update_product.jsp");
+        requestDispatcher = request.getRequestDispatcher("/add_product.jsp");
         requestDispatcher.forward(request, response);
         
     }
@@ -195,7 +203,7 @@ public class ProductsController extends HttpServlet {
                 product.loadRequest(request);
                 //boolean updated = (product.update(dbProduct));
                 boolean updated = product.update(dbProduct);
-                Logging.logMessage("SOMETHING IS HAPPENING HERE BUT I DON'T KNOW WHAT");
+                Logging.logMessage("Update");
 
                 if (updated)
                     flash.add(Flash.MessageType.Success, "The product was successfully updated!");
@@ -208,7 +216,7 @@ public class ProductsController extends HttpServlet {
             }
             
             RequestDispatcher requestDispatcher; 
-            requestDispatcher = request.getRequestDispatcher("/update_product.jsp");
+            requestDispatcher = request.getRequestDispatcher("/add_product.jsp");
             requestDispatcher.forward(request, response);
         }
         catch (Exception e)
@@ -241,7 +249,8 @@ public class ProductsController extends HttpServlet {
         requestDispatcher.forward(request, response);
     }
     
-    protected void deleteProductPost(HttpServletRequest request, HttpServletResponse response)throws ServletException, IOException {
+    protected void deleteProductPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
        
         HttpSession session = request.getSession();
         User user = (User)session.getAttribute("user");
@@ -289,6 +298,44 @@ public class ProductsController extends HttpServlet {
         }
     }
     
+     private void showEditForm(HttpServletRequest request, HttpServletResponse response) 
+             throws ServletException, IOException {
+         HttpSession session = request.getSession();
+        User user = (User)session.getAttribute("user");
+        Customer customer = (Customer)session.getAttribute("customer");
+        boolean isLoggedIn = (user != null && customer != null);
+        try 
+        {  
+            if (isLoggedIn) {
+                int id = Integer.parseInt(request.getParameter("id"));
+                DBProduct dbProduct = new DBProduct();
+                Product existingProduct = dbProduct.getProductById(id);
+                RequestDispatcher dispatcher = request.getRequestDispatcher("view_product.jsp");
+                request.setAttribute("product", existingProduct);
+                dispatcher.forward(request, response);
+                }
+        } 
+        catch (Exception e) 
+        {
+            Logging.logMessage("Unable to show form");
+            return;
+        }
+     }
+     
+     private void listProduct(HttpServletRequest request, HttpServletResponse response)
+            throws IOException, ServletException {
+         
+        try{ 
+        DBProduct dbProduct = new DBProduct(); 
+        List<Product> listProduct = dbProduct.getAllProducts(); 
+        request.setAttribute("listProduct", listProduct);
+        RequestDispatcher dispatcher = request.getRequestDispatcher("BookList.jsp");
+        dispatcher.forward(request, response);} catch (Exception e) {
+            Logging.logMessage("Unable to list products");
+            return;
+        }
+        
+    }
     
   
   @Override
