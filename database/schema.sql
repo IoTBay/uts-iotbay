@@ -171,6 +171,16 @@ CREATE TABLE PaymentTransactions (
    PRIMARY KEY (ID)
 );
 
+CREATE TABLE AuditLogs (
+   ID INTEGER NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),
+   Entity VARCHAR(30) NOT NULL,
+   Event VARCHAR(30) NOT NULL,
+   Message VARCHAR(30) NOT NULL,
+   EventCustomer INTEGER NOT NULL,
+   EventDate TIMESTAMP NOT NULL,
+   PRIMARY KEY (ID)
+);
+
 --- Now setup foreign keys
 -- Addresses
 
