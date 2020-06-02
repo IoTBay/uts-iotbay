@@ -45,7 +45,6 @@ CREATE TABLE Addresses (
    State VARCHAR(30) NOT NULL,
    Postcode VARCHAR(4) NOT NULL,
    Country VARCHAR(30) NOT NULL,
-   BirthDate TIMESTAMP,
    CreatedDate TIMESTAMP NOT NULL,
    CreatedBy INTEGER NOT NULL,
    ModifiedDate TIMESTAMP,

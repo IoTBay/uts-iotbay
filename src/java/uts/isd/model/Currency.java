@@ -31,6 +31,12 @@ public class Currency {
     
     public Currency() { }
     
+    /**
+     * This constructor takes an SQL ResultSet and grabs the values from the DB Record
+     * to populate each property in the user model.
+     * 
+     * @param rs The SQL ResultSet row to populate values from.
+     */
     public Currency(ResultSet rs)
     {
         try

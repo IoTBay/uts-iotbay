@@ -22,6 +22,9 @@ public class ValidateTrim extends ValidationMethod {
     @Override
     public boolean validate(String field, String value, HttpServletRequest request) 
     {
+        if (request == null || request.getParameter(field) == null)
+            return true;
+        
         String s = request.getParameter(field).trim();
         request.setAttribute(field, s);
         return true;

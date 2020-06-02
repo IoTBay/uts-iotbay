@@ -27,8 +27,8 @@
         <li class="list-group-item d-flex justify-content-between lh-condensed">
           <div class="col-md-1">
               <div class="btn-group" role="group" aria-label="Change item quantity">
-                <a href="<%= URL.Absolute("/order/decrease_item/"+line.getId(), request) %>" class="btn btn-outline-dark">-</a>
-                <a href="<%= URL.Absolute("/order/increase_item/"+line.getId(), request) %>" class="btn btn-outline-dark">+</a>
+                <a href="<%= URL.Absolute("order/decrease_item/"+line.getId(), request) %>" class="btn btn-outline-dark">-</a>
+                <a href="<%= URL.Absolute("order/increase_item/"+line.getId(), request) %>" class="btn btn-outline-dark">+</a>
               </div>
           </div>
           <div class="col-md-10">
@@ -41,8 +41,8 @@
         <li class="list-group-item d-flex justify-content-between lh-condensed">
           <div class="col-md-1">
               <div class="btn-group" role="group" aria-label="Change item quantity">
-                <a href="<%= URL.Absolute("/order/decrease_item/1/1", request) %>" class="btn btn-outline-dark">-</a>
-                <a href="<%= URL.Absolute("/order/increase_item/1/1", request) %>" class="btn btn-outline-dark">+</a>
+                <a href="<%= URL.Absolute("order/decrease_item/1/1", request) %>" class="btn btn-outline-dark">-</a>
+                <a href="<%= URL.Absolute("order/increase_item/1/1", request) %>" class="btn btn-outline-dark">+</a>
               </div>
           </div>
           <div class="col-md-10">
@@ -61,7 +61,7 @@
   </div>
   <hr>
   <% if (order != null && !order.isEmpty()) { %>
-  <a href="<%= URL.Absolute("/order/checkout", request) %>" class="btn btn-primary">Checkout</a>
+  <a href="<%= URL.Absolute("order/checkout", request) %>" class="btn btn-primary">Checkout</a>
   <hr>
   <% } %>
   </div> <!-- /container -->
