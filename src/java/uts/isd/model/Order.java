@@ -5,13 +5,10 @@
  */
 package uts.isd.model;
 
-import java.sql.ResultSet;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Date;
 import javax.servlet.ServletRequest;
-import uts.isd.model.dao.IOrder;
-import uts.isd.util.Logging;
 
 /**
  *
@@ -28,7 +25,6 @@ public class Order {
     private int paymentMethodId;
     private double totalCost;
     private int status;
-    
     private Date createdDate;
     private int createdBy;
     private Date modifiedDate;
@@ -36,29 +32,13 @@ public class Order {
 
     
     List<OrderLine> orderLines;
-    
-    public enum Status {
-        Draft,
-        Submitted,
-        PaymentProcessing,
-        PaymentSuccessful,
-        PickingOrder,
-        AwaitingPickup,
-        Delivering,
-        Completed,
-        
-        //Failed statuses
-        OutOfStock,
-        PaymentFailed,
-        OnHold,
-        Cancelled
-    }
 
     public Order() {
         this.orderLines = new ArrayList<>();
     }
     
     /**
+<<<<<<< HEAD
      * This constructor takes an SQL ResultSet and grabs the values from the DB Record
      * to populate each property in the user model.
      * 
@@ -95,12 +75,14 @@ public class Order {
     }
     
     /**
+=======
+>>>>>>> parent of a33e1e4... Merge pull request #24 from IoTBay/master
      * This method populates this instance's properties based on form inputs.
      * 
      * @param request The controller's HTTPServlet POST request properties.
-     * @param changedBy The customer who made this request.
+     * @return boolean - Returns true if adding the properties was successful. Otherwise false.
      */
-    public void loadRequest(ServletRequest request, Customer changedBy)
+    public boolean addOrder(ServletRequest request)
     {
         if (request.getParameter("id") != null)
             this.id = Integer.parseInt(request.getParameter("id"));
@@ -110,7 +92,10 @@ public class Order {
         if (request.getParameter("userId") != null)
             this.userId = Integer.parseInt(request.getParameter("userId"));
 
+<<<<<<< HEAD
         //this.currencyId = Integer.parseInt("currencyId");
+=======
+>>>>>>> parent of a33e1e4... Merge pull request #24 from IoTBay/master
         this.shippingAddressId = Integer.parseInt(request.getParameter("shippingAddressId"));
         this.billingAddressId = Integer.parseInt(request.getParameter("billingAddressId"));
         this.paymentMethodId = Integer.parseInt(request.getParameter("paymentMethodId"));
@@ -119,71 +104,14 @@ public class Order {
 
         this.createdDate = new Date();
         this.modifiedDate = new Date();
+        this.createdBy = 0;
+        this.modifiedBy = 0;
         
-        if (changedBy != null)
-        {
-            this.createdBy = changedBy.getId();
-            this.modifiedBy = changedBy.getId();
-        }
-        else
-        {
-            this.createdBy = 1;
-            this.modifiedBy = 1;
-        }
+        this.orderLines = new ArrayList<>();
         
-        this.orderLines = new ArrayList<>();        
+        return true;
     }
-    
-    public boolean add(IOrder db)
-    {
-        try
-        {
-            //Assumes the User object (this) has been populated already.
-            //Takes object properties and inserts into DB.
-            boolean added = db.addOrder(this);
-            //Always close DB when done.
-            return added;
-        }
-        catch (Exception e)
-        {
-            Logging.logMessage("Failed to add order", e);
-            return false;
-        }        
-    }
-    
-    public boolean update(IOrder db)
-    {
-        try
-        {
-            //Assumes the User object (this) has been populated already.
-            //Takes object properties and inserts into DB.
-            boolean updated = db.updateOrder(this);
-            //Always close DB when done.
-            return updated;
-        }
-        catch (Exception e)
-        {
-            Logging.logMessage("Failed to update order", e);
-            return false;
-        }        
-    }
-    
-    public boolean delete(IOrder db)
-    {
-        try
-        {
-            //Assumes the User object (this) has been populated already.
-            //Takes object properties and inserts into DB.
-            boolean deleted = db.deleteOrderById(this.id);
-            //Always close DB when done.
-            return deleted;
-        }
-        catch (Exception e)
-        {
-            Logging.logMessage("Failed to delete order", e);
-            return false;
-        }        
-    }
+
 
     public int getId() {
         return id;
@@ -199,14 +127,6 @@ public class Order {
 
     public void setCustomerId(int customerId) {
         this.customerId = customerId;
-    }
-    
-    public int getCurrencyId() {
-        return currencyId;
-    }
-    
-    public void setCurrencyId(int currencyId) {
-        this.currencyId = currencyId;
     }
 
     public int getUserId() {

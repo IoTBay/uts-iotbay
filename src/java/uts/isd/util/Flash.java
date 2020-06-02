@@ -7,7 +7,6 @@ package uts.isd.util;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import javax.servlet.http.HttpSession;
 
@@ -68,26 +67,21 @@ public class Flash {
     public String displayMessages()
     {
         String messages = "";
+        List<Integer> deleteIndexes = new ArrayList<Integer>();
         
         for (int i = 0; i < this.messages.size(); i++)
         {
             FlashMessage message = this.messages.get(i);
             messages += message.outputMessage();
+            deleteIndexes.add(i);
         }
         
         //Remove messages that have been displayed.
-        //Using iterator as a (hopefully) safe way to remove
-        //multiple displayed messages from the list.
-        //See: https://www.geeksforgeeks.org/remove-element-arraylist-java/
-        
-        Iterator i = this.messages.iterator();
-        while (i.hasNext())
+        for (int index: deleteIndexes)
         {
-            FlashMessage m = (FlashMessage)i.next();
-            if (m.Displayed())
-                i.remove();
+            this.messages.remove(index);
         }
-           
+        
         //Update session
         this.session.setAttribute(Flash.FLASH_SESSION_KEY, this.messages);
         
@@ -98,23 +92,15 @@ public class Flash {
         
         private MessageType type;
         private String value;
-        private boolean displayed;
         
         public FlashMessage(MessageType type, String value)
         {
             this.type = type;
             this.value = value;
-            this.displayed = false;
-        }
-        
-        public boolean Displayed() 
-        {
-            return this.displayed;  
         }
         
         public String outputMessage()
         {
-            this.displayed = true;
             String out = "";
             switch (this.type)
             {
