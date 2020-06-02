@@ -6,7 +6,7 @@
 <%
   Flash flash = Flash.getInstance(session);
   Validator v = new Validator(session);
-  Order order = (Order)request.getAttribute("order");
+  Order order = (Order)session.getAttribute("order");
 %>
 <main role="main">
   <div style="margin-top: 50px;"></div>
@@ -52,7 +52,7 @@
           <span class="text-muted">$5</span>
         </li>
         <li class="list-group-item d-flex justify-content-between">
-          <span>Total (AUD)</span>
+          <span>Total (<%= order.getCurrency().getAbbreviation() %>)</span>
           <strong>$<%= order.getTotalCostFormatted() %></strong>
         </li>
       </ul>

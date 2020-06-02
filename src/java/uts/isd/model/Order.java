@@ -22,6 +22,7 @@ public class Order {
     private int id;
     private int customerId;
     private int currencyId;
+    private Currency currency;
     private int userId;
     private int billingAddressId;
     private int shippingAddressId;
@@ -207,6 +208,14 @@ public class Order {
     
     public void setCurrencyId(int currencyId) {
         this.currencyId = currencyId;
+    }
+    
+    public Currency getCurrency() {
+        return this.currency;
+    }
+    
+    public void setCurrency(Currency currency) {
+        this.currency = currency;
     }
 
     public int getUserId() {

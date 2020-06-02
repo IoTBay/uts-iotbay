@@ -5,8 +5,10 @@
  */
 package uts.isd.model;
 
+import java.sql.ResultSet;
 import java.util.Date;
 import javax.servlet.ServletRequest;
+import uts.isd.util.Logging;
 
 /**
  *
@@ -27,10 +29,24 @@ public class Currency {
     
     public Currency() { }
     
-    public Currency(String name, String abbreviation)
+    public Currency(ResultSet rs)
     {
-        this.name = name;
-        this.abbreviation = abbreviation;
+        try
+        {
+            this.name = rs.getString("Name");
+            this.abbreviation = rs.getString("Abbreviation");
+            this.costConversionRate = rs.getDouble("CostConversionRate");
+            this.retailConversionRate = rs.getDouble("RetailConversionRate");
+            
+            this.createdDate = rs.getDate("CreatedDate");
+            this.createdBy = rs.getInt("CreatedBy");
+            this.modifiedDate = rs.getDate("ModifiedDate");
+            this.modifiedBy = rs.getInt("ModifiedBy");      
+        }
+        catch (Exception e)
+        {
+            Logging.logMessage("Unable to load Currency from ResultSet", e);
+        }
     }
     
     /**
