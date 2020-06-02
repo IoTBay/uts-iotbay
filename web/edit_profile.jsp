@@ -1,3 +1,4 @@
+<%@page import="uts.isd.validation.Validator"%>
 <%@page import="uts.isd.util.URL"%>
 <%@page import="uts.isd.model.*"%>
 <%@page import="java.util.List"%>
@@ -9,6 +10,8 @@
     User user = (User)session.getAttribute("user");
     Customer customer = (Customer)session.getAttribute("customer");
     boolean isLoggedIn = (user != null);
+    
+    Validator v = new Validator(session);
 %>
 
 <main role="main">
@@ -24,21 +27,21 @@
         <div class="form-group row">
           <label for="firstName" class="col-sm-2 col-form-label">First Name</label>
           <div class="col-sm-10">
-            <input type="text" class="form-control col-md-5" id="firstName" name="firstName" value="<%= customer.getFirstName() %>">
+            <input type="text" class="form-control col-md-5" id="firstName" name="firstName" value="<%= v.repopulate("firstName", customer.getFirstName()) %>">
           </div>
         </div>
           
         <div class="form-group row">
           <label for="lastName" class="col-sm-2 col-form-label">Last Name</label>
           <div class="col-sm-10">
-            <input type="text" class="form-control col-md-5" id="lastName" name="lastName" value="<%= customer.getLastName() %>">
+            <input type="text" class="form-control col-md-5" id="lastName" name="lastName" value="<%= v.repopulate("lastName", customer.getLastName()) %>">
           </div>
         </div>
           
         <div class="form-group row">
           <label for="email" class="col-sm-2 col-form-label">Email</label>
           <div class="col-sm-10">
-            <input type="email" class="form-control col-md-5" id="email" name="email" value="<%= customer.getEmail() %>">
+              <input type="email" class="form-control col-md-5" id="email" name="email" value="<%= v.repopulate("email", customer.getEmail()) %>">
           </div>
         </div>
           

@@ -12,7 +12,8 @@ import java.util.logging.Logger;
 /**
  * This class has logging related utility functions.
  * 
- * @author rhys
+ * @author Rhys Hanrahan 11000801
+ * @since 2020-05-19
  */
 public class Logging {
     

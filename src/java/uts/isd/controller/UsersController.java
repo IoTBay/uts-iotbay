@@ -158,7 +158,7 @@ public class UsersController extends HttpServlet {
             */
             
             Validator validator = new Validator(new ValidatorFieldRules[] {
-                new ValidatorFieldRules("Email", "email", "required|trim|email"),
+                new ValidatorFieldRules("Email", "email", "required|trim|email"), 
                 new ValidatorFieldRules("Password", "password", "required|longerthan[2]")
             });
             
