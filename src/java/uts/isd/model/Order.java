@@ -5,10 +5,12 @@
  */
 package uts.isd.model;
 
+import java.sql.ResultSet;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Date;
 import javax.servlet.ServletRequest;
+import uts.isd.util.Logging;
 
 /**
  *
@@ -38,7 +40,6 @@ public class Order {
     }
     
     /**
-<<<<<<< HEAD
      * This constructor takes an SQL ResultSet and grabs the values from the DB Record
      * to populate each property in the user model.
      * 
@@ -75,8 +76,6 @@ public class Order {
     }
     
     /**
-=======
->>>>>>> parent of a33e1e4... Merge pull request #24 from IoTBay/master
      * This method populates this instance's properties based on form inputs.
      * 
      * @param request The controller's HTTPServlet POST request properties.
@@ -91,11 +90,10 @@ public class Order {
         
         if (request.getParameter("userId") != null)
             this.userId = Integer.parseInt(request.getParameter("userId"));
-
-<<<<<<< HEAD
         //this.currencyId = Integer.parseInt("currencyId");
-=======
->>>>>>> parent of a33e1e4... Merge pull request #24 from IoTBay/master
+
+
+
         this.shippingAddressId = Integer.parseInt(request.getParameter("shippingAddressId"));
         this.billingAddressId = Integer.parseInt(request.getParameter("billingAddressId"));
         this.paymentMethodId = Integer.parseInt(request.getParameter("paymentMethodId"));
