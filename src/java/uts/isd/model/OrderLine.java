@@ -86,6 +86,10 @@ public class OrderLine {
     public void setProduct(Product product) {
         this.product = product;
     }
+    
+    public Product getProduct() {
+        return this.product;
+    }
 
     public int getQuantity() {
         return quantity;

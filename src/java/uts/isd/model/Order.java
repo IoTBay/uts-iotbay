@@ -272,6 +272,10 @@ public class Order {
     public int getLineCount() {
         return this.orderLines.size();
     }
+    
+    public boolean isEmpty() {
+        return (this.orderLines.size() == 0);
+    }
 
     public void setOrderLines(List<OrderLine> orderLines) {
         this.orderLines = orderLines;
