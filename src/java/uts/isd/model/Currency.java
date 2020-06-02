@@ -14,7 +14,7 @@ import uts.isd.util.Logging;
  * Currency model
  * 
  * @author Rhys Hanrahan 11000801
- * @since 2020-05-25
+ * @since 2020-06-02
  */
 public class Currency {
     

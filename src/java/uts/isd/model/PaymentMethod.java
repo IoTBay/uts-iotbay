@@ -9,7 +9,7 @@ import java.util.Date;
 import javax.servlet.ServletRequest;
 
 /**
- * 
+ * Payment Method model
  * 
  * @author Rhys Hanrahan 11000801
  * @since 2020-05-16

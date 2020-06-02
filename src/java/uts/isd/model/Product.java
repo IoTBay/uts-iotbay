@@ -205,9 +205,17 @@ public class Product {
     public double getPrice() {
         return price;
     }
-
+    
     public void setPrice(double price) {
         this.price = price;
+    }
+    
+    public String getPriceFormatted(String format) {
+        return String.format(format, this.price);
+    }
+    
+    public String getPriceFormatted() {
+        return String.format("$%.02f", this.price);
     }
 
     public String getDescription() {

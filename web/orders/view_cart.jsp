@@ -35,7 +35,7 @@
             <h6 class="my-0"><%= line.getProduct().getName() %></h6>
             <small class="text-muted"><%= line.getProduct().getDescription() %></small>
           </div>
-          <span class="text-muted">$<%= line.getUnitPriceFormatted() %></span>
+          <span class="text-muted"><%= line.getUnitPriceFormatted() %></span>
         </li>
         <% } %>
         <li class="list-group-item d-flex justify-content-between lh-condensed">
@@ -53,7 +53,7 @@
         </li>
         <li class="list-group-item d-flex justify-content-between">
           <span>Total (<%= order.getCurrency().getAbbreviation() %>)</span>
-          <strong>$<%= order.getTotalCostFormatted() %></strong>
+          <strong><%= order.getTotalCostFormatted() %></strong>
         </li>
       </ul>
       <% } %>
