@@ -12,7 +12,8 @@ import uts.isd.model.Customer;
  * 
  * See repository pattern: http://blog.sapiensworks.com/post/2014/06/02/The-Repository-Pattern-For-Dummies.aspx
  *
- * @author Rhys Hanrahan - 11000801
+ * @author Rhys Hanrahan 11000801
+ * @since 2020-05-25
  */
 public interface ICustomer {
     

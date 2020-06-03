@@ -1,6 +1,6 @@
 /*
  * UTS Introduction to Software Development
- * IOT Bay - Assignment 1
+ * IOT Bay - Assignment 2
  * @author Rhys Hanrahan 11000801
  */
 package uts.isd.model;
@@ -14,14 +14,17 @@ import uts.isd.model.dao.IOrder;
 import uts.isd.util.Logging;
 
 /**
- *
- * @author rhys
+ * Order model
+ * 
+ * @author Rhys Hanrahan 11000801
+ * @since 2020-05-16
  */
 public class Order {
     
     private int id;
     private int customerId;
     private int currencyId;
+    private Currency currency;
     private int userId;
     private int billingAddressId;
     private int shippingAddressId;
@@ -208,6 +211,14 @@ public class Order {
     public void setCurrencyId(int currencyId) {
         this.currencyId = currencyId;
     }
+    
+    public Currency getCurrency() {
+        return this.currency;
+    }
+    
+    public void setCurrency(Currency currency) {
+        this.currency = currency;
+    }
 
     public int getUserId() {
         return userId;
@@ -271,6 +282,10 @@ public class Order {
     
     public int getLineCount() {
         return this.orderLines.size();
+    }
+    
+    public boolean isEmpty() {
+        return (this.orderLines.size() == 0);
     }
 
     public void setOrderLines(List<OrderLine> orderLines) {

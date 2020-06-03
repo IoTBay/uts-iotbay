@@ -20,7 +20,8 @@ import uts.isd.util.Logging;
  * 
  * In our case the DBManager class implements a repository pattern interface for the entity.
  * 
- * @author rhys
+ * @author Rhys Hanrahan 11000801
+ * @since 2020-05-25
  */
 public class DBOrder implements IOrder {
     

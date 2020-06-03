@@ -9,8 +9,12 @@
         <servlet-class>uts.isd.controller.ProductsController</servlet-class>
     </servlet>
     <servlet>
-        <servlet-name>OrdersController</servlet-name>                           
-        <servlet-class>uts.isd.controller.OrdersController</servlet-class>  
+        <servlet-name>OrdersController</servlet-name>
+        <servlet-class>uts.isd.controller.OrdersController</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>AddressesController</servlet-name>
+        <servlet-class>uts.isd.controller.AddressesController</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>UsersController</servlet-name>
@@ -21,8 +25,12 @@
         <url-pattern>/product/*</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
-        <servlet-name>OrdersController</servlet-name>                           
-        <url-pattern>/order/*</url-pattern>  
+        <servlet-name>OrdersController</servlet-name>
+        <url-pattern>/order/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>AddressesController</servlet-name>
+        <url-pattern>/addresses/*</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>
