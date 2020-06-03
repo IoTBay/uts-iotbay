@@ -12,11 +12,17 @@ import java.util.ArrayList;
 import java.util.List;
 import uts.isd.model.Address;
 import uts.isd.util.Logging;
-/**
- *
- * @author C_fin
- */
 
+/**
+ * DBManager is the primary DAO class to interact with the database. 
+ * Complete the existing methods of this classes to perform CRUD operations with the db.
+ * Each entity/table has it's own implementation.
+ * 
+ * In our case the DBManager class implements a repository pattern interface for the entity.
+ * 
+ * @author Rhys Hanrahan 11000801
+ * @since 2020-06-02
+ */
 public class DBAddress implements IAddress{
     
     private Connection conn;
@@ -55,10 +61,10 @@ public class DBAddress implements IAddress{
     }
     
     @Override
-    public List<Address> getAllAddressesByUserId(int id)
+    public List<Address> getAllAddressesByCustomerId(int id)
     {
         try {
-            PreparedStatement p = this.conn.prepareStatement("SELECT * FROM APP.Addresses WHERE UserID = ?");
+            PreparedStatement p = this.conn.prepareStatement("SELECT * FROM APP.Addresses WHERE CustomerID = ?");
             p.setInt(1, id);
             ResultSet rs = p.executeQuery();
             
@@ -73,7 +79,7 @@ public class DBAddress implements IAddress{
         }
         catch (Exception e)
         {
-            Logging.logMessage("Unable to getAllAddressesByUserId", e);
+            Logging.logMessage("Unable to getAllAddressesByCustomerId", e);
             return null;
         }
     }

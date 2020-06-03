@@ -58,9 +58,10 @@ public class AddressesController extends HttpServlet {
          *   </servlet-mapping>
          */
         
+        //If no action is specified in the URI - e.g. /addresses then assume we're listing.
         if (request.getPathInfo() == null || request.getPathInfo().equals("/"))
         {
-            doListAddressesGet(request, response);
+            doListAddressesGet(request, response, "");
             return;
         }
         
@@ -72,7 +73,9 @@ public class AddressesController extends HttpServlet {
         switch (segments[1])
         {
             case "list":
-                doListAddressesGet(request, response);
+                //Pass segment[2] in as the customerId if one is given in this request.
+                //This is so staff can view addresses for any customer with /adddresses/list/xxx
+                doListAddressesGet(request, response, (segments.length == 3 ? segments[2] : ""));
                 break;
                 
             case "add":
@@ -92,7 +95,7 @@ public class AddressesController extends HttpServlet {
         }
     }
 
-    protected void doListAddressesGet(HttpServletRequest request, HttpServletResponse response)
+    protected void doListAddressesGet(HttpServletRequest request, HttpServletResponse response, String customerIdStr)
             throws ServletException, IOException 
     {
         Flash flash = Flash.getInstance(request.getSession());
@@ -106,8 +109,17 @@ public class AddressesController extends HttpServlet {
                 return;
             }
             
+            int customerId = user.getCustomerId(); //Default to seeing current user's addresses.
+            
+             //Only staff can access records that don't belong to them.
+            if (user.isAdmin() && !customerIdStr.isEmpty())
+            {
+                //Change to specified customerId if given
+                customerId = Integer.parseInt(customerIdStr);
+            }
+            
             IAddress dbAddress = new DBAddress();
-            List<Address> addresses = dbAddress.getAllAddressesByUserId(user.getId());
+            List<Address> addresses = dbAddress.getAllAddressesByCustomerId(customerId);
             request.setAttribute("addresses", addresses);
         } 
         catch (Exception e) 
@@ -160,6 +172,22 @@ public class AddressesController extends HttpServlet {
             IAddress dbAddress = new DBAddress();
             //Get the existing address from the DB so we can pass it to the view to pre-load values.
             Address address = dbAddress.getAddressById(addressId);
+            
+            if (address == null)
+            {
+                flash.add(Flash.MessageType.Error, "Unable to find address to edit");
+                URL.GoBack(request, response);
+                return;
+            }
+            
+            //Only staff can access records not related to them.
+            if ((address.getCustomerId() != user.getCustomerId()) && !user.isAdmin())
+            {
+                flash.add(Flash.MessageType.Error, "Access denied");
+                URL.GoBack(request, response);
+                return;
+            }
+            
             //Set the address object on the request so it can be used by the view for this request only.
             //i.e. Don't use the session because this is for a single page request.
             request.setAttribute("address", address);
@@ -328,7 +356,15 @@ public class AddressesController extends HttpServlet {
             
             if (address == null)
             {
-                flash.add(Flash.MessageType.Error, "Unable to find product to edit");
+                flash.add(Flash.MessageType.Error, "Unable to find address to edit");
+                URL.GoBack(request, response);
+                return;
+            }
+            
+             //Only staff can access records not related to them.
+            if ((address.getCustomerId() != user.getCustomerId()) && !user.isAdmin())
+            {
+                flash.add(Flash.MessageType.Error, "Access denied");
                 URL.GoBack(request, response);
                 return;
             }
