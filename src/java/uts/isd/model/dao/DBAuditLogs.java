@@ -44,14 +44,29 @@ public class DBAuditLogs {
         
     public DBAuditLogs() throws SQLException, ClassNotFoundException { 
         
-        
+        DBAuditLogs.getInstance();
+
+    }
+    
+    private static Connection getInstance()
+    {
         //Using a static DB connection here so that we can make it easier to
         //add new audit log entries.
-        if (DBAuditLogs.conn == null)
+        try
         {
+            if (DBAuditLogs.conn != null)
+            {
+                return DBAuditLogs.conn;
+            }
+            
             DBConnector connector = new DBConnector();
             DBAuditLogs.conn = connector.openConnection();
         }
+        catch (Exception e)
+        {
+            Logging.logMessage("Can't find class DBConnector for DBAuditLogs", e);
+        }
+        return DBAuditLogs.conn;
     }
     
     /**
@@ -66,8 +81,10 @@ public class DBAuditLogs {
      */
     public static boolean addEntry(Entity entity, String event, String message, int customerId)
     {
+        Connection connection = DBAuditLogs.getInstance();
+        
         try {
-            PreparedStatement p = DBAuditLogs.conn.prepareStatement("INSERT INTO APP.AuditLogs (CustomerID, Entity, Event, Message, EventDate) VALUES (?, ?, ?, ?, ?)");
+            PreparedStatement p = connection.prepareStatement("INSERT INTO APP.AuditLogs (CustomerID, Entity, Event, Message, EventDate) VALUES (?, ?, ?, ?, ?)");
             p.setInt(1, customerId);
             p.setString(2, entity.toString());
             p.setString(3, event);
