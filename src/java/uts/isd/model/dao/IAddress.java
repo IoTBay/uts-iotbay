@@ -31,13 +31,13 @@ public interface IAddress {
     public List<Address> getAllAddresses();
     
     /**
-     * Returns all addresses in the addresses table for a particular user
+     * Returns all addresses in the addresses table for a particular customer
      * 
-     * @param id The user ID to get addresses for
+     * @param id The customer ID to get addresses for
      * 
      * @return List of addresses
      */
-    public List<Address> getAllAddressesByUserId(int id);
+    public List<Address> getAllAddressesByCustomerId(int id);
     
     /* Update queries */
     
