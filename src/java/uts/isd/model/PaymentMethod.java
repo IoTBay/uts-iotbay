@@ -5,8 +5,13 @@
  */
 package uts.isd.model;
 
+import java.sql.ResultSet;
 import java.util.Date;
 import javax.servlet.ServletRequest;
+import uts.isd.model.dao.DBCustomer;
+import uts.isd.model.dao.ICustomer;
+import uts.isd.model.dao.IPaymentMethod;
+import uts.isd.util.Logging;
 
 /**
  * Payment Method model
@@ -33,13 +38,41 @@ public class PaymentMethod {
     public PaymentMethod() {
     }
     
+ /**
+     * This constructor takes an SQL ResultSet and grabs the values from the DB Record
+     * to populate each property in the user model.
+     * 
+     * @param rs The SQL ResultSet row to populate values from.
+     */
+    public PaymentMethod(ResultSet rs) {
+        try
+        {
+            this.id = rs.getInt("ID");
+            this.customerId = rs.getInt("CustomerID");
+            this.userId = rs.getInt("UserID");
+            this.defaultPayment = rs.getBoolean("DefaultPayment");
+            this.paymentType = rs.getInt("PaymentType");
+            this.cardName = rs.getString("CardName");
+            this.cardNumber = rs.getString("CardNumber");
+            this.cardCVV = rs.getString("CardCVV");
+            
+            this.createdDate = rs.getDate("CreatedDate");
+            this.createdBy = rs.getInt("CreatedBy");
+            this.modifiedDate = rs.getDate("ModifiedDate");
+            this.modifiedBy = rs.getInt("ModifiedBy");            
+        }
+        catch (Exception e)
+        {
+            Logging.logMessage("Unable to load PaymentMethod from ResultSet for ID", e);
+        }
+    }
+    
     /**
      * This method populates this instance's properties based on form inputs.
      * 
      * @param request The controller's HTTPServlet POST request properties.
-     * @return boolean - Returns true if adding the properties was successful. Otherwise false.
      */
-    public boolean addPaymentMethod(ServletRequest request)
+    public void loadRequest(ServletRequest request)
     {
         if (request.getParameter("id") != null)
             this.id = Integer.parseInt(request.getParameter("id"));
@@ -57,17 +90,62 @@ public class PaymentMethod {
         this.createdDate = new Date();
         this.modifiedDate = new Date();
         this.createdBy = 0;
-        this.modifiedBy = 0;
-        
-        return true;
+        this.modifiedBy = 0;        
+    }
+    
+    public boolean add(IPaymentMethod db, Customer customer)
+    {
+        try
+        {
+            //Assumes the PaymentMethod object (this) has been populated already.
+            //Takes object properties and inserts into DB.
+            boolean added = db.addPaymentMethod(this, customer);
+            //Always close DB when done.
+            return added;
+        }
+        catch (Exception e)
+        {
+            Logging.logMessage("Failed to add payment method", e);
+            return false;
+        }        
+    }
+    
+    public boolean update(IPaymentMethod db, Customer customer)
+    {
+        try
+        {
+            //Assumes the PaymentMethod object (this) has been populated already.
+            //Takes object properties and inserts into DB.
+            boolean updated = db.updatePaymentMethod(this, customer);
+            //Always close DB when done.
+            return updated;
+        }
+        catch (Exception e)
+        {
+            Logging.logMessage("Failed to update payment method", e);
+            return false;
+        }        
+    }
+    
+    public boolean delete(IPaymentMethod db)
+    {
+        try
+        {
+            //Assumes the PaymentMethod object (this) has been populated already.
+            //Takes object properties and inserts into DB.
+            boolean deleted = db.deletePaymentMethodById(this.id);
+            //Always close DB when done.
+            return deleted;
+        }
+        catch (Exception e)
+        {
+            Logging.logMessage("Failed to delete paymentMethod", e);
+            return false;
+        }        
     }
 
     public int getId() {
         return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
     }
 
     public int getCustomerId() {
@@ -90,40 +168,20 @@ public class PaymentMethod {
         return defaultPayment;
     }
 
-    public void setDefaultPayment(boolean defaultPayment) {
-        this.defaultPayment = defaultPayment;
-    }
-
     public int getPaymentType() {
         return paymentType;
-    }
-
-    public void setPaymentType(int paymentType) {
-        this.paymentType = paymentType;
     }
 
     public String getCardName() {
         return cardName;
     }
 
-    public void setCardName(String cardName) {
-        this.cardName = cardName;
-    }
-
     public String getCardNumber() {
         return cardNumber;
     }
 
-    public void setCardNumber(String cardNumber) {
-        this.cardNumber = cardNumber;
-    }
-
     public String getCardCVV() {
         return cardCVV;
-    }
-
-    public void setCardCVV(String cardCVV) {
-        this.cardCVV = cardCVV;
     }
     
     public Date getCreatedDate() {
@@ -134,11 +192,29 @@ public class PaymentMethod {
         return this.modifiedDate;
     }
     
-    public int getCreatedBy() {
-        return this.createdBy;
+    public Customer getCreatedBy() {
+        try
+        {
+            ICustomer dbCustomer = new DBCustomer();
+            Customer c = dbCustomer.getCustomerById(this.createdBy);
+            return c;
+        }
+        catch (Exception e)
+        {
+            return new Customer();
+        }
     }
     
-    public int getModifiedBy() {
-        return this.modifiedBy;
+    public Customer getModifiedBy() {
+        try
+        {
+            ICustomer dbCustomer = new DBCustomer();
+            Customer c = dbCustomer.getCustomerById(this.modifiedBy);
+            return c;
+        }
+        catch (Exception e)
+        {
+            return new Customer();
+        }
     }
 }

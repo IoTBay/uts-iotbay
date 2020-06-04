@@ -79,7 +79,6 @@ public class Address {
      * This method populates this instance's properties based on form inputs.
      * 
      * @param request The controller's HTTPServlet POST request properties.
-     * @param changedBy The customer who made this request.
      * 
      */
     public void loadRequest(ServletRequest request)
