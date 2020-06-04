@@ -181,10 +181,10 @@ public class DBProduct implements IProduct{
 
     //Delete products 
     @Override
-    public boolean deleteProduct(Product pr) {
+    public boolean deleteProductById(int id) {
         try {
-            PreparedStatement p = this.conn.prepareStatement("DELETE FROM APP.Products");
-            //p.setString(1, name);
+            PreparedStatement p = this.conn.prepareStatement("DELETE FROM APP.Products WHERE ID = ?");
+            p.setInt(1,id);
             //Was update successful?
             return (p.executeUpdate() > 0);
         }
