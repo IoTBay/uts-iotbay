@@ -72,6 +72,13 @@
         
             <row class="row">
                 <div class="col-md-6 mb-3">
+                <label for="staffcode">If you are a staff member, please enter your staff code</label>
+                <input type="text" class="form-control" id="accessLevel" name="accessLevel" placeholder="" value="">
+              </div>
+            </row>
+        
+            <row class="row">
+                <div class="col-md-6 mb-3">
                   <label for="dob_dd">Birth Date</label>
                   <div class="input-group">
                     <input type="text" class="form-control col-md-2" id="dob_dd" name="dob_dd" placeholder="DD" required>
@@ -107,6 +114,8 @@
                 </div>
               </div>
             </div>
+        
+            
 
         <!-- Shipping address form
         <div class="row">

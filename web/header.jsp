@@ -50,10 +50,10 @@
       <li class="nav-item">
         <div class=dropdown>
             <a class="nav-link" href="#" id="dropdown-admin" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Admin</a>
-            <div class="dropdown-menu" aria-labelledby="dropdown-cart">                
+            <div class="dropdown-menu" aria-labelledby="dropdown-cart">
                 <a class="dropdown-item" href="<%= URL.Absolute("admin/categories", request) %>">Categories</a>
                 <a class="dropdown-item" href="<%= URL.Absolute("admin/products", request) %>">Products</a>
-                <a class="dropdown-item" href="<%= URL.Absolute("admin/users", request) %>">Users</a>
+                <a class="dropdown-item" href="<%= URL.Absolute("staff/users", request) %>">Users</a>
                 <a class="dropdown-item" href="<%= URL.Absolute("admin/orders", request) %>">Orders</a>
                 <a class="dropdown-item" href="<%= URL.Absolute("admin/logs", request) %>">Access Logs</a>
                 <a class="dropdown-item" href="<%= URL.Absolute("admin/currencies", request) %>">Currencies</a>

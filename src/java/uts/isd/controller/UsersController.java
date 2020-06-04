@@ -182,7 +182,7 @@ public class UsersController extends HttpServlet {
                 flash.add(Flash.MessageType.Error, "Your username and/or password were incorrect for user "+request.getParameter("email"));
                 
                 //Re-load the login page
-                 RequestDispatcher requestDispatcher; 
+                RequestDispatcher requestDispatcher; 
                 requestDispatcher = request.getRequestDispatcher("/login.jsp");
                 requestDispatcher.forward(request, response);
             }
@@ -330,7 +330,7 @@ public class UsersController extends HttpServlet {
                 customer = new Customer();
                 customer.loadRequest(request);
                 customer.add(dbCustomer);
-
+                
                 //Create a connection to the DB for users table
                 IUser dbUser = new DBUser();
                 user = new User();
@@ -339,7 +339,10 @@ public class UsersController extends HttpServlet {
                 user.loadRequest(request);
                 boolean added = user.add(dbUser);
 
-
+                if(!request.getParameter("accessLevel").equals("10"))  { 
+                    user.setAccessLevel(1);
+                }
+                
                 if (added)
                     flash.add(Flash.MessageType.Success, "New user "+user.getEmail()+" added successfully!");
                 else
