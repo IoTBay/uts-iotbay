@@ -18,6 +18,7 @@ import uts.isd.model.Address;
 import uts.isd.model.Customer;
 import uts.isd.model.User;
 import uts.isd.model.dao.DBAddress;
+import uts.isd.model.dao.DBAuditLogs;
 import uts.isd.model.dao.IAddress;
 import uts.isd.util.Flash;
 import uts.isd.util.Logging;
@@ -278,7 +279,7 @@ public class AddressesController extends HttpServlet {
             
             IAddress dbAddress = new DBAddress();
             Address address = new Address();
-            address.loadRequest(request, customer);
+            address.loadRequest(request);
             
             if (customer != null)
                 address.setCustomerId(customer.getId());
@@ -286,8 +287,9 @@ public class AddressesController extends HttpServlet {
             if (user != null)
                 address.setUserId(user.getId());
             
-            if (dbAddress.addAddress(address))
+            if (dbAddress.addAddress(address, customer))
             {
+                DBAuditLogs.addEntry(DBAuditLogs.Entity.Addresses, "Added", "Added address", customer.getId());
                 flash.add(Flash.MessageType.Success, "New address added successfully");
                 response.sendRedirect(URL.Absolute("addresses/list", request));
                 return;
@@ -370,11 +372,12 @@ public class AddressesController extends HttpServlet {
             
             //Now load the submitted form fields into the address object
             //over the top of the DB data.
-            address.loadRequest(request, customer);
+            address.loadRequest(request);
             
             //Run update instead of add
-            if (dbAddress.updateAddress(address))
+            if (dbAddress.updateAddress(address, customer))
             {
+                DBAuditLogs.addEntry(DBAuditLogs.Entity.Addresses, "Updated", "Updated address", customer.getId());
                 flash.add(Flash.MessageType.Success, "Existing address updated successfully");
                 response.sendRedirect(URL.Absolute("addresses/list", request));
                 return;

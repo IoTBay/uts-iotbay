@@ -70,9 +70,10 @@ public interface IOrder {
      * Updates a order in the database based on the passed in Order model object.
      * 
      * @param o The order object to take updated values from.
+     * @param customer The user making the change
      * @return Returns true if order was updated, or false if no updates were performed.
      */
-    public boolean updateOrder(Order o);
+    public boolean updateOrder(Order o, Customer customer);
     
     /**
      * Updates a order line in the database based on the passed in OrderLine model object.
@@ -86,9 +87,10 @@ public interface IOrder {
      * Adds a order in the database based on the passed in Order model object.
      *
      * @param o The order object to insert values from
+     * @param customer The user making the change
      * @return Returns true if order was added, or false if no insert was performed.
      */
-    public boolean addOrder(Order o);
+    public boolean addOrder(Order o, Customer customer);
     
     /**
      * Adds a orderLine in the database based on the passed in OrderLine model object.

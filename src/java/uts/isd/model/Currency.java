@@ -8,6 +8,8 @@ package uts.isd.model;
 import java.sql.ResultSet;
 import java.util.Date;
 import javax.servlet.ServletRequest;
+import uts.isd.model.dao.DBCustomer;
+import uts.isd.model.dao.ICustomer;
 import uts.isd.util.Logging;
 
 /**
@@ -105,55 +107,33 @@ public class Currency {
         return createdDate;
     }
 
-    public int getCreatedBy() {
-        return createdBy;
-    }
-
     public Date getModifiedDate() {
         return modifiedDate;
     }
 
-    public int getModifiedBy() {
-        return modifiedBy;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setAbbreviation(String abbreviation) {
-        this.abbreviation = abbreviation;
-    }
-
-    public void setCostConversionRate(double costConversionRate) {
-        this.costConversionRate = costConversionRate;
-    }
-
-    public void setRetailConversionRate(double retailConversionRate) {
-        this.retailConversionRate = retailConversionRate;
-    }
-
-    public void setCreatedDate(Date createdDate) {
-        this.createdDate = createdDate;
-    }
-
-    public void setCreatedBy(int createdBy) {
-        this.createdBy = createdBy;
-    }
-
-    public void setModifiedDate(Date modifiedDate) {
-        this.modifiedDate = modifiedDate;
-    }
-
-    public void setModifiedBy(int modifiedBy) {
-        this.modifiedBy = modifiedBy;
+    public Customer getCreatedBy() {
+        try
+        {
+            ICustomer dbCustomer = new DBCustomer();
+            Customer c = dbCustomer.getCustomerById(this.createdBy);
+            return c;
+        }
+        catch (Exception e)
+        {
+            return new Customer();
+        }
     }
     
-    
-    
-    
+    public Customer getModifiedBy() {
+        try
+        {
+            ICustomer dbCustomer = new DBCustomer();
+            Customer c = dbCustomer.getCustomerById(this.modifiedBy);
+            return c;
+        }
+        catch (Exception e)
+        {
+            return new Customer();
+        }
+    }
 }

@@ -17,6 +17,7 @@ import javax.servlet.http.HttpSession;
 import uts.isd.model.ProductCategory;
 import uts.isd.model.Customer;
 import uts.isd.model.User;
+import uts.isd.model.dao.DBAuditLogs;
 import uts.isd.model.dao.DBCategory;
 import uts.isd.model.dao.ICategory;
 import uts.isd.util.Flash;
@@ -338,6 +339,7 @@ public class StaffCategoriesController extends HttpServlet {
             
             if (dbCategory.addCategory(category, customer))
             {
+                DBAuditLogs.addEntry(DBAuditLogs.Entity.ProductCategories, "Added", "Added category "+category.getName(), customer.getId());
                 flash.add(Flash.MessageType.Success, "New category added successfully");
                 response.sendRedirect(URL.Absolute("categories/list", request));
                 return;
@@ -409,6 +411,7 @@ public class StaffCategoriesController extends HttpServlet {
             //Run update instead of add
             if (dbCategory.updateCategory(category, customer))
             {
+                DBAuditLogs.addEntry(DBAuditLogs.Entity.ProductCategories, "Updated", "Updated category "+category.getName(), customer.getId());
                 flash.add(Flash.MessageType.Success, "Existing category updated successfully");
                 response.sendRedirect(URL.Absolute("categories/list", request));
                 return;
@@ -464,6 +467,7 @@ public class StaffCategoriesController extends HttpServlet {
             //Run update instead of add
             if (dbCategory.deleteCategoryById(categoryId))
             {
+                DBAuditLogs.addEntry(DBAuditLogs.Entity.ProductCategories, "Deleted", "Deleted category "+categoryStr, customer.getId());
                 flash.add(Flash.MessageType.Success, "Category deleted successfully");
                 response.sendRedirect(URL.Absolute("categories/list", request));
                 return;

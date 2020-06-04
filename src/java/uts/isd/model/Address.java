@@ -8,7 +8,9 @@ package uts.isd.model;
 import java.sql.ResultSet;
 import java.util.Date;
 import javax.servlet.ServletRequest;
+import uts.isd.model.dao.DBCustomer;
 import uts.isd.model.dao.IAddress;
+import uts.isd.model.dao.ICustomer;
 import uts.isd.util.Logging;
 
 /**
@@ -73,11 +75,6 @@ public class Address {
         }
     }
     
-    public void loadRequest(ServletRequest request)
-    {
-        this.loadRequest(request, null);
-    }
-    
     /**
      * This method populates this instance's properties based on form inputs.
      * 
@@ -85,7 +82,7 @@ public class Address {
      * @param changedBy The customer who made this request.
      * 
      */
-    public void loadRequest(ServletRequest request, Customer changedBy)
+    public void loadRequest(ServletRequest request)
     {
         if (request.getParameter("id") != null)
             this.id = Integer.parseInt(request.getParameter("id"));
@@ -114,28 +111,20 @@ public class Address {
         this.state = request.getParameter("state");
         this.postcode = request.getParameter("postcode");
         this.country = request.getParameter("country");
+        
         this.createdDate = new Date();
         this.modifiedDate = new Date();
-        
-        if (changedBy != null)
-        {
-            this.createdBy = changedBy.getId();
-            this.modifiedBy = changedBy.getId();
-        }
-        else
-        {
-            this.createdBy = 1;
-            this.modifiedBy = 1;
-        }
+        this.createdBy = 0;
+        this.modifiedBy = 0;
     }
     
-    public boolean add(IAddress db)
+    public boolean add(IAddress db, Customer customer)
     {
         try
         {
             //Assumes the Address object (this) has been populated already.
             //Takes object properties and inserts into DB.
-            boolean added = db.addAddress(this);
+            boolean added = db.addAddress(this, customer);
             //Always close DB when done.
             return added;
         }
@@ -146,13 +135,13 @@ public class Address {
         }        
     }
     
-    public boolean update(IAddress db)
+    public boolean update(IAddress db, Customer customer)
     {
         try
         {
             //Assumes the Address object (this) has been populated already.
             //Takes object properties and inserts into DB.
-            boolean updated = db.updateAddress(this);
+            boolean updated = db.updateAddress(this, customer);
             //Always close DB when done.
             return updated;
         }
@@ -292,12 +281,30 @@ public class Address {
         return this.modifiedDate;
     }
     
-    public int getCreatedBy() {
-        return this.createdBy;
+    public Customer getCreatedBy() {
+        try
+        {
+            ICustomer dbCustomer = new DBCustomer();
+            Customer c = dbCustomer.getCustomerById(this.createdBy);
+            return c;
+        }
+        catch (Exception e)
+        {
+            return new Customer();
+        }
     }
     
-    public int getModifiedBy() {
-        return this.modifiedBy;
+    public Customer getModifiedBy() {
+        try
+        {
+            ICustomer dbCustomer = new DBCustomer();
+            Customer c = dbCustomer.getCustomerById(this.modifiedBy);
+            return c;
+        }
+        catch (Exception e)
+        {
+            return new Customer();
+        }
     }
     
     //https://gist.github.com/whit3hawks/3b507d7005448eebb9c9e78ce853c254

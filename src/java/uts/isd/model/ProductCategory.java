@@ -8,7 +8,9 @@ package uts.isd.model;
 import java.sql.ResultSet;
 import java.util.Date;
 import javax.servlet.ServletRequest;
+import uts.isd.model.dao.DBCustomer;
 import uts.isd.model.dao.ICategory;
+import uts.isd.model.dao.ICustomer;
 import uts.isd.util.Logging;
 
 /**
@@ -152,11 +154,29 @@ public class ProductCategory {
         return this.modifiedDate;
     }
     
-    public int getCreatedBy() {
-        return this.createdBy;
+    public Customer getCreatedBy() {
+        try
+        {
+            ICustomer dbCustomer = new DBCustomer();
+            Customer c = dbCustomer.getCustomerById(this.createdBy);
+            return c;
+        }
+        catch (Exception e)
+        {
+            return new Customer();
+        }
     }
     
-    public int getModifiedBy() {
-        return this.modifiedBy;
+    public Customer getModifiedBy() {
+        try
+        {
+            ICustomer dbCustomer = new DBCustomer();
+            Customer c = dbCustomer.getCustomerById(this.modifiedBy);
+            return c;
+        }
+        catch (Exception e)
+        {
+            return new Customer();
+        }
     }
 }

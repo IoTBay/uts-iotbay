@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Date;
 import javax.servlet.ServletRequest;
+import uts.isd.model.dao.DBCustomer;
+import uts.isd.model.dao.ICustomer;
 import uts.isd.model.dao.IOrder;
 import uts.isd.util.Logging;
 
@@ -121,29 +123,20 @@ public class Order {
         this.status = Integer.parseInt(request.getParameter("status"));
 
         this.createdDate = new Date();
-        this.modifiedDate = new Date();
-        
-        if (changedBy != null)
-        {
-            this.createdBy = changedBy.getId();
-            this.modifiedBy = changedBy.getId();
-        }
-        else
-        {
-            this.createdBy = 1;
-            this.modifiedBy = 1;
-        }
+        this.modifiedDate = new Date();        
+        this.createdBy = 0;
+        this.modifiedBy = 0;
         
         this.orderLines = new ArrayList<>();        
     }
     
-    public boolean add(IOrder db)
+    public boolean add(IOrder db, Customer customer)
     {
         try
         {
             //Assumes the User object (this) has been populated already.
             //Takes object properties and inserts into DB.
-            boolean added = db.addOrder(this);
+            boolean added = db.addOrder(this, customer);
             //Always close DB when done.
             return added;
         }
@@ -154,13 +147,13 @@ public class Order {
         }        
     }
     
-    public boolean update(IOrder db)
+    public boolean update(IOrder db, Customer customer)
     {
         try
         {
             //Assumes the User object (this) has been populated already.
             //Takes object properties and inserts into DB.
-            boolean updated = db.updateOrder(this);
+            boolean updated = db.updateOrder(this, customer);
             //Always close DB when done.
             return updated;
         }
@@ -321,11 +314,29 @@ public class Order {
         return this.modifiedDate;
     }
     
-    public int getCreatedBy() {
-        return this.createdBy;
+    public Customer getCreatedBy() {
+        try
+        {
+            ICustomer dbCustomer = new DBCustomer();
+            Customer c = dbCustomer.getCustomerById(this.createdBy);
+            return c;
+        }
+        catch (Exception e)
+        {
+            return new Customer();
+        }
     }
     
-    public int getModifiedBy() {
-        return this.modifiedBy;
+    public Customer getModifiedBy() {
+        try
+        {
+            ICustomer dbCustomer = new DBCustomer();
+            Customer c = dbCustomer.getCustomerById(this.modifiedBy);
+            return c;
+        }
+        catch (Exception e)
+        {
+            return new Customer();
+        }
     }
 }
