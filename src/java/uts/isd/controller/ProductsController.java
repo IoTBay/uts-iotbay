@@ -59,11 +59,14 @@ public class ProductsController extends HttpServlet {
             case "add":
                 addProductGet(request, response);
                 break;
-            case "view":
+            case "list":
                 viewProductsGet(request, response);
                 break;
             case "update":
                 doUpdateProductGet(request, response, segments[2]);
+                break;
+            case "view":
+                viewProductGet(request, response, segments[2]);
                 break;
         }
     }
@@ -300,6 +303,47 @@ public class ProductsController extends HttpServlet {
         requestDispatcher = request.getRequestDispatcher("/view_product.jsp");
         requestDispatcher.forward(request, response);
     } 
+    
+    /**
+     * This funcion is for the customer view for a single product
+     * 
+     * @param request
+     * @param response
+     * @param productStr The productID to view, taken from the URI
+     * @throws ServletException
+     * @throws IOException 
+     */
+    protected void viewProductGet(HttpServletRequest request, HttpServletResponse response, String productStr) throws ServletException, IOException {
+
+        int productId = 0;
+        HttpSession session = request.getSession();
+        Flash flash = Flash.getInstance(session);
+        Product product;
+        
+        try {
+            productId = Integer.parseInt(productStr);
+            IProduct dbProduct = new DBProduct();
+            product = dbProduct.getProductById(productId);
+            
+            if (product == null)
+            {
+                flash.add(Flash.MessageType.Error, "The product was not found");
+                URL.GoBack(request, response);
+                return;
+            }
+            
+            request.setAttribute("product", product);
+            RequestDispatcher requestDispatcher; 
+            requestDispatcher = request.getRequestDispatcher("/products/view.jsp");
+            requestDispatcher.forward(request, response);
+            
+        }
+        catch (Exception e)
+        {
+            Logging.logMessage("Unable to view product ID"+productId, e);
+        }
+        
+    }
     
     protected void deleteProductGet(HttpServletRequest request, HttpServletResponse response)throws ServletException, IOException {
         

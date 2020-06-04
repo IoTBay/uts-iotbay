@@ -103,20 +103,43 @@ public class ValidatorFieldRules implements Serializable {
                     rulesList.add(new ValidateEmail());
                     break;
                     
+                case "integer":
+                    rulesList.add(new ValidateInteger());
+                    break;
+                    
+                case "double":
+                    rulesList.add(new ValidateDouble());
+                    break;
+                    
+                case "date":
+                    rulesList.add(new ValidateDate());
+                    break;
+                    
                 case "longerthan":
-                    Logging.logMessage("Matched rule 'longer' and extracted length: "+matches.group(2));
+                    Logging.logMessage("Matched rule 'longerthan' and extracted length: "+matches.group(2));
                     if (matches.groupCount() < 2)
                     {
                         Logging.logMessage("Could not extract length for longer than rule: "+rule);
                         continue;
                     }
-                    int length = Integer.parseInt(matches.group(2));
-                    rulesList.add(new ValidateLongerThan(length));
+                    rulesList.add(new ValidateLongerThan(Integer.parseInt(matches.group(2))));
+                    break;
+                    
+                case "shorterthan":
+                    Logging.logMessage("Matched rule 'shorterthan' and extracted length: "+matches.group(2));
+                    if (matches.groupCount() < 2)
+                    {
+                        Logging.logMessage("Could not extract length for longer than rule: "+rule);
+                        continue;
+                    }
+                    rulesList.add(new ValidateShorterThan(Integer.parseInt(matches.group(2))));
                     break;
             }
         }
         return rulesList;
     }
+    
+    
     
     public void addRule(ValidationMethod rule)
     {

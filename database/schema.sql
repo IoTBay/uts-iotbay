@@ -45,7 +45,6 @@ CREATE TABLE Addresses (
    State VARCHAR(30) NOT NULL,
    Postcode VARCHAR(4) NOT NULL,
    Country VARCHAR(30) NOT NULL,
-   BirthDate TIMESTAMP,
    CreatedDate TIMESTAMP NOT NULL,
    CreatedBy INTEGER NOT NULL,
    ModifiedDate TIMESTAMP,
@@ -178,12 +177,18 @@ CREATE TABLE AuditLogs (
    Entity VARCHAR(30) NOT NULL,
    Event VARCHAR(30) NOT NULL,
    Message VARCHAR(30) NOT NULL,
-   EventCustomer INTEGER NOT NULL,
+   CustomerID INTEGER NOT NULL,
    EventDate TIMESTAMP NOT NULL,
    PRIMARY KEY (ID)
 );
 
 --- Now setup foreign keys
+-- AuditLogs
+
+ALTER TABLE Addresses
+ADD FOREIGN KEY (EventCustomerID)
+REFERENCES Customers (ID);
+
 -- Addresses
 
 ALTER TABLE Addresses

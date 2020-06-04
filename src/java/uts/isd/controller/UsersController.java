@@ -158,7 +158,7 @@ public class UsersController extends HttpServlet {
             */
             
             Validator validator = new Validator(new ValidatorFieldRules[] {
-                new ValidatorFieldRules("Email", "email", "required|trim|email"),
+                new ValidatorFieldRules("Email", "email", "required|trim|email"), 
                 new ValidatorFieldRules("Password", "password", "required|longerthan[2]")
             });
             
@@ -194,10 +194,10 @@ public class UsersController extends HttpServlet {
                 ICustomer dbCustomer = new DBCustomer();
                 Customer customer = dbCustomer.getCustomerById(user.getCustomerId());
                 session.setAttribute("customer", customer);
-
+                
+                DBAuditLogs.addEntry(DBAuditLogs.Entity.Users, "LoggedIn", user.getEmail()+" has logged in.", customer.getId());
                 //Setup flash messages
                 flash.add(Flash.MessageType.Success, "You logged in successfully. Welcome back!");
-
 
                 //For now mock everything else till they are implemented.
 

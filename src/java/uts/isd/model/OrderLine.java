@@ -10,8 +10,10 @@ import javax.servlet.ServletRequest;
 import uts.isd.util.Logging;
 
 /**
- *
- * @author rhys
+ * OrderLine model
+ * 
+ * @author Rhys Hanrahan 11000801
+ * @since 2020-05-16
  */
 public class OrderLine {
     
@@ -25,6 +27,12 @@ public class OrderLine {
     public OrderLine() {
     }
 
+    /**
+     * This constructor takes an SQL ResultSet and grabs the values from the DB Record
+     * to populate each property in the user model.
+     * 
+     * @param rs The SQL ResultSet row to populate values from.
+     */
     public OrderLine(ResultSet rs) {
         try
         {
@@ -85,6 +93,10 @@ public class OrderLine {
     
     public void setProduct(Product product) {
         this.product = product;
+    }
+    
+    public Product getProduct() {
+        return this.product;
     }
 
     public int getQuantity() {

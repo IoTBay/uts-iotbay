@@ -8,14 +8,14 @@ package uts.isd.validation;
 import javax.servlet.http.HttpServletRequest;
 
 /**
- * Does not perform any validation, but trims whitespace from the field's value.
+ * Ensures the string input can be converted to integer
  * 
  * @author Rhys Hanrahan 11000801
- * @since 2020-05-29
+ * @since 2020-06-03
  */
-public class ValidateTrim extends ValidationMethod {
+public class ValidateInteger extends ValidationMethod {
         
-    public ValidateTrim()
+    public ValidateInteger()
     {
     }
     
@@ -23,16 +23,23 @@ public class ValidateTrim extends ValidationMethod {
     public boolean validate(String field, String value, HttpServletRequest request) 
     {
         if (request == null || request.getParameter(field) == null)
-            return true;
+            return false;
         
-        String s = request.getParameter(field).trim();
-        request.setAttribute(field, s);
+        try
+        {
+            int testVal = Integer.parseInt(request.getParameter(field));
+        }
+        catch (Exception e)
+        {
+            //If an exception is thrown then this wasn't a valid double
+            return false;
+        }
         return true;
     }
 
     @Override
     public String getError() {
-        return "";
+        return "is not a valid whole number.";
     }
     
 }
