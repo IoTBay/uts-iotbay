@@ -291,17 +291,31 @@ public class UsersController extends HttpServlet {
     protected void doRegisterPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         
-       Validator validator = new Validator(new ValidatorFieldRules[] {
-            new ValidatorFieldRules("Email", "email", new ValidationMethod[] {
-                new ValidateRequired(),
-                new ValidateEmail(),
-                new ValidateTrim()
-            }),
-            new ValidatorFieldRules("First Name", "firstName", new ValidationMethod[] {
-                new ValidateRequired()
-            })
-        });
+        Validator validator = new Validator(new ValidatorFieldRules[] {
+                new ValidatorFieldRules("First Name", "firstName", "required"),
+                new ValidatorFieldRules("Last Name", "lastName", "required"),
+                new ValidatorFieldRules("Phone", "phone", "required|longerthan[9]|shorterthan[11]"),
+                new ValidatorFieldRules("Email", "email", "required|trim|email"), 
+                new ValidatorFieldRules("Password", "password", "required|longerthan[2]"),
+            });
+            
+            if (!validator.validate(request))
+            {
+                response.sendRedirect(request.getHeader("referer"));
+                return;
+            }
         
+       /*Validator validator = new Validator(new ValidatorFieldRules[] {
+        *    new ValidatorFieldRules("Email", "email", new ValidationMethod[] {
+        *       new ValidateRequired(),
+        *       new ValidateEmail(),
+        *        new ValidateTrim()
+        *    }),
+        *    new ValidatorFieldRules("First Name", "firstName", new ValidationMethod[] {
+        *        new ValidateRequired()
+        *    })
+        *});
+        */
         HttpSession session = request.getSession();
         
         //We need to figure out if the user is logging out now, or not.
@@ -457,6 +471,19 @@ public class UsersController extends HttpServlet {
      
     protected void doProfileEditPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        
+         Validator validator = new Validator(new ValidatorFieldRules[] {
+                new ValidatorFieldRules("First Name", "firstName", "required"),
+                new ValidatorFieldRules("Last Name", "lastName", "required"),
+                new ValidatorFieldRules("Phone", "phone", "required|longerthan[9]|shorterthan[11]"),
+                new ValidatorFieldRules("Email", "email", "required|trim|email") 
+            });
+            
+            if (!validator.validate(request))
+            {
+                response.sendRedirect(request.getHeader("referer"));
+                return;
+            }
         
         HttpSession session = request.getSession();
         
