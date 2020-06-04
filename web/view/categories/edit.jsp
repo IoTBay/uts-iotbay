@@ -7,7 +7,7 @@
 <%
   Flash flash = Flash.getInstance(session);
   Validator v = new Validator(session);
-  Category category = (Category)request.getAttribute("category");
+  ProductCategory category = (ProductCategory)request.getAttribute("category");
 
 %>
 <main role="main">
@@ -18,7 +18,7 @@
         <div class="py-5 text-center">
             <h2>Edit <%= category.getName() %></h2>
         </div>
-            <form method="post" action="<%= URL.Absolute("categories/edit/"+category.getId(), request)%>">
+            <form method="post" action="<%= URL.Absolute("staff/categories/edit/"+category.getId(), request)%>">
             <div class="col-md-12">
                 <h4 class="mb-3">Category Details</h4>
                 <div class="row">

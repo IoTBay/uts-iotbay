@@ -20,6 +20,10 @@
         <servlet-name>CategoriesController</servlet-name>
         <servlet-class>uts.isd.controller.CategoriesController</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>StaffCategoriesController</servlet-name>
+        <servlet-class>uts.isd.controller.StaffCategoriesController</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>UsersController</servlet-name>
         <url-pattern>/user/*</url-pattern>
@@ -39,6 +43,10 @@
     <servlet-mapping>
         <servlet-name>CategoriesController</servlet-name>
         <url-pattern>/categories/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>StaffCategoriesController</servlet-name>
+        <url-pattern>/staff/categories/*</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>

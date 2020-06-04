@@ -14,7 +14,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import uts.isd.model.Category;
+import uts.isd.model.ProductCategory;
 import uts.isd.model.Customer;
 import uts.isd.model.User;
 import uts.isd.model.dao.DBCategory;
@@ -76,21 +76,7 @@ public class CategoriesController extends HttpServlet {
             case "view":
                 doViewCategoryGet(request, response, (segments.length == 3 ? segments[2] : ""));
                 break;
-                
-            case "add":
-                doAddCategoryGet(request, response);
-                break;
-                
-            case "edit":
-                //Segments[2] is the ID to edit in /addresses/edit/x
-                doUpdateCategoryGet(request, response, (segments.length == 3 ? segments[2] : ""));
-                break;
-                
-            case "delete":
-                //Segments[2] is the ID to delete in /addresses/delete/x
-                doDeleteCategoryGet(request, response, (segments.length == 3 ? segments[2] : ""));
-                break;
-                
+                                
         }
     }
 
@@ -101,7 +87,7 @@ public class CategoriesController extends HttpServlet {
         try
         {            
             ICategory dbCategory = new DBCategory();
-            List<Category> categories = dbCategory.getAllCategories();
+            List<ProductCategory> categories = dbCategory.getAllCategories();
             request.setAttribute("categories", categories);
         } 
         catch (Exception e) 
@@ -113,57 +99,25 @@ public class CategoriesController extends HttpServlet {
         }
         
         RequestDispatcher requestDispatcher; 
-        requestDispatcher = request.getRequestDispatcher("/view/categories/list.jsp");
+        requestDispatcher = request.getRequestDispatcher("/view/categories/list_customer.jsp");
         requestDispatcher.forward(request, response); 
     }
     
-    protected void doViewCategoryGet(HttpServletRequest request, HttpServletResponse response, String categoryIdStr)
-            throws ServletException, IOException 
-    {
-        
-    }
-    
-    protected void doAddCategoryGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException 
-    {
-        Flash flash = Flash.getInstance(request.getSession());
-        User user = (User)request.getSession().getAttribute("user");
-        
-        if (user == null || !user.isAdmin())
-        {
-            flash.add(Flash.MessageType.Error, "Access denied");
-            URL.GoBack(request, response);
-            return;
-        }
-            
-        RequestDispatcher requestDispatcher; 
-        requestDispatcher = request.getRequestDispatcher("/view/categories/add.jsp");
-        requestDispatcher.forward(request, response); 
-    }
-    
-    protected void doUpdateCategoryGet(HttpServletRequest request, HttpServletResponse response, String categoryStr)
+    protected void doViewCategoryGet(HttpServletRequest request, HttpServletResponse response, String categoryStr)
             throws ServletException, IOException 
     {
         Flash flash = Flash.getInstance(request.getSession());
         try
-        {
-            User user = (User)request.getSession().getAttribute("user");
-            if (user == null || !user.isAdmin())
-            {
-                flash.add(Flash.MessageType.Error, "Access denied");
-                URL.GoBack(request, response);
-                return;
-            }
-            
+        {   
             int categoryId = Integer.parseInt(categoryStr);
             
             ICategory dbCategory = new DBCategory();
             //Get the existing address from the DB so we can pass it to the view to pre-load values.
-            Category category = dbCategory.getCategoryById(categoryId);
+            ProductCategory category = dbCategory.getCategoryById(categoryId);
             
             if (category == null)
             {
-                flash.add(Flash.MessageType.Error, "Unable to find category to edit");
+                flash.add(Flash.MessageType.Error, "Unable to find category to view");
                 URL.GoBack(request, response);
                 return;
             }
@@ -173,62 +127,18 @@ public class CategoriesController extends HttpServlet {
             request.setAttribute("category", category);
             
             RequestDispatcher requestDispatcher; 
-            requestDispatcher = request.getRequestDispatcher("/view/categories/edit.jsp");
+            requestDispatcher = request.getRequestDispatcher("/view/categories/view_customer.jsp");
             requestDispatcher.forward(request, response); 
         } 
         catch (Exception e) 
         {
-            flash.add(Flash.MessageType.Error, "Unable to edit category");
-            Logging.logMessage("Unable to edit category");
+            flash.add(Flash.MessageType.Error, "Unable to view category");
+            Logging.logMessage("Unable to view category");
             URL.GoBack(request, response);
             return;
         }
     }
-    
-    protected void doDeleteCategoryGet(HttpServletRequest request, HttpServletResponse response, String categoryStr)
-            throws ServletException, IOException 
-    {
-        Flash flash = Flash.getInstance(request.getSession());
-        try
-        {
-            User user = (User)request.getSession().getAttribute("user");
-            if (user == null || !user.isAdmin())
-            {
-                flash.add(Flash.MessageType.Error, "Access denied");
-                URL.GoBack(request, response);
-                return;
-            }
-            
-            int categoryId = Integer.parseInt(categoryStr);
-            
-            ICategory dbCategory = new DBCategory();
-            //Get the existing address from the DB so we can pass it to the view to pre-load values.
-            Category category = dbCategory.getCategoryById(categoryId);
-            
-            if (category == null)
-            {
-                flash.add(Flash.MessageType.Error, "Unable to find category to delete");
-                URL.GoBack(request, response);
-                return;
-            }
-            
-            //Set the address object on the request so it can be used by the view for this request only.
-            //i.e. Don't use the session because this is for a single page request.
-            request.setAttribute("category", category);
-            
-            RequestDispatcher requestDispatcher; 
-            requestDispatcher = request.getRequestDispatcher("/view/categories/delete.jsp");
-            requestDispatcher.forward(request, response); 
-        } 
-        catch (Exception e) 
-        {
-            flash.add(Flash.MessageType.Error, "Unable to delete category");
-            Logging.logMessage("Unable to delete category");
-            URL.GoBack(request, response);
-            return;
-        }
-    }
-    
+        
     /**
      * Handles the HTTP <code>POST</code> method.
      *
@@ -241,210 +151,8 @@ public class CategoriesController extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException
     {
-        Logging.logMessage("** Path Info is: "+request.getPathInfo());
-        String[] segments = request.getPathInfo().split("/");
-        
-        switch (segments[1])
-        {
-                
-            case "add":
-                doAddCategoryPost(request, response);
-                break;
-                
-            case "edit":
-                //Segments[2] is the ID to edit in /addresses/edit/x
-                doUpdateCategoryPost(request, response, (segments.length == 3 ? segments[2] : ""));
-                break;
-                
-            case "delete":
-                //Segments[2] is the ID to delete in /addresses/delete/x
-                doDeleteCategoryPost(request, response, (segments.length == 3 ? segments[2] : ""));
-                break;
-                
-        }
+        Logging.logMessage("** Path Info is: "+request.getPathInfo());        
     }
-    
-    protected void doAddCategoryPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException 
-    {
-        HttpSession session = request.getSession();
-        Flash flash = Flash.getInstance(session);
-        User user = (User)session.getAttribute("user");
-        Customer customer = (Customer)session.getAttribute("customer");
-        boolean isLoggedIn = (customer != null && user != null);
-        
-        try
-        {
-            if (!isLoggedIn || !user.isAdmin())
-            {
-                flash.add(Flash.MessageType.Error, "Access denied");
-                URL.GoBack(request, response);
-                return;
-            }
-
-            Validator validator = new Validator(new ValidatorFieldRules[] {
-                 new ValidatorFieldRules("Name", "name", "trim|required"),
-                 new ValidatorFieldRules("Description", "description", "required"), 
-                 new ValidatorFieldRules("Image", "image", "trim")
-            });
-
-            if (!validator.validate(request))
-            {
-                URL.GoBack(request, response);
-                return;
-            }
-            
-            ICategory dbCategory = new DBCategory();
-            Category category = new Category();
-            category.loadRequest(request);
-            
-            if (dbCategory.addCategory(category, customer))
-            {
-                flash.add(Flash.MessageType.Success, "New category added successfully");
-                response.sendRedirect(URL.Absolute("categories/list", request));
-                return;
-            }
-            else
-            {
-                flash.add(Flash.MessageType.Error, "Failed to add new category");
-                RequestDispatcher requestDispatcher; 
-                requestDispatcher = request.getRequestDispatcher("/view/categories/add.jsp");
-                requestDispatcher.forward(request, response); 
-            }
-        }
-        catch (Exception e)
-        {
-            Logging.logMessage("Unable to add category", e);
-            flash.add(Flash.MessageType.Error, "Unable to add category");
-            URL.GoBack(request, response);
-            return;
-        }
-    }
-    
-    protected void doUpdateCategoryPost(HttpServletRequest request, HttpServletResponse response, String categoryStr)
-            throws ServletException, IOException 
-    {
-        HttpSession session = request.getSession();
-        Flash flash = Flash.getInstance(session);
-        User user = (User)session.getAttribute("user");
-        Customer customer = (Customer)session.getAttribute("customer");
-        boolean isLoggedIn = (customer != null && user != null);
-        
-        try
-        {
-            if (!isLoggedIn || !user.isAdmin())
-            {
-                flash.add(Flash.MessageType.Error, "Access denied");
-                URL.GoBack(request, response);
-                return;
-            }
-
-            Validator validator = new Validator(new ValidatorFieldRules[] {
-                 new ValidatorFieldRules("Name", "name", "trim|required"),
-                 new ValidatorFieldRules("Description", "description", "required"), 
-                 new ValidatorFieldRules("Image", "image", "trim")
-            });
-
-            if (!validator.validate(request))
-            {
-                URL.GoBack(request, response);
-                return;
-            }
-            
-            ICategory dbCategory = new DBCategory();
-            
-            //Instead of creating a blank address, fetch the existing address from the DB
-            //so we have a fully populated oobject and don't risk losing data.
-            int categoryId = Integer.parseInt(categoryStr);
-            Category category = dbCategory.getCategoryById(categoryId);
-            
-            if (category == null)
-            {
-                flash.add(Flash.MessageType.Error, "Unable to find category to edit");
-                URL.GoBack(request, response);
-                return;
-            }
-            //Now load the submitted form fields into the address object
-            //over the top of the DB data.
-            category.loadRequest(request);
-            
-            //Run update instead of add
-            if (dbCategory.updateCategory(category, customer))
-            {
-                flash.add(Flash.MessageType.Success, "Existing category updated successfully");
-                response.sendRedirect(URL.Absolute("categories/list", request));
-                return;
-            }
-            else
-            {
-                flash.add(Flash.MessageType.Error, "Failed to update category");
-                RequestDispatcher requestDispatcher; 
-                requestDispatcher = request.getRequestDispatcher("/view/categories/edit.jsp");
-                requestDispatcher.forward(request, response); 
-            }
-        }
-        catch (Exception e)
-        {
-            Logging.logMessage("Unable to update category", e);
-            flash.add(Flash.MessageType.Error, "Unable to update category");
-            URL.GoBack(request, response);
-            return;
-        }
-    }
-    
-    protected void doDeleteCategoryPost(HttpServletRequest request, HttpServletResponse response, String categoryStr)
-            throws ServletException, IOException 
-    {
-        HttpSession session = request.getSession();
-        Flash flash = Flash.getInstance(session);
-        User user = (User)session.getAttribute("user");
-        Customer customer = (Customer)session.getAttribute("customer");
-        boolean isLoggedIn = (customer != null && user != null);
-        
-        try
-        {
-            if (!isLoggedIn || !user.isAdmin())
-            {
-                flash.add(Flash.MessageType.Error, "Access denied");
-                URL.GoBack(request, response);
-                return;
-            }
-            
-            if (request.getParameter("doDelete") == null)
-            {
-                flash.add(Flash.MessageType.Error, "Delete request invalid");
-                URL.GoBack(request, response);
-                return;
-            }
-            
-            ICategory dbCategory = new DBCategory();
-            
-            //Instead of creating a blank address, fetch the existing address from the DB
-            //so we have a fully populated oobject and don't risk losing data.
-            int categoryId = Integer.parseInt(categoryStr);;
-            
-            //Run update instead of add
-            if (dbCategory.deleteCategoryById(categoryId))
-            {
-                flash.add(Flash.MessageType.Success, "Category deleted successfully");
-                response.sendRedirect(URL.Absolute("categories/list", request));
-                return;
-            }
-            else
-            {
-                flash.add(Flash.MessageType.Error, "Failed to delete category");
-                response.sendRedirect(URL.Absolute("categories/list", request));
-            }
-        }
-        catch (Exception e)
-        {
-            Logging.logMessage("Unable to delete category", e);
-            flash.add(Flash.MessageType.Error, "Unable to delete category");
-            URL.GoBack(request, response);
-            return;
-        }
-    }
-
 
     /**
      * Returns a short description of the servlet.

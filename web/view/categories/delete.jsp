@@ -19,7 +19,7 @@
             <h2>Delete <%= category.getName() %></h2>
         </div>
         <p>Are you sure you want to delete <%= category.getName() %>?</p>
-        <form method="post" action="<%= URL.Absolute("categories/delete/"+category.getId(), request) %>">
+        <form method="post" action="<%= URL.Absolute("staff/categories/delete/"+category.getId(), request) %>">
             <input type="submit" name="doDelete" value="Delete" class="btn btn-danger">
             <a href="<%= URL.Absolute("categories/list", request) %>" class="btn btn-primary">Go Back</a>
         </form>

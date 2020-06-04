@@ -17,7 +17,7 @@
             <h2>Add a category</h2>
             <p class="lead">Please add a category to contain products.</p>
         </div>
-        <form method="post" action="<%= URL.Absolute("categories/add", request)%>">
+        <form method="post" action="<%= URL.Absolute("staff/categories/add", request)%>">
             <div class="col-md-12">
                 <h4 class="mb-3">Category Details</h4>
                 <div class="row">

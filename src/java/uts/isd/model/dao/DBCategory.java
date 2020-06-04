@@ -10,7 +10,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import uts.isd.model.Category;
+import uts.isd.model.ProductCategory;
 import uts.isd.model.Customer;
 import uts.isd.util.Logging;
 
@@ -39,18 +39,18 @@ public class DBCategory implements ICategory{
     
     //Use this to show all of the categories in the database - use this for displaying in table
     @Override
-    public List<Category> getAllCategories() 
+    public List<ProductCategory> getAllCategories() 
     {
         try {
             PreparedStatement p = this.conn.prepareStatement("SELECT * FROM APP.ProductCategories");
             ResultSet rs = p.executeQuery();
             
             //Build list of category objects to return
-            List<Category> categories = new ArrayList<Category>();
+            List<ProductCategory> categories = new ArrayList<ProductCategory>();
             
             while (rs.next())
             {
-                categories.add(new Category(rs));
+                categories.add(new ProductCategory(rs));
             }
             return categories;
         }
@@ -63,7 +63,7 @@ public class DBCategory implements ICategory{
     
     //Adding a new category to the database 
     @Override
-    public boolean addCategory(Category a, Customer customer)
+    public boolean addCategory(ProductCategory a, Customer customer)
     {
         try {
             PreparedStatement p = this.conn.prepareStatement("INSERT  INTO APP.ProductCategories (Name, Description, Image, CreatedDate, CreatedBy) VALUES (?, ?, ?, ?, ?)");
@@ -85,7 +85,7 @@ public class DBCategory implements ICategory{
 
     //Updating an existing category in the database - this method only changes the stored values, it does not check category exists 
     @Override
-    public boolean updateCategory(Category a, Customer customer) {
+    public boolean updateCategory(ProductCategory a, Customer customer) {
         try {
             PreparedStatement p = this.conn.prepareStatement("UPDATE APP.ProductCategories SET Name = ?, Description = ?, Image = ?, ModifiedDate = ?, ModifiedBy = ? WHERE ID = ?");
             p.setString(1, a.getName());
@@ -108,7 +108,7 @@ public class DBCategory implements ICategory{
     
     //Search the database for categories with ID that == the search ID - Search by ID used in findCategories and Update
     @Override
-    public Category getCategoryById(int id) 
+    public ProductCategory getCategoryById(int id) 
     {
         try {
             PreparedStatement p = this.conn.prepareStatement("SELECT * FROM APP.ProductCategories WHERE ID = ?");
@@ -119,7 +119,7 @@ public class DBCategory implements ICategory{
                 System.out.println("getCategoryById returned no records for ID: "+id);
                 return null; //No records returned
             }
-            return new Category(rs);
+            return new ProductCategory(rs);
         }
         catch (Exception e)
         {

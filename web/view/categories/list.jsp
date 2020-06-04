@@ -6,7 +6,7 @@
 <jsp:include page="../../header.jsp" />
 <%
   Flash flash = Flash.getInstance(session);
-  List<Category> categories = (List<Category>)request.getAttribute("categories");
+  List<ProductCategory> categories = (List<ProductCategory>)request.getAttribute("categories");
 %>
 <main role="main">
   <div style="margin-top: 50px;"></div>
@@ -27,12 +27,12 @@
             </tr>
           </thead>
           <tbody>
-            <% for (Category category : categories) { %>
+            <% for (ProductCategory category : categories) { %>
             <tr>
               <th>
-                  <a href="<%= URL.Absolute("categories/view/"+category.getId(), request) %>" class="btn btn-primary">View</a>
-                  <a href="<%= URL.Absolute("categories/edit/"+category.getId(), request) %>" class="btn btn-primary">Edit</a>
-                  <a href="<%= URL.Absolute("categories/delete/"+category.getId(), request) %>" class="btn btn-danger">Delete</a>
+                  <a href="<%= URL.Absolute("staff/categories/view/"+category.getId(), request) %>" class="btn btn-primary">View</a>
+                  <a href="<%= URL.Absolute("staff/categories/edit/"+category.getId(), request) %>" class="btn btn-primary">Edit</a>
+                  <a href="<%= URL.Absolute("staff/categories/delete/"+category.getId(), request) %>" class="btn btn-danger">Delete</a>
               </th>
               <td><%= category.getName() %></td>
               <td><%= category.getDescription()%></td>

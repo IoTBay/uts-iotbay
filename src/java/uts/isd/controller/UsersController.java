@@ -201,41 +201,6 @@ public class UsersController extends HttpServlet {
 
                 //For now mock everything else till they are implemented.
 
-                //Mock currency
-                Currency currency = new Currency();
-                currency.setId(1);
-                currency.setName("Australian Dollar");
-                currency.setAbbreviation("AUD");
-                currency.setCostConversionRate(0.64297);
-                currency.setRetailConversionRate(0.650);
-                //Mock category
-                ProductCategory cat1 = new ProductCategory(1, "Transistors", "There are some transistors here.", "transistors.jpg");
-                ProductCategory cat2 = new ProductCategory(2, "PCBs", "There are some PCBs here.", "pcbs.jpg");
-                List<ProductCategory> categories = new ArrayList<ProductCategory>();
-                categories.add(cat1);
-                categories.add(cat2);
-                session.setAttribute("categories", categories);
-                //Load products
-                Product p1 = new Product();
-                p1.setId(1);
-                //p1.setCurrencyId(1);
-                p1.setCategoryId(1);
-                p1.setName("Widget");
-                p1.setDescription("This is a widget");
-                p1.setPrice(12.50);
-                Product p2 = new Product();
-                p2.setId(2);
-                //p2.setCurrencyId(1);
-                p2.setCategoryId(2);
-                p2.setName("Thingy");
-                p2.setDescription("This is a thingy");
-                p2.setPrice(52.75);
-
-                List<Product> products = new ArrayList<Product>();
-                products.add(p1);
-                products.add(p2);
-                session.setAttribute("products", products);
-
                 //Load order
                 Order order = new Order();
                 order.setId(1);
@@ -348,42 +313,6 @@ public class UsersController extends HttpServlet {
                 //Store objects in session so we dont have to load from DB on every page.
                 session.setAttribute("customer", customer);
                 session.setAttribute("user", user);
-
-                //Mock currency
-                Currency currency = new Currency();
-                currency.setId(1);
-                currency.setName("Australian Dollar");
-                currency.setAbbreviation("AUD");
-                currency.setCostConversionRate(0.64297);
-                currency.setRetailConversionRate(0.650);
-                //Mock category
-                ProductCategory cat1 = new ProductCategory(1, "Transistors", "There are some transistors here.", "transistors.jpg");
-                ProductCategory cat2 = new ProductCategory(2, "PCBs", "There are some PCBs here.", "pcbs.jpg");
-                List<ProductCategory> categories = new ArrayList<ProductCategory>();
-                categories.add(cat1);
-                categories.add(cat2);
-                session.setAttribute("categories", categories);
-
-                //Load products
-                Product p1 = new Product();
-                p1.setId(1);
-                //p1.setCurrencyId(1);
-                p1.setCategoryId(1);
-                p1.setName("Widget");
-                p1.setDescription("This is a widget");
-                p1.setPrice(12.50);
-                Product p2 = new Product();
-                p2.setId(2);
-                //p2.setCurrencyId(1);
-                p2.setCategoryId(2);
-                p2.setName("Thingy");
-                p2.setDescription("This is a thingy");
-                p2.setPrice(52.75);
-
-                List<Product> products = new ArrayList<Product>();
-                products.add(p1);
-                products.add(p2);
-                session.setAttribute("products", products);
 
                 //Load order
                 Order order = new Order();

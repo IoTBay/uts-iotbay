@@ -5,7 +5,7 @@
  */
 package uts.isd.model.dao;
 import java.util.List;
-import uts.isd.model.Category;
+import uts.isd.model.ProductCategory;
 import uts.isd.model.Customer;
 
 /**
@@ -16,18 +16,18 @@ public interface ICategory {
     
     /* Select queries */
     /**
-     * Returns a single Category based on its ID
-     * @param id The Category's primary key ID.
-     * @return Category object containing the product record.
+     * Returns a single ProductCategory based on its ID
+     * @param id The ProductCategory's primary key ID.
+     * @return ProductCategory object containing the product record.
      */    
-    public Category getCategoryById(int id);
+    public ProductCategory getCategoryById(int id);
     
     /**
      * Returns all categories in the categories table
      * 
      * @return List of all categories
      */
-    public List<Category> getAllCategories();
+    public List<ProductCategory> getAllCategories();
     
     /* Update queries */
     
@@ -38,7 +38,7 @@ public interface ICategory {
      * @param customer The user making the change
      * @return Returns true if category was updated, or false if no updates were performed.
      */
-    public boolean updateCategory(Category a, Customer customer);
+    public boolean updateCategory(ProductCategory a, Customer customer);
     
     /**
      * Adds a category in the database based on the passed in User model object.
@@ -47,7 +47,7 @@ public interface ICategory {
      * @param customer The customer creating the record
      * @return Returns true if category was added, or false if no insert was performed.
      */
-    public boolean addCategory(Category a, Customer customer);
+    public boolean addCategory(ProductCategory a, Customer customer);
     
     /* Delete queries */
 
