@@ -16,6 +16,10 @@
         <servlet-name>AddressesController</servlet-name>
         <servlet-class>uts.isd.controller.AddressesController</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>CategoriesController</servlet-name>
+        <servlet-class>uts.isd.controller.CategoriesController</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>UsersController</servlet-name>
         <url-pattern>/user/*</url-pattern>
@@ -31,6 +35,10 @@
     <servlet-mapping>
         <servlet-name>AddressesController</servlet-name>
         <url-pattern>/addresses/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>CategoriesController</servlet-name>
+        <url-pattern>/categories/*</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>

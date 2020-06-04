@@ -15,8 +15,7 @@
     <%= flash.displayMessages() %>
  
     <div class="py-5 text-center">
-        <h2>Add an address</h2>
-        <p class="lead">Please add an address that you can use in your orders for either billing (where we send any invoices) or shipping. This helps speed up your ordering process.</p>
+        <h2>Edit your address</h2>
     </div>
     <form method="post" action="<%= URL.Absolute("addresses/edit/"+address.getId(), request) %>">
         <div class="col-md-8 order-md-1">
