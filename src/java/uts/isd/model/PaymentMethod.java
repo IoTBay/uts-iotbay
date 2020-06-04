@@ -34,6 +34,11 @@ public class PaymentMethod {
     private int createdBy;
     private Date modifiedDate;
     private int modifiedBy;
+    
+    public static final int TYPE_NONE = 0;
+    public static final int TYPE_CREDIT_CARD = 1;
+    
+    public static final String[] PAYMENT_TYPES = { "None", "Credit Card" };
 
     public PaymentMethod() {
     }
@@ -80,7 +85,9 @@ public class PaymentMethod {
         if (request.getParameter("userId") != null)
             this.userId = Integer.parseInt(request.getParameter("userId"));
         
-        this.customerId = Integer.parseInt(request.getParameter("customerId"));
+        if (request.getParameter("customerId") != null)
+            this.customerId = Integer.parseInt(request.getParameter("customerId"));
+        
         this.defaultPayment = Boolean.parseBoolean(request.getParameter("productId"));
         this.paymentType = Integer.parseInt(request.getParameter("paymentType"));
         this.cardName = request.getParameter("cardName");
