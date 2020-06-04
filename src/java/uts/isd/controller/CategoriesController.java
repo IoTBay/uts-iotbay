@@ -88,7 +88,7 @@ public class CategoriesController extends HttpServlet {
                 
             case "delete":
                 //Segments[2] is the ID to delete in /addresses/delete/x
-                //doDeleteCategoryGet(request, response, segments[2]);
+                doDeleteCategoryGet(request, response, (segments.length == 3 ? segments[2] : ""));
                 break;
                 
         }
@@ -185,6 +185,50 @@ public class CategoriesController extends HttpServlet {
         }
     }
     
+    protected void doDeleteCategoryGet(HttpServletRequest request, HttpServletResponse response, String categoryStr)
+            throws ServletException, IOException 
+    {
+        Flash flash = Flash.getInstance(request.getSession());
+        try
+        {
+            User user = (User)request.getSession().getAttribute("user");
+            if (user == null || !user.isAdmin())
+            {
+                flash.add(Flash.MessageType.Error, "Access denied");
+                URL.GoBack(request, response);
+                return;
+            }
+            
+            int categoryId = Integer.parseInt(categoryStr);
+            
+            ICategory dbCategory = new DBCategory();
+            //Get the existing address from the DB so we can pass it to the view to pre-load values.
+            Category category = dbCategory.getCategoryById(categoryId);
+            
+            if (category == null)
+            {
+                flash.add(Flash.MessageType.Error, "Unable to find category to delete");
+                URL.GoBack(request, response);
+                return;
+            }
+            
+            //Set the address object on the request so it can be used by the view for this request only.
+            //i.e. Don't use the session because this is for a single page request.
+            request.setAttribute("category", category);
+            
+            RequestDispatcher requestDispatcher; 
+            requestDispatcher = request.getRequestDispatcher("/view/categories/delete.jsp");
+            requestDispatcher.forward(request, response); 
+        } 
+        catch (Exception e) 
+        {
+            flash.add(Flash.MessageType.Error, "Unable to delete category");
+            Logging.logMessage("Unable to delete category");
+            URL.GoBack(request, response);
+            return;
+        }
+    }
+    
     /**
      * Handles the HTTP <code>POST</code> method.
      *
@@ -214,7 +258,7 @@ public class CategoriesController extends HttpServlet {
                 
             case "delete":
                 //Segments[2] is the ID to delete in /addresses/delete/x
-                //doDeleteCategoryGet(request, response, segments[2]);
+                doDeleteCategoryPost(request, response, (segments.length == 3 ? segments[2] : ""));
                 break;
                 
         }
@@ -347,6 +391,60 @@ public class CategoriesController extends HttpServlet {
             return;
         }
     }
+    
+    protected void doDeleteCategoryPost(HttpServletRequest request, HttpServletResponse response, String categoryStr)
+            throws ServletException, IOException 
+    {
+        HttpSession session = request.getSession();
+        Flash flash = Flash.getInstance(session);
+        User user = (User)session.getAttribute("user");
+        Customer customer = (Customer)session.getAttribute("customer");
+        boolean isLoggedIn = (customer != null && user != null);
+        
+        try
+        {
+            if (!isLoggedIn || !user.isAdmin())
+            {
+                flash.add(Flash.MessageType.Error, "Access denied");
+                URL.GoBack(request, response);
+                return;
+            }
+            
+            if (request.getParameter("doDelete") == null)
+            {
+                flash.add(Flash.MessageType.Error, "Delete request invalid");
+                URL.GoBack(request, response);
+                return;
+            }
+            
+            ICategory dbCategory = new DBCategory();
+            
+            //Instead of creating a blank address, fetch the existing address from the DB
+            //so we have a fully populated oobject and don't risk losing data.
+            int categoryId = Integer.parseInt(categoryStr);;
+            
+            //Run update instead of add
+            if (dbCategory.deleteCategoryById(categoryId))
+            {
+                flash.add(Flash.MessageType.Success, "Category deleted successfully");
+                response.sendRedirect(URL.Absolute("categories/list", request));
+                return;
+            }
+            else
+            {
+                flash.add(Flash.MessageType.Error, "Failed to delete category");
+                response.sendRedirect(URL.Absolute("categories/list", request));
+            }
+        }
+        catch (Exception e)
+        {
+            Logging.logMessage("Unable to delete category", e);
+            flash.add(Flash.MessageType.Error, "Unable to delete category");
+            URL.GoBack(request, response);
+            return;
+        }
+    }
+
 
     /**
      * Returns a short description of the servlet.
