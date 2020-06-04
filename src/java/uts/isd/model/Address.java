@@ -167,6 +167,13 @@ public class Address {
             return false;
         }        
     }
+    
+    public String getFullAddress()
+    {
+        return (this.getAddressPrefix1().isEmpty() ? "" : this.getAddressPrefix1()+", ") +
+                this.getStreetNumber()+" "+this.getStreetName() +" "+this.getStreetType() + ", "+
+                this.getSuburb()+", "+this.getState()+" "+this.getPostcode()+", "+this.getCountry();
+    }
 
     public int getId() {
         return id;

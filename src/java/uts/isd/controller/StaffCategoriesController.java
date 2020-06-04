@@ -100,7 +100,16 @@ public class StaffCategoriesController extends HttpServlet {
     {
         Flash flash = Flash.getInstance(request.getSession());
         try
-        {            
+        {
+            User user = (User)request.getSession().getAttribute("user");
+        
+            if (user == null || !user.isAdmin())
+            {
+                flash.add(Flash.MessageType.Error, "Access denied");
+                URL.GoBack(request, response);
+                return;
+            }
+            
             ICategory dbCategory = new DBCategory();
             List<ProductCategory> categories = dbCategory.getAllCategories();
             request.setAttribute("categories", categories);
