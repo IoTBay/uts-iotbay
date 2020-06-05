@@ -32,6 +32,7 @@
             <li>First Name: <%= customer.getFirstName() %></li>
             <li>Last Name: <%= customer.getLastName() %></li>
             <li>Email: <%= customer.getEmail() %></li>
+            <li>Phone: <%= customer.getPhone() %></li>
             <li>Age: <%= user.getBirthDate() %> (<%= user.getAge() %> years old)</li>
             <li>Gender: <%= user.getSex() %></li>
         </ul>

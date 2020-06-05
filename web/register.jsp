@@ -46,6 +46,10 @@
                   Valid last name is required.
                 </div>
               </div>
+              <div class="col-md-6 mb-3">
+                <label for="phone">Phone</label>
+                <input type="text" class="form-control" id="phone" name="phone" placeholder="" value="" required>
+              </div>
             </div>
 
             <row class="row">
@@ -65,6 +69,13 @@
                   </div>
                 </div>
             </div>
+        
+            <row class="row">
+                <div class="col-md-6 mb-3">
+                <label for="staffcode">If you are a staff member, please enter your staff code</label>
+                <input type="text" class="form-control" id="accessLevel" name="accessLevel" placeholder="" value="">
+              </div>
+            </row>
         
             <row class="row">
                 <div class="col-md-6 mb-3">
@@ -103,6 +114,8 @@
                 </div>
               </div>
             </div>
+        
+            
 
         <!-- Shipping address form
         <div class="row">
