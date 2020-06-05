@@ -4,6 +4,7 @@
     Author     : C_fin
 --%>
 
+<%@page import="uts.isd.validation.Validator"%>
 <%@page import="uts.isd.util.URL"%>
 <%@page import="uts.isd.util.Flash"%>
 <%@page import="uts.isd.model.Product"%>
@@ -16,6 +17,7 @@
         Product product = (Product)session.getAttribute("product");
         String updated = request.getParameter("updated");
         Flash flash = Flash.getInstance(session);
+        Validator v = new Validator(session);
     %>
 
     <main role="main">
@@ -29,7 +31,7 @@
     <div class="form-row" style='padding-left: 450px'>
         <div class="form-group col-md-3">
             <label for="inputname">Product Name</label>
-            <input type="text" class="form-control" name="name">
+            <input type="text" class="form-control" name="name" value="<%=v.repopulate("name",product.getName()) %>">
         </div> 
         <div class="form-group col-md-2">
             <label for="inputprice">Product Price</label>

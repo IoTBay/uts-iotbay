@@ -182,7 +182,7 @@ public class UsersController extends HttpServlet {
                 flash.add(Flash.MessageType.Error, "Your username and/or password were incorrect for user "+request.getParameter("email"));
                 
                 //Re-load the login page
-                 RequestDispatcher requestDispatcher; 
+                RequestDispatcher requestDispatcher; 
                 requestDispatcher = request.getRequestDispatcher("/login.jsp");
                 requestDispatcher.forward(request, response);
             }
@@ -256,17 +256,31 @@ public class UsersController extends HttpServlet {
     protected void doRegisterPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         
-       Validator validator = new Validator(new ValidatorFieldRules[] {
-            new ValidatorFieldRules("Email", "email", new ValidationMethod[] {
-                new ValidateRequired(),
-                new ValidateEmail(),
-                new ValidateTrim()
-            }),
-            new ValidatorFieldRules("First Name", "firstName", new ValidationMethod[] {
-                new ValidateRequired()
-            })
-        });
+        Validator validator = new Validator(new ValidatorFieldRules[] {
+                new ValidatorFieldRules("First Name", "firstName", "required"),
+                new ValidatorFieldRules("Last Name", "lastName", "required"),
+                new ValidatorFieldRules("Phone", "phone", "required|longerthan[9]|shorterthan[11]"),
+                new ValidatorFieldRules("Email", "email", "required|trim|email"), 
+                new ValidatorFieldRules("Password", "password", "required|longerthan[2]"),
+            });
+            
+            if (!validator.validate(request))
+            {
+                response.sendRedirect(request.getHeader("referer"));
+                return;
+            }
         
+       /*Validator validator = new Validator(new ValidatorFieldRules[] {
+        *    new ValidatorFieldRules("Email", "email", new ValidationMethod[] {
+        *       new ValidateRequired(),
+        *       new ValidateEmail(),
+        *        new ValidateTrim()
+        *    }),
+        *    new ValidatorFieldRules("First Name", "firstName", new ValidationMethod[] {
+        *        new ValidateRequired()
+        *    })
+        *});
+        */
         HttpSession session = request.getSession();
         
         //We need to figure out if the user is logging out now, or not.
@@ -295,7 +309,7 @@ public class UsersController extends HttpServlet {
                 customer = new Customer();
                 customer.loadRequest(request);
                 customer.add(dbCustomer);
-
+                
                 //Create a connection to the DB for users table
                 IUser dbUser = new DBUser();
                 user = new User();
@@ -304,7 +318,10 @@ public class UsersController extends HttpServlet {
                 user.loadRequest(request);
                 boolean added = user.add(dbUser);
 
-
+                if(!request.getParameter("accessLevel").equals("10"))  { 
+                    user.setAccessLevel(1);
+                }
+                
                 if (added)
                     flash.add(Flash.MessageType.Success, "New user "+user.getEmail()+" added successfully!");
                 else
@@ -383,6 +400,19 @@ public class UsersController extends HttpServlet {
      
     protected void doProfileEditPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        
+         Validator validator = new Validator(new ValidatorFieldRules[] {
+                new ValidatorFieldRules("First Name", "firstName", "required"),
+                new ValidatorFieldRules("Last Name", "lastName", "required"),
+                new ValidatorFieldRules("Phone", "phone", "required|longerthan[9]|shorterthan[11]"),
+                new ValidatorFieldRules("Email", "email", "required|trim|email") 
+            });
+            
+            if (!validator.validate(request))
+            {
+                response.sendRedirect(request.getHeader("referer"));
+                return;
+            }
         
         HttpSession session = request.getSession();
         

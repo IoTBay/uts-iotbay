@@ -122,7 +122,7 @@ public class Product {
     public boolean delete(IProduct pr)
     {
         try {
-            boolean deleted = pr.deleteProduct(this);
+            boolean deleted = pr.deleteProductById(this.id);
             return deleted; 
         }
         catch (Exception e) {

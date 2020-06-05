@@ -30,6 +30,10 @@
                     <td><%= p.getId() %></td>
                     <td><%= p.getName() %></td>
                     <td><%= p.getDescription() %></td>
+                    <td>
+                        <a href="<%= URL.Absolute("product/update/" +p.getId(), request) %>">Edit</a>
+                        <a href="<%= URL.Absolute("product/delete/" +p.getId(), request) %>">Delete</a>
+                    </td>
                 </tr>
             <% } //Close for loop %>
             </tbody>
