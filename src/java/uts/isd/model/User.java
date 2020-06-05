@@ -41,6 +41,9 @@ public class User implements Serializable {
     private Date modifiedDate;
     private int modifiedBy;
     
+    //Use this code to allow users to register as a staff member.
+    public static final String STAFF_CODE = "Escalate";
+    
     public User() {  }
     
     /**
@@ -79,18 +82,12 @@ public class User implements Serializable {
         this.email = email;
     }
     
-    public void loadRequest(ServletRequest request)
-    {
-        this.loadRequest(request, null);
-    }
-    
     /**
      * This method populates this instance's properties based on form inputs.
      * 
      * @param request The controller's HTTPServlet POST request properties.
-     * @param changedBy The customer who made this request.
      */
-    public void loadRequest(ServletRequest request, Customer changedBy)
+    public void loadRequest(ServletRequest request)
     {
         if (request.getParameter("id") != null)
             this.id = Integer.parseInt(request.getParameter("id"));
@@ -104,8 +101,6 @@ public class User implements Serializable {
 
         if (request.getParameter("accessLevel") != null)
             this.accessLevel = Integer.parseInt(request.getParameter("accessLevel"));
-        else
-            this.accessLevel = 1;
         
         //https://www.javatpoint.com/java-string-to-date
         String dob = request.getParameter("dob_yyyy")+"-"+request.getParameter("dob_mm")+"-"+request.getParameter("dob_dd");
@@ -120,25 +115,17 @@ public class User implements Serializable {
 
         this.createdDate = new Date();
         this.modifiedDate = new Date();
-        if (changedBy != null)
-        {
-            this.createdBy = changedBy.getId();
-            this.modifiedBy = changedBy.getId();
-        }
-        else
-        {
-            this.createdBy = 0;
-            this.modifiedBy = 0;
-        }
+        this.createdBy = 0;
+        this.modifiedBy = 0;
     }
 
-    public boolean add(IUser db)
+    public boolean add(IUser db, Customer customer)
     {
         try
         {
             //Assumes the User object (this) has been populated already.
             //Takes object properties and inserts into DB.
-            boolean added = db.addUser(this);
+            boolean added = db.addUser(this, customer);
             //Always close DB when done.
             return added;
         }
@@ -149,13 +136,13 @@ public class User implements Serializable {
         }        
     }
     
-    public boolean update(IUser db)
+    public boolean update(IUser db, Customer customer)
     {
         try
         {
             //Assumes the User object (this) has been populated already.
             //Takes object properties and inserts into DB.
-            boolean updated = db.updateUser(this);
+            boolean updated = db.updateUser(this, customer);
             //Always close DB when done.
             return updated;
         }

@@ -5,39 +5,65 @@
  */
 package uts.isd.model;
 
-import java.io.File;
+import java.sql.ResultSet;
 import java.util.Date;
 import javax.servlet.ServletRequest;
+import uts.isd.model.dao.DBCustomer;
+import uts.isd.model.dao.ICategory;
+import uts.isd.model.dao.ICustomer;
+import uts.isd.util.Logging;
 
 /**
- *
- * @author rhys
+ * ProductCategory model
+ * 
+ * @author Rhys Hanrahan 11000801
+ * @since 2020-06-04
  */
 public class ProductCategory {
+    
     private int id;
     private String name;
     private String description;
     private String image;
-    
     private Date createdDate;
     private int createdBy;
     private Date modifiedDate;
     private int modifiedBy;
 
-    public ProductCategory(int id, String name, String description, String image) {
-        this.id = id;
-        this.name = name;
-        this.description = description;
-        this.image = image;
+    public ProductCategory() { }
+    
+    /**
+     * This constructor takes an SQL ResultSet and grabs the values from the DB Record
+     * to populate each property in the user model.
+     * 
+     * @param rs The SQL ResultSet row to populate values from.
+     */
+    public ProductCategory(ResultSet rs) {
+        try
+        {
+            this.id = rs.getInt("ID");
+            this.name = rs.getString("Name");
+            this.description = rs.getString("Description");
+            this.image = rs.getString("Image");
+            
+            this.createdDate = rs.getDate("CreatedDate");
+            this.createdBy = rs.getInt("CreatedBy");
+            this.modifiedDate = rs.getDate("ModifiedDate");
+            this.modifiedBy = rs.getInt("ModifiedBy");            
+        }
+        catch (Exception e)
+        {
+            Logging.logMessage("Unable to load Category from ResultSet for ID", e);
+        }
     }
     
     /**
      * This method populates this instance's properties based on form inputs.
      * 
      * @param request The controller's HTTPServlet POST request properties.
-     * @return boolean - Returns true if adding the properties was successful. Otherwise false.
+     * 
      */
-    public boolean addProductCategory(ServletRequest request)
+    public void loadRequest(ServletRequest request)
     {
         if (request.getParameter("id") != null)
             this.id = Integer.parseInt(request.getParameter("id"));
@@ -45,50 +71,79 @@ public class ProductCategory {
         this.name = request.getParameter("name");
         this.description = request.getParameter("description");
         this.image = request.getParameter("image");
-
+        
         this.createdDate = new Date();
         this.modifiedDate = new Date();
+        
         this.createdBy = 0;
         this.modifiedBy = 0;
-        
-        return true;
+    }
+    
+    public boolean add(ICategory db, Customer customer)
+    {
+        try
+        {
+            //Assumes the ProductCategory object (this) has been populated already.
+            //Takes object properties and inserts into DB.
+            boolean added = db.addCategory(this, customer);
+            //Always close DB when done.
+            return added;
+        }
+        catch (Exception e)
+        {
+            Logging.logMessage("Failed to add category", e);
+            return false;
+        }        
+    }
+    
+    public boolean update(ICategory db, Customer customer)
+    {
+        try
+        {
+            //Assumes the ProductCategory object (this) has been populated already.
+            //Takes object properties and inserts into DB.
+            boolean updated = db.updateCategory(this, customer);
+            //Always close DB when done.
+            return updated;
+        }
+        catch (Exception e)
+        {
+            Logging.logMessage("Failed to update category", e);
+            return false;
+        }        
+    }
+    
+    public boolean delete(ICategory db)
+    {
+        try
+        {
+            //Assumes the ProductCategory object (this) has been populated already.
+            //Takes object properties and inserts into DB.
+            boolean deleted = db.deleteCategoryById(this.id);
+            //Always close DB when done.
+            return deleted;
+        }
+        catch (Exception e)
+        {
+            Logging.logMessage("Failed to delete category", e);
+            return false;
+        }        
     }
 
     public int getId() {
         return id;
     }
 
-    public void setId(int id) {
-        this.id = id;
-    }
-
     public String getName() {
         return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     public String getDescription() {
         return description;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
     public String getImage() {
-        if (this.image == null || this.image.isEmpty())
-            return "";
-        
-        return "img/"+
-                //"categories/"+
-                this.image;
-    }
-
-    public void setImage(String image) {
-        this.image = image;
+        return image;
     }
     
     public Date getCreatedDate() {
@@ -99,11 +154,29 @@ public class ProductCategory {
         return this.modifiedDate;
     }
     
-    public int getCreatedBy() {
-        return this.createdBy;
+    public Customer getCreatedBy() {
+        try
+        {
+            ICustomer dbCustomer = new DBCustomer();
+            Customer c = dbCustomer.getCustomerById(this.createdBy);
+            return c;
+        }
+        catch (Exception e)
+        {
+            return new Customer();
+        }
     }
     
-    public int getModifiedBy() {
-        return this.modifiedBy;
+    public Customer getModifiedBy() {
+        try
+        {
+            ICustomer dbCustomer = new DBCustomer();
+            Customer c = dbCustomer.getCustomerById(this.modifiedBy);
+            return c;
+        }
+        catch (Exception e)
+        {
+            return new Customer();
+        }
     }
 }

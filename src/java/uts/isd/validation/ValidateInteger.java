@@ -27,7 +27,7 @@ public class ValidateInteger extends ValidationMethod {
         
         try
         {
-            int testVal = Integer.parseInt(request.getParameter(field));
+            long testVal = Long.parseLong(request.getParameter(field));
         }
         catch (Exception e)
         {

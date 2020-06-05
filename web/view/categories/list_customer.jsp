@@ -1,3 +1,4 @@
+<%@page import="uts.isd.util.URL"%>
 <%@page import="uts.isd.model.*"%>
 <%@page import="java.util.List"%>
 <%@page import="java.util.ArrayList"%>
@@ -6,13 +7,10 @@
   //then invalidate the session BEFORE including the header, so it shows correctly.
   User user = (User)session.getAttribute("user");
   Customer customer = (Customer)session.getAttribute("customer");
-  List<Product> products = (List<Product>)session.getAttribute("products");
-  List<ProductCategory> categories = (List<ProductCategory>)session.getAttribute("categories");
-  //Store for later
-  boolean isLoggedIn = (user != null);
+  List<ProductCategory> categories = (List<ProductCategory>)request.getAttribute("categories");
 %>
 
-<jsp:include page="header.jsp" />
+<jsp:include page="../../header.jsp" />
 
 <main role="main">
     <div style="margin-top: 50px;"></div>
@@ -29,14 +27,14 @@
                   <% if (cat.getImage().isEmpty()) { %>
                     <svg class="bd-placeholder-img card-img-top" width="100%" height="180" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice" focusable="false" role="img" aria-label="Placeholder: Default Image"><title>Placeholder</title><rect width="100%" height="100%" fill="#868e96" /><text x="50%" y="50%" fill="#dee2e6" dy=".3em">Default Image</text></svg>
                   <% } else { %>
-                    <img src="<%= cat.getImage() %>" class="card-img-top img-grayscale" alt="<%= cat.getName() %>">
+                    <img src="<%= URL.Image("categories/"+cat.getImage(), request) %>" class="card-img-top img-grayscale" alt="<%= cat.getName() %>">
                     <!-- https://codepen.io/philcheng/pen/YWyYwG -->
-                    <div class="btn-hover"><a href="view_category.jsp?id=<%= cat.getId() %>" class="btn btn-dark">View Category</a></div>
+                    <div class="btn-hover"><a href="<%= URL.Absolute("categories/view/"+cat.getId(), request) %>" class="btn btn-dark">View Category</a></div>
                   <% } %>
                   <div class="card-body">
                       <h5 class="card-title"><%= cat.getName() %></h5>
                     <p class="card-text"><%= cat.getDescription() %></p>
-                    <a href="view_category.jsp?id=<%= cat.getId() %>" class="btn btn-primary">View Products</a>
+                    <a href="<%= URL.Absolute("categories/view/"+cat.getId(), request) %>" class="btn btn-primary">View Products</a>
                   </div>
                 </div>
             </div>
@@ -47,5 +45,5 @@
     </div> <!-- /container -->
 
 </main>
-<jsp:include page="footer.jsp" />
+<jsp:include page="../../footer.jsp" />
 </html>

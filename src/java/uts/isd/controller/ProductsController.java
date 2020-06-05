@@ -334,7 +334,7 @@ public class ProductsController extends HttpServlet {
             
             request.setAttribute("product", product);
             RequestDispatcher requestDispatcher; 
-            requestDispatcher = request.getRequestDispatcher("/products/view.jsp");
+            requestDispatcher = request.getRequestDispatcher("/view/products/view.jsp");
             requestDispatcher.forward(request, response);
             
         }

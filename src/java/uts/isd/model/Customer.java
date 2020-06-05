@@ -61,18 +61,12 @@ public class Customer implements Serializable {
         this.phone = phone;
     }
     
-    public void loadRequest(ServletRequest request)
-    {
-        this.loadRequest(request, null);
-    }
-    
     /**
      * This method populates this instance's properties based on form inputs.
      * 
      * @param request The controller's HTTPServlet POST request properties.
-     * @param changedBy The customer who is making this request 
      */
-    public void loadRequest(ServletRequest request, Customer changedBy)
+    public void loadRequest(ServletRequest request)
     {
         if (request.getParameter("id") != null)
             this.id = Integer.parseInt(request.getParameter("id"));
@@ -84,20 +78,17 @@ public class Customer implements Serializable {
 
         this.createdDate = new Date();
         this.modifiedDate = new Date();
-        if (changedBy != null)
-        {
-            this.createdBy = changedBy.getId(); //Set this properly
-            this.modifiedBy = changedBy.getId(); //Set this properly.
-        }
+        this.createdBy = 0;
+        this.modifiedBy = 0;
     }
     
-    public boolean add(ICustomer db)
+    public boolean add(ICustomer db, Customer customer)
     {
         try
         {
             //Assumes the User object (this) has been populated already.
             //Takes object properties and inserts into DB.
-            boolean added = db.addCustomer(this);
+            boolean added = db.addCustomer(this, customer);
             //Always close DB when done.
             return added;
         }
@@ -108,13 +99,13 @@ public class Customer implements Serializable {
         }
     }
     
-    public boolean update(ICustomer db)
+    public boolean update(ICustomer db, Customer customer)
     {
         try
         {
             //Assumes the User object (this) has been populated already.
             //Takes object properties and updates in DB.
-            boolean updated = db.updateCustomer(this);
+            boolean updated = db.updateCustomer(this, customer);
             //Always close DB when done.
             return updated;
         }

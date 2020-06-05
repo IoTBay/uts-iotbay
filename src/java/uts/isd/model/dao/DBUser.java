@@ -9,6 +9,7 @@ import uts.isd.model.User;
 
 import java.util.*;
 import java.sql.*;
+import uts.isd.model.Customer;
 import uts.isd.util.Hash;
 import uts.isd.util.Logging;
 
@@ -166,7 +167,7 @@ public class DBUser implements IUser {
     }
     
      @Override
-    public boolean addUser(User u)
+    public boolean addUser(User u, Customer customer)
     {
         try {
             //Using SQL prepared statements: https://stackoverflow.com/questions/3451269/parameterized-oracle-sql-query-in-java
@@ -180,8 +181,8 @@ public class DBUser implements IUser {
             p.setString(5, u.getBiography());
             p.setDate(6, new java.sql.Date(u.getBirthDate().getTime()));
             p.setInt(7, u.getGender());
-            p.setDate(8, new java.sql.Date(new java.util.Date().getTime()));
-            p.setInt(9, 1); //TODO: Pass in current user object
+            p.setTimestamp(8, new java.sql.Timestamp(new java.util.Date().getTime()));
+            p.setInt(9, customer.getId());
             
             //Was insert successful?
             return (p.executeUpdate() > 0);
@@ -194,7 +195,7 @@ public class DBUser implements IUser {
     }
 
     @Override
-    public boolean updateUser(User u) {
+    public boolean updateUser(User u, Customer customer) {
         try {
             //Using SQL prepared statements: https://stackoverflow.com/questions/3451269/parameterized-oracle-sql-query-in-java
             //this protects against SQL Injection attacks. Each parameter must have a ? in the query, and a corresponding parameter
@@ -209,8 +210,8 @@ public class DBUser implements IUser {
             p.setInt(7, u.getGender());
             
             //Modified Date
-            p.setDate(8, new java.sql.Date(new java.util.Date().getTime()));
-            p.setInt(9, 1); //TODO: Pass in current user object
+            p.setTimestamp(8, new java.sql.Timestamp(new java.util.Date().getTime()));
+            p.setInt(9, customer.getId());
             //WHERE ID = ?
             p.setInt(10, u.getId());
             
@@ -233,7 +234,7 @@ public class DBUser implements IUser {
             //set.
             PreparedStatement p = this.conn.prepareStatement("DELETE FROM APP.Users WHERE ID = ?");
             //WHERE ID = ?
-            p.setInt(10, id);
+            p.setInt(1, id);
             
             //Was update successful?
             return (p.executeUpdate() > 0);

@@ -77,7 +77,7 @@ public class DBOrder implements IOrder {
                 //No order was returned, instead create a new draft order.
                 Order o = new Order();
                 o.setCustomerId(customer.getId());
-                this.addOrder(o);
+                this.addOrder(o, customer);
                 
                 return o; //Return new draft order
             }
@@ -172,7 +172,7 @@ public class DBOrder implements IOrder {
 
     
      @Override
-    public boolean addOrder(Order o)
+    public boolean addOrder(Order o, Customer customer)
     {
         try {
             //Using SQL prepared statements: https://stackoverflow.com/questions/3451269/parameterized-oracle-sql-query-in-java
@@ -191,8 +191,8 @@ public class DBOrder implements IOrder {
             p.setInt(7, o.getStatus());
             p.setDouble(8, o.getTotalCost());
             
-            p.setDate(9, new java.sql.Date(new java.util.Date().getTime()));
-            p.setInt(10, 1); //TODO: Pass in current user object
+            p.setTimestamp(9, new java.sql.Timestamp(new java.util.Date().getTime()));
+            p.setInt(10, customer.getId()); //TODO: Pass in current user object
             
             //Was insert successful?
             boolean added = (p.executeUpdate() > 0);
@@ -255,7 +255,7 @@ public class DBOrder implements IOrder {
     }
 
     @Override
-    public boolean updateOrder(Order o) {
+    public boolean updateOrder(Order o, Customer customer) {
         try {
             //Using SQL prepared statements: https://stackoverflow.com/questions/3451269/parameterized-oracle-sql-query-in-java
             //this protects against SQL Injection attacks. Each parameter must have a ? in the query, and a corresponding parameter
@@ -271,8 +271,8 @@ public class DBOrder implements IOrder {
             p.setDouble(8, o.getTotalCost());
             
             //Modified Date
-            p.setDate(9, new java.sql.Date(new java.util.Date().getTime()));
-            p.setInt(10, 1); //TODO: Pass in current user object
+            p.setTimestamp(9, new java.sql.Timestamp(new java.util.Date().getTime()));
+            p.setInt(10, customer.getId()); //TODO: Pass in current user object
             //WHERE ID = ?
             p.setInt(11, o.getId());
             
