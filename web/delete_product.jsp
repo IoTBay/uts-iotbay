@@ -20,8 +20,8 @@
     
     <h1> you sure you want to delete? </h1>
         
-    <form method="post" action="<%= URL.Absolute("product/delete/", request) %>">
-        <input type="submit" name="doDelete" value="Delete" class="btn btn-primary">
+    <form method="post" action="<%= URL.Absolute("product/delete/"+product.getId(), request) %>">
+                <input type="submit" class="btn btn-primary" value="submit">
     </form>
 
 </html>

@@ -6,6 +6,7 @@
 package uts.isd.model;
 
 import java.sql.ResultSet;
+import java.sql.Timestamp;
 import java.util.Date;
 import javax.servlet.ServletRequest;
 import uts.isd.model.dao.IProduct;
@@ -27,9 +28,9 @@ public class Product {
     private int initialQuantity;
     private int currentQuantity;
     private String lastReorderDate;
-    private Date createdDate;
+    private Timestamp createdDate;
     private int createdBy;
-    private Date modifiedDate;
+    private Timestamp modifiedDate;
     private int modifiedBy;
 
     public Product() {
@@ -63,9 +64,9 @@ public class Product {
             this.image = rs.getString("Image");
             this.initialQuantity = rs.getInt("InitialQuantity");
             this.currentQuantity = rs.getInt("CurrentQuantity");
-            this.createdDate = rs.getDate("CreatedDate");
+            this.createdDate = rs.getTimestamp("CreatedDate");
             this.createdBy = rs.getInt("CreatedBy");
-            this.modifiedDate = rs.getDate("ModifiedDate");
+            this.modifiedDate = rs.getTimestamp("ModifiedDate");
             this.modifiedBy = rs.getInt("ModifiedBy");
         }
         catch (Exception e)
@@ -91,14 +92,14 @@ public class Product {
         this.description = request.getParameter("description");
         this.initialQuantity = Integer.parseInt(request.getParameter("initialQuantity"));
         this.currentQuantity = Integer.parseInt(request.getParameter("initialQuantity"));
-        this.createdDate = new Date();
-        this.modifiedDate = new Date();
+        this.createdDate = new Timestamp(System.currentTimeMillis());
+        this.modifiedDate = new Timestamp(System.currentTimeMillis());
         this.createdBy = 1;
         this.modifiedBy = 1;
         if (changedBy != null)
         {
-            this.createdBy = changedBy.getId(); //Set this properly
-            this.modifiedBy = changedBy.getId(); //Set this properly.
+            this.createdBy = changedBy.getCustomerId(); //Set this properly
+            this.modifiedBy = changedBy.getCustomerId(); //Set this properly.
         } 
     }
     
@@ -146,8 +147,8 @@ public class Product {
         this.price = Double.parseDouble(request.getParameter("productId"));
         this.name = request.getParameter("name");
         this.description = request.getParameter("description");
-        this.createdDate = new Date();
-        this.modifiedDate = new Date();
+        this.createdDate = new Timestamp(System.currentTimeMillis());
+        this.modifiedDate = new Timestamp(System.currentTimeMillis());
         this.createdBy = 0;
         this.modifiedBy = 0;
         return true;

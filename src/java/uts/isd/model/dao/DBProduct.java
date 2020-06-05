@@ -68,10 +68,10 @@ public class DBProduct implements IProduct{
             p.setString(5, pr.getImage());
             p.setInt(6, pr.getInitialQuantity());
             p.setInt(7, pr.getCurrentQuantity());
-            p.setDate(8, new java.sql.Date(new java.util.Date().getTime()));
-            p.setDate(9, new java.sql.Date(new java.util.Date().getTime()));
+            p.setTimestamp(8, new java.sql.Timestamp(new java.util.Date().getTime()));
+            p.setTimestamp(9, new java.sql.Timestamp(new java.util.Date().getTime()));
             p.setInt(10, pr.getCreatedBy());
-            p.setDate(11, new java.sql.Date(new java.util.Date().getTime()));
+            p.setTimestamp(11, new java.sql.Timestamp(new java.util.Date().getTime()));
             p.setInt(12, pr.getModifiedBy());
             //Was insert successful?
             return (p.executeUpdate() > 0);
@@ -94,11 +94,11 @@ public class DBProduct implements IProduct{
             p.setString(4, pr.getImage());
             p.setInt(5, pr.getInitialQuantity());
             p.setInt(6, pr.getCurrentQuantity());
-            p.setDate(7, new java.sql.Date(new java.util.Date().getTime()));
-            p.setDate(8, new java.sql.Date(new java.util.Date().getTime()));
+            p.setTimestamp(7, new java.sql.Timestamp(new java.util.Date().getTime()));
+            p.setTimestamp(8, new java.sql.Timestamp(new java.util.Date().getTime()));
             p.setInt(9, pr.getCreatedBy());
             //Modified date - Modified by
-            p.setDate(10, new java.sql.Date(new java.util.Date().getTime()));
+            p.setTimestamp(10, new java.sql.Timestamp(new java.util.Date().getTime()));
             p.setInt(11, pr.getModifiedBy());
             p.setString(12, pr.getName());
             //Was update successful?

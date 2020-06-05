@@ -41,11 +41,11 @@
     <div class="form-row" style='padding-left: 450px'>  
         <div class="form-group col-md-7">    
             <label for="inputdescription">Description</label>
-            <input type="text" class="form-control" name="description" required="true" value="<%=v.repopulate("description",product.getDescription()) %>">
+            <input type="text" class="form-control" name="description" value="<%=v.repopulate("description",product.getDescription()) %>">
         </div>
         <div class="form-group col-md-5">
             <label for="inputname">Image Link</label>
-            <input type="text" class="form-control" name="name">
+            <input type="text" class="form-control" name="name" value="<%=v.repopulate("name",product.getDescription()) %>">
         </div>    
    </div>
       
@@ -64,15 +64,15 @@
         </div>
     </div>
      
-      <!--<div class="form-row" style='padding-left: 450px'>
-          <div class="form-group col-md-2">
+    <div class="form-row" style='padding-left: 450px'>
+          <div class="form-group col-md-4">
             <label for="createddate">Created Date</label>
             <input type="date" class="form-control" name="createdDate">
           </div>
-          <div class="form-group col-md-2">
+          <div class="form-group col-md-4">
             <label for="modifieddate">Modified Date</label>
             <input type="date" class="form-control" name="modifiedDate">
-          </div> -->
+          </div>
      </div>  
       
     <div class="form-row" style='padding-left: 470px'>

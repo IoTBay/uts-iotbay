@@ -43,7 +43,7 @@
         </div>
         <div class="form-group col-md-5">
             <label for="inputname">Image Link</label>
-            <input type="text" class="form-control" name="name">
+            <input type="text" class="form-control" name="image">
         </div>    
    </div>
       
@@ -62,7 +62,7 @@
         </div>
     </div>
      
-     <!-- <div class="form-row" style='padding-left: 450px'>
+     <div class="form-row" style='padding-left: 450px'>
           <div class="form-group col-md-2">
             <label for="createddate">Created Date</label>
             <input type="date" class="form-control" name="createdDate">
@@ -71,7 +71,7 @@
             <label for="modifieddate">Modified Date</label>
             <input type="date" class="form-control" name="modifiedDate">
           </div>
-     </div>  -->
+     </div> 
       
     <div class="form-row" style='padding-left: 470px'>
         <input type="submit" class="btn btn-primary" value="submit">
