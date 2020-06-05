@@ -31,6 +31,19 @@ public class URL {
     }
     
     /**
+     * This function determines the absolute URL of an Image resource, when given
+     * the path relative to the root images folder.
+     * 
+     * @param uri The URI of the resource relative to the root of this site's project
+     * @param request The HTTP Request
+     * @return A string containing an absolute URL for the resource given.
+     */
+    public static String Image(String uri, HttpServletRequest request)
+    {
+        return URL.Absolute("img/"+uri, request);
+    }
+    
+    /**
      * This function will try to return the user back to their previous page.
      * 
      * If that cannot be determined, the user is sent to the main page.

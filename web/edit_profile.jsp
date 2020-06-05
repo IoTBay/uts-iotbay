@@ -48,7 +48,7 @@
         <div class="form-group row">
           <label for="phone" class="col-sm-2 col-form-label">Phone</label>
           <div class="col-sm-10">
-            <input type="text" class="form-control col-md-5" id="phone" name="phone" value="<%= customer.getPhone() %>">
+              <input type="text" class="form-control col-md-5" id="phone" name="phone" value="<%= v.repopulate("phone", customer.getPhone()) %>">
           </div>
         </div>
           

@@ -2,7 +2,7 @@
 <%@page import="uts.isd.util.Flash"%>
 <%@page import="uts.isd.util.URL"%>
 <%@page import="uts.isd.model.*"%> 
-<jsp:include page="../header.jsp" />
+<jsp:include page="../../header.jsp" />
 <%
   Flash flash = Flash.getInstance(session);
   Validator v = new Validator(session);
@@ -72,5 +72,5 @@
   <!--Main layout-->
   </div> <!-- /container -->
 </main>
-<jsp:include page="../footer.jsp" />
+<jsp:include page="../../footer.jsp" />
 </html>

@@ -7,6 +7,7 @@ package uts.isd.model.dao;
 import java.util.List;
 import javax.servlet.ServletRequest;
 import uts.isd.model.Address;
+import uts.isd.model.Customer;
 import uts.isd.model.User;
 
 /**
@@ -31,13 +32,13 @@ public interface IAddress {
     public List<Address> getAllAddresses();
     
     /**
-     * Returns all addresses in the addresses table for a particular user
+     * Returns all addresses in the addresses table for a particular customer
      * 
-     * @param id The user ID to get addresses for
+     * @param id The customer ID to get addresses for
      * 
      * @return List of addresses
      */
-    public List<Address> getAllAddressesByUserId(int id);
+    public List<Address> getAllAddressesByCustomerId(int id);
     
     /* Update queries */
     
@@ -45,17 +46,19 @@ public interface IAddress {
      * Updates a address in the database based on the passed in User model object.
      * 
      * @param a The address object to take updated values from.
+     * @param customer The user making the change
      * @return Returns true if address was updated, or false if no updates were performed.
      */
-    public boolean updateAddress(Address a);
+    public boolean updateAddress(Address a, Customer customer);
     
     /**
      * Adds a address in the database based on the passed in User model object.
      *
      * @param a The address object to insert values from
+     * @param customer The user making the change
      * @return Returns true if address was added, or false if no insert was performed.
      */
-    public boolean addAddress(Address a);
+    public boolean addAddress(Address a, Customer customer);
     
     /* Delete queries */
 

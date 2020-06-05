@@ -23,9 +23,10 @@ CREATE TABLE Customers (
    ID INTEGER NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),
    FirstName VARCHAR(30) NOT NULL,
    LastName VARCHAR(30) NOT NULL,
-   Email VARCHAR(60) NOT NULL UNIQUE,
+   Phone VARCHAR(10) NOT NULL,
+   Email VARCHAR(60) NOT NULL,
    CreatedDate TIMESTAMP NOT NULL,
-   CreatedBy INTEGER NOT NULL,
+   CreatedBy INTEGER,
    ModifiedDate TIMESTAMP,
    ModifiedBy INTEGER,
    PRIMARY KEY (ID)
@@ -177,12 +178,18 @@ CREATE TABLE AuditLogs (
    Entity VARCHAR(30) NOT NULL,
    Event VARCHAR(30) NOT NULL,
    Message VARCHAR(30) NOT NULL,
-   EventCustomer INTEGER NOT NULL,
+   CustomerID INTEGER NOT NULL,
    EventDate TIMESTAMP NOT NULL,
    PRIMARY KEY (ID)
 );
 
 --- Now setup foreign keys
+-- AuditLogs
+
+ALTER TABLE Addresses
+ADD FOREIGN KEY (EventCustomerID)
+REFERENCES Customers (ID);
+
 -- Addresses
 
 ALTER TABLE Addresses

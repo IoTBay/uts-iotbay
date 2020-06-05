@@ -22,6 +22,8 @@ import uts.isd.model.dao.IProduct;
 import uts.isd.util.Flash;
 import uts.isd.util.Logging;
 import uts.isd.util.URL;
+import uts.isd.validation.Validator;
+import uts.isd.validation.ValidatorFieldRules;
 
 public class ProductsController extends HttpServlet {
 
@@ -39,6 +41,13 @@ public class ProductsController extends HttpServlet {
          *    <url-pattern>/User/*</url-pattern>
          *   </servlet-mapping>
          */
+        
+        if (request.getPathInfo() == null || request.getPathInfo().equals("/"))
+        {
+            viewProductsGet(request,response);
+            return; 
+        }
+        
         Logging.logMessage("** Path Info is: "+request.getPathInfo());
         String[] segments = request.getPathInfo().split("/");
         
@@ -54,7 +63,7 @@ public class ProductsController extends HttpServlet {
                 viewProductsGet(request, response);
                 break;
             case "update":
-                ProductUpdateGet(request, response);
+                doUpdateProductGet(request, response, segments[2]);
                 break;
             case "view":
                 viewProductGet(request, response, segments[2]);
@@ -68,20 +77,18 @@ public class ProductsController extends HttpServlet {
         //processRequest(request, response);
         
         Logging.logMessage("** Path Info is: "+request.getPathInfo());
-        switch (request.getPathInfo())
+        String[] segments = request.getPathInfo().split("/");
+        
+        switch (segments[1])
         {
-            case "/delete":
+            case "delete":
                 deleteProductPost(request, response);
                 break;
-            case "/add":
+            case "add":
                 addProductPost(request, response);
                 break;
-            case "/view":
-                //viewProductsPost(request, response);
-                break;
-            case "/update":
-                ProductUpdatePost(request, response);
-                break;
+            case "update":
+                doUpdateProductPost(request, response, segments[2]);
         }
     }
    
@@ -168,68 +175,122 @@ public class ProductsController extends HttpServlet {
         }
     } 
     
-    protected void ProductUpdateGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        RequestDispatcher requestDispatcher; 
-        requestDispatcher = request.getRequestDispatcher("/update_product.jsp");
-        requestDispatcher.forward(request, response);
-        
-    }
-  
-    protected void ProductUpdatePost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        HttpSession session = request.getSession();
-        User user = (User)session.getAttribute("user");
-        Customer customer = (Customer)session.getAttribute("customer");
-        boolean isLoggedIn = (user != null && customer != null);
-        
-        //We need to make sure the product exists 
-        Product product = (Product)session.getAttribute("product");
-        boolean productExists = (product != null);
-        
-
-        //Setup flash messages
-        Flash flash = Flash.getInstance(session);
-        int status = 0;
-        Logging.logMessage("Update product");
-        
+    protected void doUpdateProductGet(HttpServletRequest request, HttpServletResponse response, String productStr)
+            throws ServletException, IOException 
+    {
+        Flash flash = Flash.getInstance(request.getSession());
         try
         {
-            //Is Logged in and submitted form
-            if (isLoggedIn && productExists)
+            User user = (User)request.getSession().getAttribute("user");
+            if (user == null)
             {
-                //Create a connection to the DB for the products table
-                IProduct dbProduct = new DBProduct();
-                //Don't create a new product, use the product that fits the search criteria.
-                //customer = new Customer();
-                product.loadRequest(request);
-                //boolean updated = (product.update(dbProduct));
-                boolean updated = product.update(dbProduct);
-                Logging.logMessage("SOMETHING IS HAPPENING HERE BUT I DON'T KNOW WHAT");
+                flash.add(Flash.MessageType.Error, "You are not logged in");
+                //URL.GoBack(request, response);
+                return;
+            }
 
-                if (updated)
-                    flash.add(Flash.MessageType.Success, "The product was successfully updated!");
-                else
-                    flash.add(Flash.MessageType.Error, "Failed to update product");
+            int productId = Integer.parseInt(productStr);
+
+            IProduct dbProduct = new DBProduct();
+            //Get the existing address from the DB so we can pass it to the view to pre-load values.
+            Product product = dbProduct.getProductById(productId);
+            //Set the product object on the request so it can be used by the view for this request only.
+            //i.e. Don't use the session because this is for a single page request.
+            request.setAttribute("product", product);
+
+            RequestDispatcher requestDispatcher; 
+            requestDispatcher = request.getRequestDispatcher("/update_product.jsp");
+            requestDispatcher.forward(request, response); 
+        } 
+        catch (Exception e) 
+        {
+            flash.add(Flash.MessageType.Error, "Unable to edit product");
+            Logging.logMessage("Unable to edit product");
+            //URL.GoBack(request, response);
+            return;
+        }
+    }
+  
+    protected void doUpdateProductPost(HttpServletRequest request, HttpServletResponse response, String productStr)
+            throws ServletException, IOException 
+    {
+        HttpSession session = request.getSession();
+        Flash flash = Flash.getInstance(session);
+        User user = (User)session.getAttribute("user");
+        Customer customer = (Customer)session.getAttribute("customer");
+        boolean isLoggedIn = (customer != null && user != null);
+
+        try
+        {
+            if (!isLoggedIn)
+            {
+                flash.add(Flash.MessageType.Error, "You are not logged in");
+                //URL.GoBack(request, response);
+                return;
+            }
+
+            Validator validator = new Validator(new ValidatorFieldRules[] {
+                 new ValidatorFieldRules("Product Price", "price", "required|shorterthan[10]"),
+                 new ValidatorFieldRules("Product Name", "name", "required|shorterthan[61]"),
+                 new ValidatorFieldRules("Product Description", "description", "required|shorterthan[61]"),
+                 new ValidatorFieldRules("Product Created Date", "createdDate", "required|shorterthan[7]"),
+                 new ValidatorFieldRules("Product Modified Date", "modifiedDate", "required|shorterthan[7]"),
+            });
+
+            if (!validator.validate(request))
+            {
+                //URL.GoBack(request, response);
+                return;
+            }
+
+            IProduct dbProduct = new DBProduct();
+
+            //Instead of creating a blank address, fetch the existing address from the DB
+            //so we have a fully populated oobject and don't risk losing data.
+            int productId = Integer.parseInt(productStr);
+            Product product = dbProduct.getProductById(productId);
+
+            if (product == null)
+            {
+                flash.add(Flash.MessageType.Error, "Unable to find product to edit");
+                //URL.GoBack(request, response);
+                return;
+            }
+
+            //Now load the submitted form fields into the address object
+            //over the top of the DB data.
+            product.loadRequest(request, user);
+
+            //Run update instead of add
+            if (dbProduct.updateProduct(product))
+            {
+                flash.add(Flash.MessageType.Success, "Existing product updated successfully");
+                response.sendRedirect(URL.Absolute("/product_update.jsp", request));
+                return;
             }
             else
             {
-                flash.add(Flash.MessageType.Error, "submission failed");
+                flash.add(Flash.MessageType.Error, "Failed to update products");
+                RequestDispatcher requestDispatcher; 
+                requestDispatcher = request.getRequestDispatcher("/product_update.jsp");
+                requestDispatcher.forward(request, response); 
             }
-            
-            RequestDispatcher requestDispatcher; 
-            requestDispatcher = request.getRequestDispatcher("/update_product.jsp");
-            requestDispatcher.forward(request, response);
         }
         catch (Exception e)
         {
-            Logging.logMessage("Unable to update product");
+            Logging.logMessage("Unable to update product", e);
+            flash.add(Flash.MessageType.Error, "Unable to update product");
+            //URL.GoBack(request, response);
             return;
         }
     }
     
-    protected void viewProductsGet(HttpServletRequest request, HttpServletResponse response)throws ServletException, IOException {
-        
-        try{
+    protected void viewProductsGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException 
+    {
+        Flash flash = Flash.getInstance(request.getSession());
+        try
+        {
             IProduct dbProduct = new DBProduct();
             List<Product> products = dbProduct.getAllProducts();
             request.setAttribute("products", products);
@@ -273,7 +334,7 @@ public class ProductsController extends HttpServlet {
             
             request.setAttribute("product", product);
             RequestDispatcher requestDispatcher; 
-            requestDispatcher = request.getRequestDispatcher("/products/view.jsp");
+            requestDispatcher = request.getRequestDispatcher("/view/products/view.jsp");
             requestDispatcher.forward(request, response);
             
         }
@@ -287,7 +348,7 @@ public class ProductsController extends HttpServlet {
     protected void deleteProductGet(HttpServletRequest request, HttpServletResponse response)throws ServletException, IOException {
         
         RequestDispatcher requestDispatcher; 
-        requestDispatcher = request.getRequestDispatcher("/delete_product.jsp");
+        requestDispatcher = request.getRequestDispatcher("/view_product.jsp");
         requestDispatcher.forward(request, response);
     }
     
@@ -329,7 +390,7 @@ public class ProductsController extends HttpServlet {
             }
             
             RequestDispatcher requestDispatcher; 
-            requestDispatcher = request.getRequestDispatcher("/update_product.jsp");
+            requestDispatcher = request.getRequestDispatcher("/view_product.jsp");
             requestDispatcher.forward(request, response);
         }
         catch (Exception e)

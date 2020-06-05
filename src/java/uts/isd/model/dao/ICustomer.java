@@ -51,17 +51,19 @@ public interface ICustomer {
      * Updates a customer in the database based on the passed in Customer model object.
      * 
      * @param c The customer object to take updated values from.
+     * @param changedBy The user making the change
      * @return Returns true if customer was updated, or false if no updates were performed.
      */
-    public boolean updateCustomer(Customer c);
+    public boolean updateCustomer(Customer c, Customer changedBy);
     
     /**
      * Adds a customer in the database based on the passed in Customer model object.
      *
      * @param c The customer object to insert values from
+     * @param changedBy The user making the change
      * @return Returns true if customer was added, or false if no insert was performed.
      */
-    public boolean addCustomer(Customer c);
+    public boolean addCustomer(Customer c, Customer changedBy);
     
     /* Delete queries */
 

@@ -1,3 +1,4 @@
+<%@page import="uts.isd.util.Flash"%>
 <%@page import="uts.isd.util.URL"%>
 <%@page import="uts.isd.model.*"%>
 <%@page import="java.util.List"%>
@@ -9,6 +10,8 @@
   Customer customer = (Customer)session.getAttribute("customer");
   //Store for later
   boolean isLoggedIn = (user != null);
+  
+  Flash flash = Flash.getInstance(session);
 %>
 
 <jsp:include page="header.jsp" />
@@ -16,6 +19,8 @@
 <main role="main">
     <div style="margin-top: 50px;"></div>
     <div class="container">
+        <%= flash.displayMessages() %>
+
     <%
         if (isLoggedIn) {
     %>
@@ -73,7 +78,7 @@
             <row class="row">
                 <div class="col-md-6 mb-3">
                 <label for="staffcode">If you are a staff member, please enter your staff code</label>
-                <input type="text" class="form-control" id="accessLevel" name="accessLevel" placeholder="" value="">
+                <input type="text" class="form-control" id="staffcode" name="staffcode" placeholder="" value="">
               </div>
             </row>
         

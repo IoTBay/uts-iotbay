@@ -11,12 +11,19 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import uts.isd.model.Address;
+import uts.isd.model.Customer;
 import uts.isd.util.Logging;
-/**
- *
- * @author C_fin
- */
 
+/**
+ * DBManager is the primary DAO class to interact with the database. 
+ * Complete the existing methods of this classes to perform CRUD operations with the db.
+ * Each entity/table has it's own implementation.
+ * 
+ * In our case the DBManager class implements a repository pattern interface for the entity.
+ * 
+ * @author Rhys Hanrahan 11000801
+ * @since 2020-06-02
+ */
 public class DBAddress implements IAddress{
     
     private Connection conn;
@@ -55,10 +62,10 @@ public class DBAddress implements IAddress{
     }
     
     @Override
-    public List<Address> getAllAddressesByUserId(int id)
+    public List<Address> getAllAddressesByCustomerId(int id)
     {
         try {
-            PreparedStatement p = this.conn.prepareStatement("SELECT * FROM APP.Addresses WHERE UserID = ?");
+            PreparedStatement p = this.conn.prepareStatement("SELECT * FROM APP.Addresses WHERE CustomerID = ?");
             p.setInt(1, id);
             ResultSet rs = p.executeQuery();
             
@@ -73,14 +80,14 @@ public class DBAddress implements IAddress{
         }
         catch (Exception e)
         {
-            Logging.logMessage("Unable to getAllAddressesByUserId", e);
+            Logging.logMessage("Unable to getAllAddressesByCustomerId", e);
             return null;
         }
     }
     
     //Adding a new address to the database 
     @Override
-    public boolean addAddress(Address a)
+    public boolean addAddress(Address a, Customer customer)
     {
         try {
             PreparedStatement p = this.conn.prepareStatement("INSERT  INTO APP.Addresses (CustomerID, UserID, DefaultShippingAddress, DefaultBillingAddress, AddressPrefix1, StreetNumber, StreetName, StreetType, Suburb, State, PostCode, Country, CreatedDate, CreatedBy) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
@@ -97,8 +104,8 @@ public class DBAddress implements IAddress{
             p.setString(11, a.getPostcode());
             p.setString(12, a.getCountry());
 
-            p.setDate(13, new java.sql.Date(new java.util.Date().getTime()));
-            p.setInt(14, 1);
+            p.setTimestamp(13, new java.sql.Timestamp(new java.util.Date().getTime()));
+            p.setInt(14, customer.getId());
             //Was insert successful?
             return (p.executeUpdate() > 0);
         }
@@ -111,7 +118,7 @@ public class DBAddress implements IAddress{
 
     //Updating an existing address in the database - this method only changes the stored values, it does not check address exists 
     @Override
-    public boolean updateAddress(Address a) {
+    public boolean updateAddress(Address a, Customer customer) {
         try {
             PreparedStatement p = this.conn.prepareStatement("UPDATE APP.Addresses SET CustomerID = ?, UserID = ?, DefaultShippingAddress = ?, DefaultBillingAddress = ?, AddressPrefix1 = ?, StreetNumber = ?, StreetName = ?, StreetType = ?, Suburb = ?, State = ?, PostCode = ?, Country = ?, ModifiedDate = ?, ModifiedBy = ? WHERE ID = ?");
             p.setInt(1, a.getCustomerId());
@@ -127,8 +134,8 @@ public class DBAddress implements IAddress{
             p.setString(11, a.getPostcode());
             p.setString(12, a.getCountry());
 
-            p.setDate(13, new java.sql.Date(new java.util.Date().getTime()));
-            p.setInt(14, 1);
+            p.setTimestamp(13, new java.sql.Timestamp(new java.util.Date().getTime()));
+            p.setInt(14, customer.getId());
             p.setInt(15, a.getId());
             //Was update successful?
             int result = p.executeUpdate();
