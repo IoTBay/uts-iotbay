@@ -5,8 +5,13 @@
  */
 package uts.isd.model;
 
+import java.sql.ResultSet;
 import java.util.Date;
 import javax.servlet.ServletRequest;
+import uts.isd.model.dao.DBCustomer;
+import uts.isd.model.dao.ICustomer;
+import uts.isd.model.dao.IPaymentTransaction;
+import uts.isd.util.Logging;
 
 /**
  * Payment Transaction model
@@ -18,7 +23,6 @@ public class PaymentTransaction {
     private int id;
     private int customerId;
     private int orderId;
-    private int paymentMethodId;
     private double amount;
     private String description;
     private String paymentGatewayTransaction;
@@ -31,13 +35,40 @@ public class PaymentTransaction {
     
     public PaymentTransaction() {}
     
+ /**
+     * This constructor takes an SQL ResultSet and grabs the values from the DB Record
+     * to populate each property in the user model.
+     * 
+     * @param rs The SQL ResultSet row to populate values from.
+     */
+    public PaymentTransaction(ResultSet rs) {
+        try
+        {
+            this.id = rs.getInt("ID");
+            this.customerId = rs.getInt("CustomerID");
+            this.orderId = rs.getInt("OrderID");
+            this.amount = rs.getDouble("Amount");
+            this.description = rs.getString("Description");
+            this.paymentGatewayTransaction = rs.getString("PaymentGatewayTransaction");
+            this.status = rs.getInt("Status");
+            
+            this.createdDate = rs.getDate("CreatedDate");
+            this.createdBy = rs.getInt("CreatedBy");
+            this.modifiedDate = rs.getDate("ModifiedDate");
+            this.modifiedBy = rs.getInt("ModifiedBy");            
+        }
+        catch (Exception e)
+        {
+            Logging.logMessage("Unable to load PaymentTransaction from ResultSet for ID", e);
+        }
+    }
+    
     /**
      * This method populates this instance's properties based on form inputs.
      * 
      * @param request The controller's HTTPServlet POST request properties.
-     * @return boolean - Returns true if adding the properties was successful. Otherwise false.
      */
-    public boolean addCurrency(ServletRequest request)
+    public void loadRequest(ServletRequest request)
     {
         if (request.getParameter("id") != null)
             this.id = Integer.parseInt(request.getParameter("id"));
@@ -46,7 +77,6 @@ public class PaymentTransaction {
             this.customerId = Integer.parseInt(request.getParameter("customerId"));
         
         this.orderId = Integer.parseInt(request.getParameter("orderId"));
-        this.paymentMethodId = Integer.parseInt(request.getParameter("paymentMethodId"));
         this.amount = Double.parseDouble(request.getParameter("amount"));
         this.description = request.getParameter("description");
         this.paymentGatewayTransaction = request.getParameter("paymentGatewayTransaction");
@@ -55,9 +85,58 @@ public class PaymentTransaction {
         this.createdDate = new Date();
         this.modifiedDate = new Date();
         this.createdBy = 0;
-        this.modifiedBy = 0;
-        
-        return true;
+        this.modifiedBy = 0;      
+    }
+    
+    public boolean add(IPaymentTransaction db, Customer customer)
+    {
+        try
+        {
+            //Assumes the PaymentTransaction object (this) has been populated already.
+            //Takes object properties and inserts into DB.
+            boolean added = db.addPaymentTransaction(this, customer);
+            //Always close DB when done.
+            return added;
+        }
+        catch (Exception e)
+        {
+            Logging.logMessage("Failed to add payment transaction", e);
+            return false;
+        }        
+    }
+    
+    public boolean update(IPaymentTransaction db, Customer customer)
+    {
+        try
+        {
+            //Assumes the PaymentTransaction object (this) has been populated already.
+            //Takes object properties and inserts into DB.
+            boolean updated = db.updatePaymentTransaction(this, customer);
+            //Always close DB when done.
+            return updated;
+        }
+        catch (Exception e)
+        {
+            Logging.logMessage("Failed to update payment transaction", e);
+            return false;
+        }        
+    }
+    
+    public boolean delete(IPaymentTransaction db)
+    {
+        try
+        {
+            //Assumes the PaymentTransaction object (this) has been populated already.
+            //Takes object properties and inserts into DB.
+            boolean deleted = db.deletePaymentTransactionById(this.id);
+            //Always close DB when done.
+            return deleted;
+        }
+        catch (Exception e)
+        {
+            Logging.logMessage("Failed to delete payment transaction", e);
+            return false;
+        }        
     }
 
     public int getId() {
@@ -70,10 +149,6 @@ public class PaymentTransaction {
 
     public int getOrderId() {
         return orderId;
-    }
-
-    public int getPaymentMethodId() {
-        return paymentMethodId;
     }
 
     public double getAmount() {
@@ -96,16 +171,34 @@ public class PaymentTransaction {
         return createdDate;
     }
 
-    public int getCreatedBy() {
-        return createdBy;
-    }
-
     public Date getModifiedDate() {
         return modifiedDate;
     }
 
-    public int getModifiedBy() {
-        return modifiedBy;
+    public Customer getCreatedBy() {
+        try
+        {
+            ICustomer dbCustomer = new DBCustomer();
+            Customer c = dbCustomer.getCustomerById(this.createdBy);
+            return c;
+        }
+        catch (Exception e)
+        {
+            return new Customer();
+        }
+    }
+    
+    public Customer getModifiedBy() {
+        try
+        {
+            ICustomer dbCustomer = new DBCustomer();
+            Customer c = dbCustomer.getCustomerById(this.modifiedBy);
+            return c;
+        }
+        catch (Exception e)
+        {
+            return new Customer();
+        }
     }
 }
 
