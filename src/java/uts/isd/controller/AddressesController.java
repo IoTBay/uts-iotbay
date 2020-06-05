@@ -6,7 +6,6 @@
 package uts.isd.controller;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.List;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -17,8 +16,8 @@ import javax.servlet.http.HttpSession;
 import uts.isd.model.Address;
 import uts.isd.model.Customer;
 import uts.isd.model.User;
-import uts.isd.model.dao.DBAddress;
 import uts.isd.model.dao.DBAuditLogs;
+import uts.isd.model.dao.DBAddress;
 import uts.isd.model.dao.IAddress;
 import uts.isd.util.Flash;
 import uts.isd.util.Logging;
@@ -89,7 +88,7 @@ public class AddressesController extends HttpServlet {
                 
             case "delete":
                 //Segments[2] is the ID to delete in /addresses/delete/x
-                //doDeleteAddressGet(request, response, segments[2]);
+                doDeleteAddressGet(request, response, (segments.length == 3 ? segments[2] : ""));
                 break;
                 
         }
@@ -205,6 +204,50 @@ public class AddressesController extends HttpServlet {
         }
     }
     
+    protected void doDeleteAddressGet(HttpServletRequest request, HttpServletResponse response, String addressStr)
+            throws ServletException, IOException 
+    {
+        Flash flash = Flash.getInstance(request.getSession());
+        try
+        {
+            User user = (User)request.getSession().getAttribute("user");
+            if (user == null || !user.isAdmin())
+            {
+                flash.add(Flash.MessageType.Error, "Access denied");
+                URL.GoBack(request, response);
+                return;
+            }
+            
+            int addressId = Integer.parseInt(addressStr);
+            
+            IAddress dbAddress = new DBAddress();
+            //Get the existing address from the DB so we can pass it to the view to pre-load values.
+            Address address = dbAddress.getAddressById(addressId);
+            
+            if (address == null)
+            {
+                flash.add(Flash.MessageType.Error, "Unable to find address to delete");
+                URL.GoBack(request, response);
+                return;
+            }
+            
+            //Set the address object on the request so it can be used by the view for this request only.
+            //i.e. Don't use the session because this is for a single page request.
+            request.setAttribute("address", address);
+            
+            RequestDispatcher requestDispatcher; 
+            requestDispatcher = request.getRequestDispatcher("/view/addresses/delete.jsp");
+            requestDispatcher.forward(request, response); 
+        } 
+        catch (Exception e) 
+        {
+            flash.add(Flash.MessageType.Error, "Unable to delete address");
+            Logging.logMessage("Unable to delete address");
+            URL.GoBack(request, response);
+            return;
+        }
+    }
+    
     /**
      * Handles the HTTP <code>POST</code> method.
      *
@@ -234,7 +277,7 @@ public class AddressesController extends HttpServlet {
                 
             case "delete":
                 //Segments[2] is the ID to delete in /addresses/delete/x
-                //doDeleteAddressGet(request, response, segments[2]);
+                doDeleteAddressGet(request, response, (segments.length == 3 ? segments[2] : ""));
                 break;
                 
         }
@@ -394,6 +437,61 @@ public class AddressesController extends HttpServlet {
         {
             Logging.logMessage("Unable to update address", e);
             flash.add(Flash.MessageType.Error, "Unable to update address");
+            URL.GoBack(request, response);
+            return;
+        }
+    }
+    
+    
+    protected void doDeleteAddressPost(HttpServletRequest request, HttpServletResponse response, String addressStr)
+            throws ServletException, IOException 
+    {
+        HttpSession session = request.getSession();
+        Flash flash = Flash.getInstance(session);
+        User user = (User)session.getAttribute("user");
+        Customer customer = (Customer)session.getAttribute("customer");
+        boolean isLoggedIn = (customer != null && user != null);
+        
+        try
+        {
+            if (!isLoggedIn || !user.isAdmin())
+            {
+                flash.add(Flash.MessageType.Error, "Access denied");
+                URL.GoBack(request, response);
+                return;
+            }
+            
+            if (request.getParameter("doDelete") == null)
+            {
+                flash.add(Flash.MessageType.Error, "Delete request invalid");
+                URL.GoBack(request, response);
+                return;
+            }
+            
+            IAddress dbAddress = new DBAddress();
+            
+            //Instead of creating a blank address, fetch the existing address from the DB
+            //so we have a fully populated oobject and don't risk losing data.
+            int addressId = Integer.parseInt(addressStr);;
+            
+            //Run update instead of add
+            if (dbAddress.deleteAddressById(addressId))
+            {
+                DBAuditLogs.addEntry(DBAuditLogs.Entity.Addresses, "Deleted", "Deleted address "+addressStr, customer.getId());
+                flash.add(Flash.MessageType.Success, "Address deleted successfully");
+                response.sendRedirect(URL.Absolute("addresses/list", request));
+                return;
+            }
+            else
+            {
+                flash.add(Flash.MessageType.Error, "Failed to delete address");
+                response.sendRedirect(URL.Absolute("addresses/list", request));
+            }
+        }
+        catch (Exception e)
+        {
+            Logging.logMessage("Unable to delete address", e);
+            flash.add(Flash.MessageType.Error, "Unable to delete address");
             URL.GoBack(request, response);
             return;
         }

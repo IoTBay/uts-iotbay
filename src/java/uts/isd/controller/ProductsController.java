@@ -340,7 +340,7 @@ public class ProductsController extends HttpServlet {
         }
         catch (Exception e)
         {
-            Logging.logMessage("Unable to view product ID"+productId, e);
+            Logging.logMessage("Unable to view product ID "+productId, e);
         }
         
     }

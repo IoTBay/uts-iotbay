@@ -316,8 +316,7 @@ public class UsersController extends HttpServlet {
                 user.setCustomerId(customer.getId()); //Link the new user to the customer we just created above.
                 //Add user to DB
                 user.loadRequest(request);
-                boolean added = user.add(dbUser, customer);
-
+                
                 if(request.getParameter("staffcode") != null && request.getParameter("staffcode").equals(User.STAFF_CODE))  
                 { 
                     user.setAccessLevel(10);
@@ -326,8 +325,10 @@ public class UsersController extends HttpServlet {
                 else
                 {
                     user.setAccessLevel(1);
-                }  
+                }
                 
+                boolean added = user.add(dbUser, customer);
+
                 if (added)
                 {
                     flash.add(Flash.MessageType.Success, "New user "+user.getEmail()+" added successfully!");
@@ -420,11 +421,11 @@ public class UsersController extends HttpServlet {
                 new ValidatorFieldRules("Email", "email", "required|trim|email") 
             });
             
-            if (!validator.validate(request))
-            {
-                response.sendRedirect(request.getHeader("referer"));
-                return;
-            }
+        if (!validator.validate(request))
+        {
+            response.sendRedirect(request.getHeader("referer"));
+            return;
+        }
         
         HttpSession session = request.getSession();
         
