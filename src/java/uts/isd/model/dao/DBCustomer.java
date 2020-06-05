@@ -109,13 +109,13 @@ public class DBCustomer implements ICustomer {
     }
     
      @Override
-    public boolean addCustomer(Customer c)
+    public boolean addCustomer(Customer c, Customer changedBy)
     {
         try {
             //Using SQL prepared statements: https://stackoverflow.com/questions/3451269/parameterized-oracle-sql-query-in-java
             //this protects against SQL Injection attacks. Each parameter must have a ? in the query, and a corresponding parameter
             //set.
-            PreparedStatement p = this.conn.prepareStatement("INSERT  INTO APP.Customers (Email, FirstName, LastName, Phone, CreatedDate, CreatedBy) VALUES (?, ?, ?, ?, ?, ?)",
+            PreparedStatement p = this.conn.prepareStatement("INSERT  INTO APP.Customers (Email, FirstName, LastName, Phone, CreatedDate) VALUES (?, ?, ?, ?, ?)",
                     //Added this to return the primary key of this new record
                     //https://db.apache.org/derby/docs/10.2/ref/crefjavstateautogen.html
                     Statement.RETURN_GENERATED_KEYS);
@@ -123,8 +123,8 @@ public class DBCustomer implements ICustomer {
             p.setString(2, c.getFirstName());
             p.setString(3, c.getLastName());
             p.setString(4, c.getPhone());
-            p.setDate(5, new java.sql.Date(new java.util.Date().getTime()));
-            p.setInt(6, 1); //TODO: Pass in current user object
+            p.setTimestamp(5, new java.sql.Timestamp(new java.util.Date().getTime()));
+            //CreatedBy is this new user. So have to create first, then populate CreatedBy
             
             //Was insert successful?
             boolean added = (p.executeUpdate() > 0);
@@ -139,6 +139,20 @@ public class DBCustomer implements ICustomer {
             //This should set the new record's ID field on the passed in object
             c.setId(id);
             
+            //Now set CreatedBy
+            p = this.conn.prepareStatement("UPDATE APP.Customers SET CreatedBy = ? WHERE ID = ?",
+                    //Added this to return the primary key of this new record
+                    //https://db.apache.org/derby/docs/10.2/ref/crefjavstateautogen.html
+                    Statement.RETURN_GENERATED_KEYS);
+            
+            if (changedBy == null)
+                p.setInt(1, id);
+            else
+                p.setInt(1, changedBy.getId());
+            
+            p.setInt(2, id);
+            p.executeUpdate();
+            
             return added;
         }
         catch (Exception e)
@@ -149,7 +163,7 @@ public class DBCustomer implements ICustomer {
     }
 
     @Override
-    public boolean updateCustomer(Customer c) {
+    public boolean updateCustomer(Customer c, Customer changedBy) {
         try {
             //Using SQL prepared statements: https://stackoverflow.com/questions/3451269/parameterized-oracle-sql-query-in-java
             //this protects against SQL Injection attacks. Each parameter must have a ? in the query, and a corresponding parameter
@@ -161,8 +175,8 @@ public class DBCustomer implements ICustomer {
             p.setString(4,c.getPhone());
             
             //Modified Date
-            p.setDate(5, new java.sql.Date(new java.util.Date().getTime()));
-            p.setInt(6, 1); //TODO: Pass in current user object
+            p.setTimestamp(5, new java.sql.Timestamp(new java.util.Date().getTime()));
+            p.setInt(6, changedBy.getId());
             //WHERE ID = ?
             p.setInt(7, c.getId());
             

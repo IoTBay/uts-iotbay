@@ -308,7 +308,7 @@ public class UsersController extends HttpServlet {
                 ICustomer dbCustomer = new DBCustomer();
                 customer = new Customer();
                 customer.loadRequest(request);
-                customer.add(dbCustomer);
+                customer.add(dbCustomer, null);
                 
                 //Create a connection to the DB for users table
                 IUser dbUser = new DBUser();
@@ -316,16 +316,28 @@ public class UsersController extends HttpServlet {
                 user.setCustomerId(customer.getId()); //Link the new user to the customer we just created above.
                 //Add user to DB
                 user.loadRequest(request);
-                boolean added = user.add(dbUser);
+                boolean added = user.add(dbUser, customer);
 
-                if(!request.getParameter("accessLevel").equals("10"))  { 
-                    user.setAccessLevel(1);
+                if(request.getParameter("staffcode") != null && request.getParameter("staffcode").equals(User.STAFF_CODE))  
+                { 
+                    user.setAccessLevel(10);
+                    flash.add(Flash.MessageType.Success, "You have been given staff access!");
                 }
+                else
+                {
+                    user.setAccessLevel(1);
+                }  
                 
                 if (added)
+                {
                     flash.add(Flash.MessageType.Success, "New user "+user.getEmail()+" added successfully!");
+                }
                 else
+                {
                     flash.add(Flash.MessageType.Error, "Failed to add new user: "+user.getEmail());
+                    URL.GoBack(request, response);
+                    return;
+                }
 
                 //Store objects in session so we dont have to load from DB on every page.
                 session.setAttribute("customer", customer);
@@ -444,7 +456,7 @@ public class UsersController extends HttpServlet {
                 user.loadRequest(request);
                 
                 
-                boolean updated = (customer.update(dbCustomer) && user.update(dbUser));
+                boolean updated = (customer.update(dbCustomer, customer) && user.update(dbUser, customer));
                 Logging.logMessage("Updated profile");
 
                 if (updated){
@@ -509,11 +521,19 @@ public class UsersController extends HttpServlet {
         //Invalidate the session BEFORE including the header, so it shows correctly.
         
         User user = (User)session.getAttribute("user");
+        Customer customer = (Customer)session.getAttribute("customer");
         
-        boolean isLoggedIn = (user != null);
-
+        boolean isLoggedIn = (user != null && customer != null);
+        
         //Setup flash messages
         Flash flash = Flash.getInstance(session);
+        
+        if (!isLoggedIn)
+        {
+            flash.add(Flash.MessageType.Error, "You are not logged in");
+            URL.GoBack(request, response);
+            return;
+        }
 
         Logging.logMessage("Updating profile");
         
@@ -527,7 +547,7 @@ public class UsersController extends HttpServlet {
                 //set Access level to 0 to invalidate the account
                 user.setAccessLevel(0);
                 
-                boolean updated = (user.update(dbUser));
+                boolean updated = (user.update(dbUser, customer));
                 Logging.logMessage("Updated profile");
 
                 if (updated){
