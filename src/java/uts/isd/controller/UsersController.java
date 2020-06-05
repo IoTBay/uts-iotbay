@@ -420,11 +420,11 @@ public class UsersController extends HttpServlet {
                 new ValidatorFieldRules("Email", "email", "required|trim|email") 
             });
             
-            if (!validator.validate(request))
-            {
-                response.sendRedirect(request.getHeader("referer"));
-                return;
-            }
+        if (!validator.validate(request))
+        {
+            response.sendRedirect(request.getHeader("referer"));
+            return;
+        }
         
         HttpSession session = request.getSession();
         
