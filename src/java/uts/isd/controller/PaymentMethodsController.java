@@ -89,7 +89,7 @@ public class PaymentMethodsController extends HttpServlet {
                 
             case "delete":
                 //Segments[2] is the ID to delete in /paymethods/delete/x
-                //doDeletePaymentMethodGet(request, response, segments[2]);
+                doDeletePaymentMethodGet(request, response, (segments.length == 3 ? segments[2] : ""));
                 break;
                 
         }
@@ -205,6 +205,50 @@ public class PaymentMethodsController extends HttpServlet {
         }
     }
     
+    protected void doDeletePaymentMethodGet(HttpServletRequest request, HttpServletResponse response, String paymethodStr)
+            throws ServletException, IOException 
+    {
+        Flash flash = Flash.getInstance(request.getSession());
+        try
+        {
+            User user = (User)request.getSession().getAttribute("user");
+            if (user == null || !user.isAdmin())
+            {
+                flash.add(Flash.MessageType.Error, "Access denied");
+                URL.GoBack(request, response);
+                return;
+            }
+            
+            int paymethodId = Integer.parseInt(paymethodStr);
+            
+            IPaymentMethod dbPaymentMethod = new DBPaymentMethod();
+            //Get the existing paymethod from the DB so we can pass it to the view to pre-load values.
+            PaymentMethod paymethod = dbPaymentMethod.getPaymentMethodById(paymethodId);
+            
+            if (paymethod == null)
+            {
+                flash.add(Flash.MessageType.Error, "Unable to find paymethod to delete");
+                URL.GoBack(request, response);
+                return;
+            }
+            
+            //Set the paymethod object on the request so it can be used by the view for this request only.
+            //i.e. Don't use the session because this is for a single page request.
+            request.setAttribute("paymethod", paymethod);
+            
+            RequestDispatcher requestDispatcher; 
+            requestDispatcher = request.getRequestDispatcher("/view/paymethods/delete.jsp");
+            requestDispatcher.forward(request, response); 
+        } 
+        catch (Exception e) 
+        {
+            flash.add(Flash.MessageType.Error, "Unable to delete paymethod");
+            Logging.logMessage("Unable to delete paymethod");
+            URL.GoBack(request, response);
+            return;
+        }
+    }
+    
     /**
      * Handles the HTTP <code>POST</code> method.
      *
@@ -234,7 +278,7 @@ public class PaymentMethodsController extends HttpServlet {
                 
             case "delete":
                 //Segments[2] is the ID to delete in /paymethods/delete/x
-                //doDeletePaymentMethodGet(request, response, segments[2]);
+                doDeletePaymentMethodGet(request, response, (segments.length == 3 ? segments[2] : ""));
                 break;
                 
         }
@@ -384,6 +428,60 @@ public class PaymentMethodsController extends HttpServlet {
         {
             Logging.logMessage("Unable to update paymethod", e);
             flash.add(Flash.MessageType.Error, "Unable to update paymethod");
+            URL.GoBack(request, response);
+            return;
+        }
+    }
+    
+    protected void doDeletePaymentMethodPost(HttpServletRequest request, HttpServletResponse response, String paymethodStr)
+            throws ServletException, IOException 
+    {
+        HttpSession session = request.getSession();
+        Flash flash = Flash.getInstance(session);
+        User user = (User)session.getAttribute("user");
+        Customer customer = (Customer)session.getAttribute("customer");
+        boolean isLoggedIn = (customer != null && user != null);
+        
+        try
+        {
+            if (!isLoggedIn || !user.isAdmin())
+            {
+                flash.add(Flash.MessageType.Error, "Access denied");
+                URL.GoBack(request, response);
+                return;
+            }
+            
+            if (request.getParameter("doDelete") == null)
+            {
+                flash.add(Flash.MessageType.Error, "Delete request invalid");
+                URL.GoBack(request, response);
+                return;
+            }
+            
+            IPaymentMethod dbPaymentMethod = new DBPaymentMethod();
+            
+            //Instead of creating a blank paymethod, fetch the existing paymethod from the DB
+            //so we have a fully populated oobject and don't risk losing data.
+            int paymethodId = Integer.parseInt(paymethodStr);;
+            
+            //Run update instead of add
+            if (dbPaymentMethod.deletePaymentMethodById(paymethodId))
+            {
+                DBAuditLogs.addEntry(DBAuditLogs.Entity.PaymentMethods, "Deleted", "Deleted paymethod "+paymethodStr, customer.getId());
+                flash.add(Flash.MessageType.Success, "PaymentMethod deleted successfully");
+                response.sendRedirect(URL.Absolute("paymethods/list", request));
+                return;
+            }
+            else
+            {
+                flash.add(Flash.MessageType.Error, "Failed to delete paymethod");
+                response.sendRedirect(URL.Absolute("paymethods/list", request));
+            }
+        }
+        catch (Exception e)
+        {
+            Logging.logMessage("Unable to delete paymethod", e);
+            flash.add(Flash.MessageType.Error, "Unable to delete paymethod");
             URL.GoBack(request, response);
             return;
         }
