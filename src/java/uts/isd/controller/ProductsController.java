@@ -348,20 +348,16 @@ public class ProductsController extends HttpServlet {
     protected void deleteProductGet(HttpServletRequest request, HttpServletResponse response)throws ServletException, IOException {
         
         RequestDispatcher requestDispatcher; 
-        requestDispatcher = request.getRequestDispatcher("/view_product.jsp");
+        requestDispatcher = request.getRequestDispatcher("/delete_product.jsp");
         requestDispatcher.forward(request, response);
     }
     
     protected void deleteProductPost(HttpServletRequest request, HttpServletResponse response)throws ServletException, IOException {
-       
+  
         HttpSession session = request.getSession();
         User user = (User)session.getAttribute("user");
         Customer customer = (Customer)session.getAttribute("customer");
-        boolean isLoggedIn = (user != null && customer != null);
-        
-        //We need to make sure the product exists 
-        Product product = (Product)session.getAttribute("product");
-        boolean productExists = (product != null);
+        boolean isLoggedIn = (customer != null && user != null);
         
 
         //Setup flash messages
@@ -372,12 +368,11 @@ public class ProductsController extends HttpServlet {
         try
         {
             //Is Logged in and submitted form
-            if (isLoggedIn && productExists)
+            if (isLoggedIn)
             {
                 //Create a connection to the DB for the products table
                 IProduct dbProduct = new DBProduct();
-                product.loadRequest(request);
-                boolean deleted = product.delete(dbProduct);
+                boolean deleted = true;
 
                 if (deleted)
                     flash.add(Flash.MessageType.Success, "The product was successfully deleted!");
@@ -389,9 +384,9 @@ public class ProductsController extends HttpServlet {
                 flash.add(Flash.MessageType.Error, "submission failed");
             }
             
-            RequestDispatcher requestDispatcher; 
-            requestDispatcher = request.getRequestDispatcher("/view_product.jsp");
-            requestDispatcher.forward(request, response);
+            response.sendRedirect(URL.Absolute("/product/list", request));
+            
+            
         }
         catch (Exception e)
         {
