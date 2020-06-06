@@ -87,7 +87,9 @@ public class Order {
             this.createdDate = rs.getDate("CreatedDate");
             this.createdBy = rs.getInt("CreatedBy");
             this.modifiedDate = rs.getDate("ModifiedDate");
-            this.modifiedBy = rs.getInt("ModifiedBy");            
+            this.modifiedBy = rs.getInt("ModifiedBy");    
+            
+            this.orderLines = new ArrayList<>();
         }
         catch (Exception e)
         {
