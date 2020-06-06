@@ -2,7 +2,7 @@
 <%@page import="uts.isd.util.Flash"%>
 <%@page import="uts.isd.util.URL"%>
 <%@page import="uts.isd.model.*"%> 
-<jsp:include page="../header.jsp" />
+<jsp:include page="../../header.jsp" />
 <%
   Flash flash = Flash.getInstance(session);
   Validator v = new Validator(session);
@@ -27,8 +27,8 @@
         <li class="list-group-item d-flex justify-content-between lh-condensed">
           <div class="col-md-1">
               <div class="btn-group" role="group" aria-label="Change item quantity">
-                <a href="<%= URL.Absolute("order/decrease_item/"+line.getId(), request) %>" class="btn btn-outline-dark">-</a>
-                <a href="<%= URL.Absolute("order/increase_item/"+line.getId(), request) %>" class="btn btn-outline-dark">+</a>
+                <a href="<%= URL.Absolute("order/updateqty/"+line.getId(), request) %>" class="btn btn-outline-dark">-</a>
+                <a href="<%= URL.Absolute("order/updateqty/"+line.getId(), request) %>" class="btn btn-outline-dark">+</a>
               </div>
           </div>
           <div class="col-md-10">
@@ -38,19 +38,6 @@
           <span class="text-muted"><%= line.getUnitPriceFormatted() %></span>
         </li>
         <% } %>
-        <li class="list-group-item d-flex justify-content-between lh-condensed">
-          <div class="col-md-1">
-              <div class="btn-group" role="group" aria-label="Change item quantity">
-                <a href="<%= URL.Absolute("order/decrease_item/1/1", request) %>" class="btn btn-outline-dark">-</a>
-                <a href="<%= URL.Absolute("order/increase_item/1/1", request) %>" class="btn btn-outline-dark">+</a>
-              </div>
-          </div>
-          <div class="col-md-10">
-            <h6 class="my-0">Third item</h6>
-            <small class="text-muted">Brief description</small>
-          </div>
-          <span class="text-muted">$5</span>
-        </li>
         <li class="list-group-item d-flex justify-content-between">
           <span>Total (<%= order.getCurrency().getAbbreviation() %>)</span>
           <strong><%= order.getTotalCostFormatted() %></strong>
@@ -66,5 +53,5 @@
   <% } %>
   </div> <!-- /container -->
 </main>
-<jsp:include page="../footer.jsp" />
+<jsp:include page="../../footer.jsp" />
 </html>
