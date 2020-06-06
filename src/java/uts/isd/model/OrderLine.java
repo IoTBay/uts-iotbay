@@ -114,7 +114,7 @@ public class OrderLine {
     }
     
     public double getPrice() {
-        return this.unitPrice * this.quantity;
+        return ((double)this.unitPrice * (double)this.quantity);
     }
    
     public String getPriceFormatted(String format) {

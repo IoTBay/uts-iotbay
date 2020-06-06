@@ -293,13 +293,13 @@ public class Order {
     public void addOrderLine(OrderLine line)
     {
         this.orderLines.add(line);
-        this.totalCost += (line.getUnitPrice() * line.getQuantity());
+        this.totalCost += line.getPrice();
     }
     
     public void removeOrderLine(OrderLine line)
     {
         this.orderLines.remove(line);
-        this.totalCost -= (line.getUnitPrice() * line.getQuantity());
+        this.totalCost -= line.getPrice();
     }
     
     public int getTotalQuantity()
