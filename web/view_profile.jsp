@@ -29,6 +29,7 @@
         <li>First Name: <%= customer.getFirstName() %></li>
         <li>Last Name: <%= customer.getLastName() %></li>
         <li>Email: <%= customer.getEmail() %></li>
+        <li>Phone: <%= customer.getPhone() %></li>
         <li>Age: <%= user.getBirthDate() %> (<%= user.getAge() %> years old)</li>
         <li>Gender: <%= user.getSex() %></li>
     </ul>
@@ -37,7 +38,7 @@
     <a href="<%= URL.Absolute("user/cancel", request) %>" class="btn btn-primary">Cancel Account</a>
     <span style="margin-left: 100px;"></span>
     <a href="<%= URL.Absolute("addresses/list", request) %>" class="btn btn-primary">View Addresses</a>
-    <a href="<%= URL.Absolute("payment/list", request) %>" class="btn btn-primary">View Payment Methods</a>
+    <a href="<%= URL.Absolute("paymethods/list", request) %>" class="btn btn-primary">View Payment Methods</a>
   <% } %>
     
     <hr>

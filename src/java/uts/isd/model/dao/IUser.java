@@ -5,6 +5,7 @@
  */
 package uts.isd.model.dao;
 
+import uts.isd.model.Customer;
 import uts.isd.model.User;
 
 /**
@@ -63,17 +64,19 @@ public interface IUser {
      * Updates a user in the database based on the passed in User model object.
      * 
      * @param u The user object to take updated values from.
+     * @param customer The user making the change
      * @return Returns true if user was updated, or false if no updates were performed.
      */
-    public boolean updateUser(User u);
+    public boolean updateUser(User u, Customer customer);
     
     /**
      * Adds a user in the database based on the passed in User model object.
      *
      * @param u The user object to insert values from
+     * @param customer The user making the change
      * @return Returns true if user was added, or false if no insert was performed.
      */
-    public boolean addUser(User u);
+    public boolean addUser(User u, Customer customer);
     
     /* Delete queries */
 

@@ -182,7 +182,7 @@ public class UsersController extends HttpServlet {
                 flash.add(Flash.MessageType.Error, "Your username and/or password were incorrect for user "+request.getParameter("email"));
                 
                 //Re-load the login page
-                 RequestDispatcher requestDispatcher; 
+                RequestDispatcher requestDispatcher; 
                 requestDispatcher = request.getRequestDispatcher("/login.jsp");
                 requestDispatcher.forward(request, response);
             }
@@ -200,41 +200,6 @@ public class UsersController extends HttpServlet {
                 flash.add(Flash.MessageType.Success, "You logged in successfully. Welcome back!");
 
                 //For now mock everything else till they are implemented.
-
-                //Mock currency
-                Currency currency = new Currency();
-                currency.setId(1);
-                currency.setName("Australian Dollar");
-                currency.setAbbreviation("AUD");
-                currency.setCostConversionRate(0.64297);
-                currency.setRetailConversionRate(0.650);
-                //Mock category
-                ProductCategory cat1 = new ProductCategory(1, "Transistors", "There are some transistors here.", "transistors.jpg");
-                ProductCategory cat2 = new ProductCategory(2, "PCBs", "There are some PCBs here.", "pcbs.jpg");
-                List<ProductCategory> categories = new ArrayList<ProductCategory>();
-                categories.add(cat1);
-                categories.add(cat2);
-                session.setAttribute("categories", categories);
-                //Load products
-                Product p1 = new Product();
-                p1.setId(1);
-                //p1.setCurrencyId(1);
-                p1.setCategoryId(1);
-                p1.setName("Widget");
-                p1.setDescription("This is a widget");
-                p1.setPrice(12.50);
-                Product p2 = new Product();
-                p2.setId(2);
-                //p2.setCurrencyId(1);
-                p2.setCategoryId(2);
-                p2.setName("Thingy");
-                p2.setDescription("This is a thingy");
-                p2.setPrice(52.75);
-
-                List<Product> products = new ArrayList<Product>();
-                products.add(p1);
-                products.add(p2);
-                session.setAttribute("products", products);
 
                 //Load order
                 Order order = new Order();
@@ -291,17 +256,31 @@ public class UsersController extends HttpServlet {
     protected void doRegisterPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         
-       Validator validator = new Validator(new ValidatorFieldRules[] {
-            new ValidatorFieldRules("Email", "email", new ValidationMethod[] {
-                new ValidateRequired(),
-                new ValidateEmail(),
-                new ValidateTrim()
-            }),
-            new ValidatorFieldRules("First Name", "firstName", new ValidationMethod[] {
-                new ValidateRequired()
-            })
-        });
+        Validator validator = new Validator(new ValidatorFieldRules[] {
+                new ValidatorFieldRules("First Name", "firstName", "required"),
+                new ValidatorFieldRules("Last Name", "lastName", "required"),
+                new ValidatorFieldRules("Phone", "phone", "required|longerthan[9]|shorterthan[11]"),
+                new ValidatorFieldRules("Email", "email", "required|trim|email"), 
+                new ValidatorFieldRules("Password", "password", "required|longerthan[2]"),
+            });
+            
+            if (!validator.validate(request))
+            {
+                response.sendRedirect(request.getHeader("referer"));
+                return;
+            }
         
+       /*Validator validator = new Validator(new ValidatorFieldRules[] {
+        *    new ValidatorFieldRules("Email", "email", new ValidationMethod[] {
+        *       new ValidateRequired(),
+        *       new ValidateEmail(),
+        *        new ValidateTrim()
+        *    }),
+        *    new ValidatorFieldRules("First Name", "firstName", new ValidationMethod[] {
+        *        new ValidateRequired()
+        *    })
+        *});
+        */
         HttpSession session = request.getSession();
         
         //We need to figure out if the user is logging out now, or not.
@@ -329,61 +308,41 @@ public class UsersController extends HttpServlet {
                 ICustomer dbCustomer = new DBCustomer();
                 customer = new Customer();
                 customer.loadRequest(request);
-                customer.add(dbCustomer);
-
+                customer.add(dbCustomer, null);
+                
                 //Create a connection to the DB for users table
                 IUser dbUser = new DBUser();
                 user = new User();
                 user.setCustomerId(customer.getId()); //Link the new user to the customer we just created above.
                 //Add user to DB
                 user.loadRequest(request);
-                boolean added = user.add(dbUser);
-
+                
+                if(request.getParameter("staffcode") != null && request.getParameter("staffcode").equals(User.STAFF_CODE))  
+                { 
+                    user.setAccessLevel(10);
+                    flash.add(Flash.MessageType.Success, "You have been given staff access!");
+                }
+                else
+                {
+                    user.setAccessLevel(1);
+                }
+                
+                boolean added = user.add(dbUser, customer);
 
                 if (added)
+                {
                     flash.add(Flash.MessageType.Success, "New user "+user.getEmail()+" added successfully!");
+                }
                 else
+                {
                     flash.add(Flash.MessageType.Error, "Failed to add new user: "+user.getEmail());
+                    URL.GoBack(request, response);
+                    return;
+                }
 
                 //Store objects in session so we dont have to load from DB on every page.
                 session.setAttribute("customer", customer);
                 session.setAttribute("user", user);
-
-                //Mock currency
-                Currency currency = new Currency();
-                currency.setId(1);
-                currency.setName("Australian Dollar");
-                currency.setAbbreviation("AUD");
-                currency.setCostConversionRate(0.64297);
-                currency.setRetailConversionRate(0.650);
-                //Mock category
-                ProductCategory cat1 = new ProductCategory(1, "Transistors", "There are some transistors here.", "transistors.jpg");
-                ProductCategory cat2 = new ProductCategory(2, "PCBs", "There are some PCBs here.", "pcbs.jpg");
-                List<ProductCategory> categories = new ArrayList<ProductCategory>();
-                categories.add(cat1);
-                categories.add(cat2);
-                session.setAttribute("categories", categories);
-
-                //Load products
-                Product p1 = new Product();
-                p1.setId(1);
-                //p1.setCurrencyId(1);
-                p1.setCategoryId(1);
-                p1.setName("Widget");
-                p1.setDescription("This is a widget");
-                p1.setPrice(12.50);
-                Product p2 = new Product();
-                p2.setId(2);
-                //p2.setCurrencyId(1);
-                p2.setCategoryId(2);
-                p2.setName("Thingy");
-                p2.setDescription("This is a thingy");
-                p2.setPrice(52.75);
-
-                List<Product> products = new ArrayList<Product>();
-                products.add(p1);
-                products.add(p2);
-                session.setAttribute("products", products);
 
                 //Load order
                 Order order = new Order();
@@ -455,6 +414,19 @@ public class UsersController extends HttpServlet {
     protected void doProfileEditPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         
+         Validator validator = new Validator(new ValidatorFieldRules[] {
+                new ValidatorFieldRules("First Name", "firstName", "required"),
+                new ValidatorFieldRules("Last Name", "lastName", "required"),
+                new ValidatorFieldRules("Phone", "phone", "required|longerthan[9]|shorterthan[11]"),
+                new ValidatorFieldRules("Email", "email", "required|trim|email") 
+            });
+            
+        if (!validator.validate(request))
+        {
+            response.sendRedirect(request.getHeader("referer"));
+            return;
+        }
+        
         HttpSession session = request.getSession();
         
         //We need to figure out if the user is logging out now, or not.
@@ -485,7 +457,7 @@ public class UsersController extends HttpServlet {
                 user.loadRequest(request);
                 
                 
-                boolean updated = (customer.update(dbCustomer) && user.update(dbUser));
+                boolean updated = (customer.update(dbCustomer, customer) && user.update(dbUser, customer));
                 Logging.logMessage("Updated profile");
 
                 if (updated){
@@ -550,11 +522,19 @@ public class UsersController extends HttpServlet {
         //Invalidate the session BEFORE including the header, so it shows correctly.
         
         User user = (User)session.getAttribute("user");
+        Customer customer = (Customer)session.getAttribute("customer");
         
-        boolean isLoggedIn = (user != null);
-
+        boolean isLoggedIn = (user != null && customer != null);
+        
         //Setup flash messages
         Flash flash = Flash.getInstance(session);
+        
+        if (!isLoggedIn)
+        {
+            flash.add(Flash.MessageType.Error, "You are not logged in");
+            URL.GoBack(request, response);
+            return;
+        }
 
         Logging.logMessage("Updating profile");
         
@@ -568,7 +548,7 @@ public class UsersController extends HttpServlet {
                 //set Access level to 0 to invalidate the account
                 user.setAccessLevel(0);
                 
-                boolean updated = (user.update(dbUser));
+                boolean updated = (user.update(dbUser, customer));
                 Logging.logMessage("Updated profile");
 
                 if (updated){

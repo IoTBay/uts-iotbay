@@ -6,6 +6,7 @@
 package uts.isd.controller;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.List;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -13,12 +14,12 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import uts.isd.model.Address;
+import uts.isd.model.ProductCategory;
 import uts.isd.model.Customer;
 import uts.isd.model.User;
 import uts.isd.model.dao.DBAuditLogs;
-import uts.isd.model.dao.DBAddress;
-import uts.isd.model.dao.IAddress;
+import uts.isd.model.dao.DBCategory;
+import uts.isd.model.dao.ICategory;
 import uts.isd.util.Flash;
 import uts.isd.util.Logging;
 import uts.isd.util.URL;
@@ -26,12 +27,12 @@ import uts.isd.validation.Validator;
 import uts.isd.validation.ValidatorFieldRules;
 
 /**
- * Addresses controller
+ * Staff Categories controller
  * 
  * @author Rhys Hanrahan 11000801
- * @since 2020-06-02
+ * @since 2020-06-04
  */
-public class AddressesController extends HttpServlet {
+public class StaffCategoriesController extends HttpServlet {
 
 
     /**
@@ -60,151 +61,73 @@ public class AddressesController extends HttpServlet {
         //If no action is specified in the URI - e.g. /addresses then assume we're listing.
         if (request.getPathInfo() == null || request.getPathInfo().equals("/"))
         {
-            doListAddressesGet(request, response, "");
+            doListCategoriesGet(request, response);
             return;
         }
         
         Logging.logMessage("** Path Info is: "+request.getPathInfo());
         String[] segments = request.getPathInfo().split("/");
         
-
-        
         switch (segments[1])
         {
             case "list":
-                //Pass segment[2] in as the customerId if one is given in this request.
-                //This is so staff can view addresses for any customer with /adddresses/list/xxx
-                doListAddressesGet(request, response, (segments.length == 3 ? segments[2] : ""));
+                doListCategoriesGet(request, response);
+                break;
+                
+            case "view":
+                doViewCategoryGet(request, response, (segments.length == 3 ? segments[2] : ""));
                 break;
                 
             case "add":
-                doAddAddressGet(request, response);
+                doAddCategoryGet(request, response);
                 break;
                 
             case "edit":
                 //Segments[2] is the ID to edit in /addresses/edit/x
-                doUpdateAddressGet(request, response, (segments.length == 3 ? segments[2] : ""));
+                doUpdateCategoryGet(request, response, (segments.length == 3 ? segments[2] : ""));
                 break;
                 
             case "delete":
                 //Segments[2] is the ID to delete in /addresses/delete/x
-                doDeleteAddressGet(request, response, (segments.length == 3 ? segments[2] : ""));
+                doDeleteCategoryGet(request, response, (segments.length == 3 ? segments[2] : ""));
                 break;
                 
         }
     }
 
-    protected void doListAddressesGet(HttpServletRequest request, HttpServletResponse response, String customerIdStr)
+    protected void doListCategoriesGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException 
     {
         Flash flash = Flash.getInstance(request.getSession());
         try
         {
             User user = (User)request.getSession().getAttribute("user");
-            if (user == null)
-            {
-                flash.add(Flash.MessageType.Error, "You are not logged in");
-                URL.GoBack(request, response);
-                return;
-            }
-            
-            int customerId = user.getCustomerId(); //Default to seeing current user's addresses.
-            
-             //Only staff can access records that don't belong to them.
-            if (user.isAdmin() && !customerIdStr.isEmpty())
-            {
-                //Change to specified customerId if given
-                customerId = Integer.parseInt(customerIdStr);
-            }
-            
-            IAddress dbAddress = new DBAddress();
-            List<Address> addresses = dbAddress.getAllAddressesByCustomerId(customerId);
-            request.setAttribute("addresses", addresses);
-        } 
-        catch (Exception e) 
-        {
-            flash.add(Flash.MessageType.Error, "Unable to list addresses");
-            Logging.logMessage("Unable to get addresses");
-            URL.GoBack(request, response);
-            return;
-        }
         
-        RequestDispatcher requestDispatcher; 
-        requestDispatcher = request.getRequestDispatcher("/view/addresses/list.jsp");
-        requestDispatcher.forward(request, response); 
-    }
-    
-    protected void doAddAddressGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException 
-    {
-        Flash flash = Flash.getInstance(request.getSession());
-        User user = (User)request.getSession().getAttribute("user");
-        
-        if (user == null)
-        {
-            flash.add(Flash.MessageType.Error, "You are not logged in");
-            URL.GoBack(request, response);
-            return;
-        }
-            
-        RequestDispatcher requestDispatcher; 
-        requestDispatcher = request.getRequestDispatcher("/view/addresses/add.jsp");
-        requestDispatcher.forward(request, response); 
-    }
-    
-    protected void doUpdateAddressGet(HttpServletRequest request, HttpServletResponse response, String addressStr)
-            throws ServletException, IOException 
-    {
-        Flash flash = Flash.getInstance(request.getSession());
-        try
-        {
-            User user = (User)request.getSession().getAttribute("user");
-            if (user == null)
-            {
-                flash.add(Flash.MessageType.Error, "You are not logged in");
-                URL.GoBack(request, response);
-                return;
-            }
-            
-            int addressId = Integer.parseInt(addressStr);
-            
-            IAddress dbAddress = new DBAddress();
-            //Get the existing address from the DB so we can pass it to the view to pre-load values.
-            Address address = dbAddress.getAddressById(addressId);
-            
-            if (address == null)
-            {
-                flash.add(Flash.MessageType.Error, "Unable to find address to edit");
-                URL.GoBack(request, response);
-                return;
-            }
-            
-            //Only staff can access records not related to them.
-            if ((address.getCustomerId() != user.getCustomerId()) && !user.isAdmin())
+            if (user == null || !user.isAdmin())
             {
                 flash.add(Flash.MessageType.Error, "Access denied");
                 URL.GoBack(request, response);
                 return;
             }
             
-            //Set the address object on the request so it can be used by the view for this request only.
-            //i.e. Don't use the session because this is for a single page request.
-            request.setAttribute("address", address);
-            
-            RequestDispatcher requestDispatcher; 
-            requestDispatcher = request.getRequestDispatcher("/view/addresses/edit.jsp");
-            requestDispatcher.forward(request, response); 
+            ICategory dbCategory = new DBCategory();
+            List<ProductCategory> categories = dbCategory.getAllCategories();
+            request.setAttribute("categories", categories);
         } 
         catch (Exception e) 
         {
-            flash.add(Flash.MessageType.Error, "Unable to edit address");
-            Logging.logMessage("Unable to edit address");
+            flash.add(Flash.MessageType.Error, "Unable to list categories");
+            Logging.logMessage("Unable to get categories");
             URL.GoBack(request, response);
             return;
         }
+        
+        RequestDispatcher requestDispatcher; 
+        requestDispatcher = request.getRequestDispatcher("/view/categories/list.jsp");
+        requestDispatcher.forward(request, response); 
     }
     
-    protected void doDeleteAddressGet(HttpServletRequest request, HttpServletResponse response, String addressStr)
+    protected void doViewCategoryGet(HttpServletRequest request, HttpServletResponse response, String categoryStr)
             throws ServletException, IOException 
     {
         Flash flash = Flash.getInstance(request.getSession());
@@ -218,31 +141,137 @@ public class AddressesController extends HttpServlet {
                 return;
             }
             
-            int addressId = Integer.parseInt(addressStr);
+            int categoryId = Integer.parseInt(categoryStr);
             
-            IAddress dbAddress = new DBAddress();
+            ICategory dbCategory = new DBCategory();
             //Get the existing address from the DB so we can pass it to the view to pre-load values.
-            Address address = dbAddress.getAddressById(addressId);
+            ProductCategory category = dbCategory.getCategoryById(categoryId);
             
-            if (address == null)
+            if (category == null)
             {
-                flash.add(Flash.MessageType.Error, "Unable to find address to delete");
+                flash.add(Flash.MessageType.Error, "Unable to find category to view");
                 URL.GoBack(request, response);
                 return;
             }
             
             //Set the address object on the request so it can be used by the view for this request only.
             //i.e. Don't use the session because this is for a single page request.
-            request.setAttribute("address", address);
+            request.setAttribute("category", category);
             
             RequestDispatcher requestDispatcher; 
-            requestDispatcher = request.getRequestDispatcher("/view/addresses/delete.jsp");
+            requestDispatcher = request.getRequestDispatcher("/view/categories/view.jsp");
             requestDispatcher.forward(request, response); 
         } 
         catch (Exception e) 
         {
-            flash.add(Flash.MessageType.Error, "Unable to delete address");
-            Logging.logMessage("Unable to delete address");
+            flash.add(Flash.MessageType.Error, "Unable to view category");
+            Logging.logMessage("Unable to view category");
+            URL.GoBack(request, response);
+            return;
+        }
+    }
+    
+    protected void doAddCategoryGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException 
+    {
+        Flash flash = Flash.getInstance(request.getSession());
+        User user = (User)request.getSession().getAttribute("user");
+        
+        if (user == null || !user.isAdmin())
+        {
+            flash.add(Flash.MessageType.Error, "Access denied");
+            URL.GoBack(request, response);
+            return;
+        }
+            
+        RequestDispatcher requestDispatcher; 
+        requestDispatcher = request.getRequestDispatcher("/view/categories/add.jsp");
+        requestDispatcher.forward(request, response); 
+    }
+    
+    protected void doUpdateCategoryGet(HttpServletRequest request, HttpServletResponse response, String categoryStr)
+            throws ServletException, IOException 
+    {
+        Flash flash = Flash.getInstance(request.getSession());
+        try
+        {
+            User user = (User)request.getSession().getAttribute("user");
+            if (user == null || !user.isAdmin())
+            {
+                flash.add(Flash.MessageType.Error, "Access denied");
+                URL.GoBack(request, response);
+                return;
+            }
+            
+            int categoryId = Integer.parseInt(categoryStr);
+            
+            ICategory dbCategory = new DBCategory();
+            //Get the existing address from the DB so we can pass it to the view to pre-load values.
+            ProductCategory category = dbCategory.getCategoryById(categoryId);
+            
+            if (category == null)
+            {
+                flash.add(Flash.MessageType.Error, "Unable to find category to edit");
+                URL.GoBack(request, response);
+                return;
+            }
+            
+            //Set the address object on the request so it can be used by the view for this request only.
+            //i.e. Don't use the session because this is for a single page request.
+            request.setAttribute("category", category);
+            
+            RequestDispatcher requestDispatcher; 
+            requestDispatcher = request.getRequestDispatcher("/view/categories/edit.jsp");
+            requestDispatcher.forward(request, response); 
+        } 
+        catch (Exception e) 
+        {
+            flash.add(Flash.MessageType.Error, "Unable to edit category");
+            Logging.logMessage("Unable to edit category");
+            URL.GoBack(request, response);
+            return;
+        }
+    }
+    
+    protected void doDeleteCategoryGet(HttpServletRequest request, HttpServletResponse response, String categoryStr)
+            throws ServletException, IOException 
+    {
+        Flash flash = Flash.getInstance(request.getSession());
+        try
+        {
+            User user = (User)request.getSession().getAttribute("user");
+            if (user == null || !user.isAdmin())
+            {
+                flash.add(Flash.MessageType.Error, "Access denied");
+                URL.GoBack(request, response);
+                return;
+            }
+            
+            int categoryId = Integer.parseInt(categoryStr);
+            
+            ICategory dbCategory = new DBCategory();
+            //Get the existing address from the DB so we can pass it to the view to pre-load values.
+            ProductCategory category = dbCategory.getCategoryById(categoryId);
+            
+            if (category == null)
+            {
+                flash.add(Flash.MessageType.Error, "Unable to find category to delete");
+                URL.GoBack(request, response);
+                return;
+            }
+            
+            //Set the address object on the request so it can be used by the view for this request only.
+            //i.e. Don't use the session because this is for a single page request.
+            request.setAttribute("category", category);
+            
+            RequestDispatcher requestDispatcher; 
+            requestDispatcher = request.getRequestDispatcher("/view/categories/delete.jsp");
+            requestDispatcher.forward(request, response); 
+        } 
+        catch (Exception e) 
+        {
+            flash.add(Flash.MessageType.Error, "Unable to delete category");
+            Logging.logMessage("Unable to delete category");
             URL.GoBack(request, response);
             return;
         }
@@ -267,23 +296,23 @@ public class AddressesController extends HttpServlet {
         {
                 
             case "add":
-                doAddAddressPost(request, response);
+                doAddCategoryPost(request, response);
                 break;
                 
             case "edit":
                 //Segments[2] is the ID to edit in /addresses/edit/x
-                doUpdateAddressPost(request, response, (segments.length == 3 ? segments[2] : ""));
+                doUpdateCategoryPost(request, response, (segments.length == 3 ? segments[2] : ""));
                 break;
                 
             case "delete":
                 //Segments[2] is the ID to delete in /addresses/delete/x
-                doDeleteAddressGet(request, response, (segments.length == 3 ? segments[2] : ""));
+                doDeleteCategoryPost(request, response, (segments.length == 3 ? segments[2] : ""));
                 break;
                 
         }
     }
     
-    protected void doAddAddressPost(HttpServletRequest request, HttpServletResponse response)
+    protected void doAddCategoryPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException 
     {
         HttpSession session = request.getSession();
@@ -294,156 +323,126 @@ public class AddressesController extends HttpServlet {
         
         try
         {
-            if (!isLoggedIn)
-            {
-                flash.add(Flash.MessageType.Error, "You are not logged in");
-                URL.GoBack(request, response);
-                return;
-            }
-
-            Validator validator = new Validator(new ValidatorFieldRules[] {
-                 new ValidatorFieldRules("Address 2", "addressPrefix1", "trim"),
-                 new ValidatorFieldRules("Street Number", "streetNumber", "required|shorterthan[11]"), 
-                 new ValidatorFieldRules("Street Name", "streetName", "required|shorterthan[61]"),
-                 new ValidatorFieldRules("Street Type", "streetType", "required|shorterthan[21]"),
-                 new ValidatorFieldRules("Suburb", "suburb", "required|shorterthan[61]"),
-                 new ValidatorFieldRules("State", "state", "required|shorterthan[31]"),
-                 new ValidatorFieldRules("Post Code", "postcode", "required|shorterthan[5]"),
-                 new ValidatorFieldRules("Country", "country", "required|shorterthan[31]"),
-                 new ValidatorFieldRules("Default Shipping Address", "defaultShippingAddress", "trim"),
-                 new ValidatorFieldRules("Default Billing Address", "defaultBillingAddress", "trim")
-            });
-
-            if (!validator.validate(request))
-            {
-                URL.GoBack(request, response);
-                return;
-            }
-            
-            IAddress dbAddress = new DBAddress();
-            Address address = new Address();
-            address.loadRequest(request);
-            
-            if (customer != null)
-                address.setCustomerId(customer.getId());
-            
-            if (user != null)
-                address.setUserId(user.getId());
-            
-            if (dbAddress.addAddress(address, customer))
-            {
-                DBAuditLogs.addEntry(DBAuditLogs.Entity.Addresses, "Added", "Added address", customer.getId());
-                flash.add(Flash.MessageType.Success, "New address added successfully");
-                response.sendRedirect(URL.Absolute("addresses/list", request));
-                return;
-            }
-            else
-            {
-                flash.add(Flash.MessageType.Error, "Failed to add new address");
-                RequestDispatcher requestDispatcher; 
-                requestDispatcher = request.getRequestDispatcher("/view/addresses/add.jsp");
-                requestDispatcher.forward(request, response); 
-            }
-        }
-        catch (Exception e)
-        {
-            Logging.logMessage("Unable to add address", e);
-            flash.add(Flash.MessageType.Error, "Unable to add address");
-            URL.GoBack(request, response);
-            return;
-        }
-    }
-    
-    protected void doUpdateAddressPost(HttpServletRequest request, HttpServletResponse response, String addressStr)
-            throws ServletException, IOException 
-    {
-        HttpSession session = request.getSession();
-        Flash flash = Flash.getInstance(session);
-        User user = (User)session.getAttribute("user");
-        Customer customer = (Customer)session.getAttribute("customer");
-        boolean isLoggedIn = (customer != null && user != null);
-        
-        try
-        {
-            if (!isLoggedIn)
-            {
-                flash.add(Flash.MessageType.Error, "You are not logged in");
-                URL.GoBack(request, response);
-                return;
-            }
-
-            Validator validator = new Validator(new ValidatorFieldRules[] {
-                 new ValidatorFieldRules("Address 2", "addressPrefix1", "trim"),
-                 new ValidatorFieldRules("Street Number", "streetNumber", "required|shorterthan[11]"), 
-                 new ValidatorFieldRules("Street Name", "streetName", "required|shorterthan[61]"),
-                 new ValidatorFieldRules("Street Type", "streetType", "required|shorterthan[21]"),
-                 new ValidatorFieldRules("Suburb", "suburb", "required|shorterthan[61]"),
-                 new ValidatorFieldRules("State", "state", "required|shorterthan[31]"),
-                 new ValidatorFieldRules("Post Code", "postcode", "required|shorterthan[5]"),
-                 new ValidatorFieldRules("Country", "country", "required|shorterthan[31]"),
-                 new ValidatorFieldRules("Default Shipping Address", "defaultShippingAddress", "trim"),
-                 new ValidatorFieldRules("Default Billing Address", "defaultBillingAddress", "trim")
-            });
-
-            if (!validator.validate(request))
-            {
-                URL.GoBack(request, response);
-                return;
-            }
-            
-            IAddress dbAddress = new DBAddress();
-            
-            //Instead of creating a blank address, fetch the existing address from the DB
-            //so we have a fully populated oobject and don't risk losing data.
-            int addressId = Integer.parseInt(addressStr);
-            Address address = dbAddress.getAddressById(addressId);
-            
-            if (address == null)
-            {
-                flash.add(Flash.MessageType.Error, "Unable to find address to edit");
-                URL.GoBack(request, response);
-                return;
-            }
-            
-             //Only staff can access records not related to them.
-            if ((address.getCustomerId() != user.getCustomerId()) && !user.isAdmin())
+            if (!isLoggedIn || !user.isAdmin())
             {
                 flash.add(Flash.MessageType.Error, "Access denied");
                 URL.GoBack(request, response);
                 return;
             }
-            
-            //Now load the submitted form fields into the address object
-            //over the top of the DB data.
-            address.loadRequest(request);
-            
-            //Run update instead of add
-            if (dbAddress.updateAddress(address, customer))
+
+            Validator validator = new Validator(new ValidatorFieldRules[] {
+                 new ValidatorFieldRules("Name", "name", "trim|required"),
+                 new ValidatorFieldRules("Description", "description", "required"), 
+                 new ValidatorFieldRules("Image", "image", "trim")
+            });
+
+            if (!validator.validate(request))
             {
-                DBAuditLogs.addEntry(DBAuditLogs.Entity.Addresses, "Updated", "Updated address", customer.getId());
-                flash.add(Flash.MessageType.Success, "Existing address updated successfully");
-                response.sendRedirect(URL.Absolute("addresses/list", request));
+                URL.GoBack(request, response);
+                return;
+            }
+            
+            ICategory dbCategory = new DBCategory();
+            ProductCategory category = new ProductCategory();
+            category.loadRequest(request);
+            
+            if (dbCategory.addCategory(category, customer))
+            {
+                DBAuditLogs.addEntry(DBAuditLogs.Entity.ProductCategories, "Added", "Added category "+category.getName(), customer.getId());
+                flash.add(Flash.MessageType.Success, "New category added successfully");
+                response.sendRedirect(URL.Absolute("categories/list", request));
                 return;
             }
             else
             {
-                flash.add(Flash.MessageType.Error, "Failed to update address");
+                flash.add(Flash.MessageType.Error, "Failed to add new category");
                 RequestDispatcher requestDispatcher; 
-                requestDispatcher = request.getRequestDispatcher("/view/addresses/edit.jsp");
+                requestDispatcher = request.getRequestDispatcher("/view/categories/add.jsp");
                 requestDispatcher.forward(request, response); 
             }
         }
         catch (Exception e)
         {
-            Logging.logMessage("Unable to update address", e);
-            flash.add(Flash.MessageType.Error, "Unable to update address");
+            Logging.logMessage("Unable to add category", e);
+            flash.add(Flash.MessageType.Error, "Unable to add category");
             URL.GoBack(request, response);
             return;
         }
     }
     
+    protected void doUpdateCategoryPost(HttpServletRequest request, HttpServletResponse response, String categoryStr)
+            throws ServletException, IOException 
+    {
+        HttpSession session = request.getSession();
+        Flash flash = Flash.getInstance(session);
+        User user = (User)session.getAttribute("user");
+        Customer customer = (Customer)session.getAttribute("customer");
+        boolean isLoggedIn = (customer != null && user != null);
+        
+        try
+        {
+            if (!isLoggedIn || !user.isAdmin())
+            {
+                flash.add(Flash.MessageType.Error, "Access denied");
+                URL.GoBack(request, response);
+                return;
+            }
+
+            Validator validator = new Validator(new ValidatorFieldRules[] {
+                 new ValidatorFieldRules("Name", "name", "trim|required"),
+                 new ValidatorFieldRules("Description", "description", "required"), 
+                 new ValidatorFieldRules("Image", "image", "trim")
+            });
+
+            if (!validator.validate(request))
+            {
+                URL.GoBack(request, response);
+                return;
+            }
+            
+            ICategory dbCategory = new DBCategory();
+            
+            //Instead of creating a blank address, fetch the existing address from the DB
+            //so we have a fully populated oobject and don't risk losing data.
+            int categoryId = Integer.parseInt(categoryStr);
+            ProductCategory category = dbCategory.getCategoryById(categoryId);
+            
+            if (category == null)
+            {
+                flash.add(Flash.MessageType.Error, "Unable to find category to edit");
+                URL.GoBack(request, response);
+                return;
+            }
+            //Now load the submitted form fields into the address object
+            //over the top of the DB data.
+            category.loadRequest(request);
+            
+            //Run update instead of add
+            if (dbCategory.updateCategory(category, customer))
+            {
+                DBAuditLogs.addEntry(DBAuditLogs.Entity.ProductCategories, "Updated", "Updated category "+category.getName(), customer.getId());
+                flash.add(Flash.MessageType.Success, "Existing category updated successfully");
+                response.sendRedirect(URL.Absolute("categories/list", request));
+                return;
+            }
+            else
+            {
+                flash.add(Flash.MessageType.Error, "Failed to update category");
+                RequestDispatcher requestDispatcher; 
+                requestDispatcher = request.getRequestDispatcher("/view/categories/edit.jsp");
+                requestDispatcher.forward(request, response); 
+            }
+        }
+        catch (Exception e)
+        {
+            Logging.logMessage("Unable to update category", e);
+            flash.add(Flash.MessageType.Error, "Unable to update category");
+            URL.GoBack(request, response);
+            return;
+        }
+    }
     
-    protected void doDeleteAddressPost(HttpServletRequest request, HttpServletResponse response, String addressStr)
+    protected void doDeleteCategoryPost(HttpServletRequest request, HttpServletResponse response, String categoryStr)
             throws ServletException, IOException 
     {
         HttpSession session = request.getSession();
@@ -468,34 +467,35 @@ public class AddressesController extends HttpServlet {
                 return;
             }
             
-            IAddress dbAddress = new DBAddress();
+            ICategory dbCategory = new DBCategory();
             
             //Instead of creating a blank address, fetch the existing address from the DB
             //so we have a fully populated oobject and don't risk losing data.
-            int addressId = Integer.parseInt(addressStr);;
+            int categoryId = Integer.parseInt(categoryStr);;
             
             //Run update instead of add
-            if (dbAddress.deleteAddressById(addressId))
+            if (dbCategory.deleteCategoryById(categoryId))
             {
-                DBAuditLogs.addEntry(DBAuditLogs.Entity.Addresses, "Deleted", "Deleted address "+addressStr, customer.getId());
-                flash.add(Flash.MessageType.Success, "Address deleted successfully");
-                response.sendRedirect(URL.Absolute("addresses/list", request));
+                DBAuditLogs.addEntry(DBAuditLogs.Entity.ProductCategories, "Deleted", "Deleted category "+categoryStr, customer.getId());
+                flash.add(Flash.MessageType.Success, "Category deleted successfully");
+                response.sendRedirect(URL.Absolute("categories/list", request));
                 return;
             }
             else
             {
-                flash.add(Flash.MessageType.Error, "Failed to delete address");
-                response.sendRedirect(URL.Absolute("addresses/list", request));
+                flash.add(Flash.MessageType.Error, "Failed to delete category");
+                response.sendRedirect(URL.Absolute("categories/list", request));
             }
         }
         catch (Exception e)
         {
-            Logging.logMessage("Unable to delete address", e);
-            flash.add(Flash.MessageType.Error, "Unable to delete address");
+            Logging.logMessage("Unable to delete category", e);
+            flash.add(Flash.MessageType.Error, "Unable to delete category");
             URL.GoBack(request, response);
             return;
         }
     }
+
 
     /**
      * Returns a short description of the servlet.

@@ -6,6 +6,7 @@
 package uts.isd.controller;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.List;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -13,12 +14,12 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import uts.isd.model.Address;
+import uts.isd.model.PaymentMethod;
 import uts.isd.model.Customer;
 import uts.isd.model.User;
+import uts.isd.model.dao.DBPaymentMethod;
 import uts.isd.model.dao.DBAuditLogs;
-import uts.isd.model.dao.DBAddress;
-import uts.isd.model.dao.IAddress;
+import uts.isd.model.dao.IPaymentMethod;
 import uts.isd.util.Flash;
 import uts.isd.util.Logging;
 import uts.isd.util.URL;
@@ -26,12 +27,12 @@ import uts.isd.validation.Validator;
 import uts.isd.validation.ValidatorFieldRules;
 
 /**
- * Addresses controller
+ * PaymentMethods controller
  * 
  * @author Rhys Hanrahan 11000801
- * @since 2020-06-02
+ * @since 2020-06-04
  */
-public class AddressesController extends HttpServlet {
+public class PaymentMethodsController extends HttpServlet {
 
 
     /**
@@ -57,10 +58,10 @@ public class AddressesController extends HttpServlet {
          *   </servlet-mapping>
          */
         
-        //If no action is specified in the URI - e.g. /addresses then assume we're listing.
+        //If no action is specified in the URI - e.g. /paymethods then assume we're listing.
         if (request.getPathInfo() == null || request.getPathInfo().equals("/"))
         {
-            doListAddressesGet(request, response, "");
+            doListPaymentMethodsGet(request, response, "");
             return;
         }
         
@@ -73,28 +74,28 @@ public class AddressesController extends HttpServlet {
         {
             case "list":
                 //Pass segment[2] in as the customerId if one is given in this request.
-                //This is so staff can view addresses for any customer with /adddresses/list/xxx
-                doListAddressesGet(request, response, (segments.length == 3 ? segments[2] : ""));
+                //This is so staff can view paymethods for any customer with /adddresses/list/xxx
+                doListPaymentMethodsGet(request, response, (segments.length == 3 ? segments[2] : ""));
                 break;
                 
             case "add":
-                doAddAddressGet(request, response);
+                doAddPaymentMethodGet(request, response);
                 break;
                 
             case "edit":
-                //Segments[2] is the ID to edit in /addresses/edit/x
-                doUpdateAddressGet(request, response, (segments.length == 3 ? segments[2] : ""));
+                //Segments[2] is the ID to edit in /paymethods/edit/x
+                doUpdatePaymentMethodGet(request, response, (segments.length == 3 ? segments[2] : ""));
                 break;
                 
             case "delete":
-                //Segments[2] is the ID to delete in /addresses/delete/x
-                doDeleteAddressGet(request, response, (segments.length == 3 ? segments[2] : ""));
+                //Segments[2] is the ID to delete in /paymethods/delete/x
+                doDeletePaymentMethodGet(request, response, (segments.length == 3 ? segments[2] : ""));
                 break;
                 
         }
     }
 
-    protected void doListAddressesGet(HttpServletRequest request, HttpServletResponse response, String customerIdStr)
+    protected void doListPaymentMethodsGet(HttpServletRequest request, HttpServletResponse response, String customerIdStr)
             throws ServletException, IOException 
     {
         Flash flash = Flash.getInstance(request.getSession());
@@ -108,7 +109,7 @@ public class AddressesController extends HttpServlet {
                 return;
             }
             
-            int customerId = user.getCustomerId(); //Default to seeing current user's addresses.
+            int customerId = user.getCustomerId(); //Default to seeing current user's paymethods.
             
              //Only staff can access records that don't belong to them.
             if (user.isAdmin() && !customerIdStr.isEmpty())
@@ -117,24 +118,24 @@ public class AddressesController extends HttpServlet {
                 customerId = Integer.parseInt(customerIdStr);
             }
             
-            IAddress dbAddress = new DBAddress();
-            List<Address> addresses = dbAddress.getAllAddressesByCustomerId(customerId);
-            request.setAttribute("addresses", addresses);
+            IPaymentMethod dbPaymentMethod = new DBPaymentMethod();
+            List<PaymentMethod> paymethods = dbPaymentMethod.getAllPaymentMethodsByCustomerId(customerId);
+            request.setAttribute("paymethods", paymethods);
         } 
         catch (Exception e) 
         {
-            flash.add(Flash.MessageType.Error, "Unable to list addresses");
-            Logging.logMessage("Unable to get addresses");
+            flash.add(Flash.MessageType.Error, "Unable to list paymethods");
+            Logging.logMessage("Unable to get paymethods");
             URL.GoBack(request, response);
             return;
         }
         
         RequestDispatcher requestDispatcher; 
-        requestDispatcher = request.getRequestDispatcher("/view/addresses/list.jsp");
+        requestDispatcher = request.getRequestDispatcher("/view/paymethods/list.jsp");
         requestDispatcher.forward(request, response); 
     }
     
-    protected void doAddAddressGet(HttpServletRequest request, HttpServletResponse response)
+    protected void doAddPaymentMethodGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException 
     {
         Flash flash = Flash.getInstance(request.getSession());
@@ -148,11 +149,11 @@ public class AddressesController extends HttpServlet {
         }
             
         RequestDispatcher requestDispatcher; 
-        requestDispatcher = request.getRequestDispatcher("/view/addresses/add.jsp");
+        requestDispatcher = request.getRequestDispatcher("/view/paymethods/add.jsp");
         requestDispatcher.forward(request, response); 
     }
     
-    protected void doUpdateAddressGet(HttpServletRequest request, HttpServletResponse response, String addressStr)
+    protected void doUpdatePaymentMethodGet(HttpServletRequest request, HttpServletResponse response, String paymethodStr)
             throws ServletException, IOException 
     {
         Flash flash = Flash.getInstance(request.getSession());
@@ -166,45 +167,45 @@ public class AddressesController extends HttpServlet {
                 return;
             }
             
-            int addressId = Integer.parseInt(addressStr);
+            int paymethodId = Integer.parseInt(paymethodStr);
             
-            IAddress dbAddress = new DBAddress();
-            //Get the existing address from the DB so we can pass it to the view to pre-load values.
-            Address address = dbAddress.getAddressById(addressId);
+            IPaymentMethod dbPaymentMethod = new DBPaymentMethod();
+            //Get the existing paymethod from the DB so we can pass it to the view to pre-load values.
+            PaymentMethod paymethod = dbPaymentMethod.getPaymentMethodById(paymethodId);
             
-            if (address == null)
+            if (paymethod == null)
             {
-                flash.add(Flash.MessageType.Error, "Unable to find address to edit");
+                flash.add(Flash.MessageType.Error, "Unable to find paymethod to edit");
                 URL.GoBack(request, response);
                 return;
             }
             
             //Only staff can access records not related to them.
-            if ((address.getCustomerId() != user.getCustomerId()) && !user.isAdmin())
+            if ((paymethod.getCustomerId() != user.getCustomerId()) && !user.isAdmin())
             {
                 flash.add(Flash.MessageType.Error, "Access denied");
                 URL.GoBack(request, response);
                 return;
             }
             
-            //Set the address object on the request so it can be used by the view for this request only.
+            //Set the paymethod object on the request so it can be used by the view for this request only.
             //i.e. Don't use the session because this is for a single page request.
-            request.setAttribute("address", address);
+            request.setAttribute("paymethod", paymethod);
             
             RequestDispatcher requestDispatcher; 
-            requestDispatcher = request.getRequestDispatcher("/view/addresses/edit.jsp");
+            requestDispatcher = request.getRequestDispatcher("/view/paymethods/edit.jsp");
             requestDispatcher.forward(request, response); 
         } 
         catch (Exception e) 
         {
-            flash.add(Flash.MessageType.Error, "Unable to edit address");
-            Logging.logMessage("Unable to edit address");
+            flash.add(Flash.MessageType.Error, "Unable to edit paymethod");
+            Logging.logMessage("Unable to edit paymethod");
             URL.GoBack(request, response);
             return;
         }
     }
     
-    protected void doDeleteAddressGet(HttpServletRequest request, HttpServletResponse response, String addressStr)
+    protected void doDeletePaymentMethodGet(HttpServletRequest request, HttpServletResponse response, String paymethodStr)
             throws ServletException, IOException 
     {
         Flash flash = Flash.getInstance(request.getSession());
@@ -218,31 +219,31 @@ public class AddressesController extends HttpServlet {
                 return;
             }
             
-            int addressId = Integer.parseInt(addressStr);
+            int paymethodId = Integer.parseInt(paymethodStr);
             
-            IAddress dbAddress = new DBAddress();
-            //Get the existing address from the DB so we can pass it to the view to pre-load values.
-            Address address = dbAddress.getAddressById(addressId);
+            IPaymentMethod dbPaymentMethod = new DBPaymentMethod();
+            //Get the existing paymethod from the DB so we can pass it to the view to pre-load values.
+            PaymentMethod paymethod = dbPaymentMethod.getPaymentMethodById(paymethodId);
             
-            if (address == null)
+            if (paymethod == null)
             {
-                flash.add(Flash.MessageType.Error, "Unable to find address to delete");
+                flash.add(Flash.MessageType.Error, "Unable to find paymethod to delete");
                 URL.GoBack(request, response);
                 return;
             }
             
-            //Set the address object on the request so it can be used by the view for this request only.
+            //Set the paymethod object on the request so it can be used by the view for this request only.
             //i.e. Don't use the session because this is for a single page request.
-            request.setAttribute("address", address);
+            request.setAttribute("paymethod", paymethod);
             
             RequestDispatcher requestDispatcher; 
-            requestDispatcher = request.getRequestDispatcher("/view/addresses/delete.jsp");
+            requestDispatcher = request.getRequestDispatcher("/view/paymethods/delete.jsp");
             requestDispatcher.forward(request, response); 
         } 
         catch (Exception e) 
         {
-            flash.add(Flash.MessageType.Error, "Unable to delete address");
-            Logging.logMessage("Unable to delete address");
+            flash.add(Flash.MessageType.Error, "Unable to delete paymethod");
+            Logging.logMessage("Unable to delete paymethod");
             URL.GoBack(request, response);
             return;
         }
@@ -267,23 +268,23 @@ public class AddressesController extends HttpServlet {
         {
                 
             case "add":
-                doAddAddressPost(request, response);
+                doAddPaymentMethodPost(request, response);
                 break;
                 
             case "edit":
-                //Segments[2] is the ID to edit in /addresses/edit/x
-                doUpdateAddressPost(request, response, (segments.length == 3 ? segments[2] : ""));
+                //Segments[2] is the ID to edit in /paymethods/edit/x
+                doUpdatePaymentMethodPost(request, response, (segments.length == 3 ? segments[2] : ""));
                 break;
                 
             case "delete":
-                //Segments[2] is the ID to delete in /addresses/delete/x
-                doDeleteAddressGet(request, response, (segments.length == 3 ? segments[2] : ""));
+                //Segments[2] is the ID to delete in /paymethods/delete/x
+                doDeletePaymentMethodGet(request, response, (segments.length == 3 ? segments[2] : ""));
                 break;
                 
         }
     }
     
-    protected void doAddAddressPost(HttpServletRequest request, HttpServletResponse response)
+    protected void doAddPaymentMethodPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException 
     {
         HttpSession session = request.getSession();
@@ -302,16 +303,11 @@ public class AddressesController extends HttpServlet {
             }
 
             Validator validator = new Validator(new ValidatorFieldRules[] {
-                 new ValidatorFieldRules("Address 2", "addressPrefix1", "trim"),
-                 new ValidatorFieldRules("Street Number", "streetNumber", "required|shorterthan[11]"), 
-                 new ValidatorFieldRules("Street Name", "streetName", "required|shorterthan[61]"),
-                 new ValidatorFieldRules("Street Type", "streetType", "required|shorterthan[21]"),
-                 new ValidatorFieldRules("Suburb", "suburb", "required|shorterthan[61]"),
-                 new ValidatorFieldRules("State", "state", "required|shorterthan[31]"),
-                 new ValidatorFieldRules("Post Code", "postcode", "required|shorterthan[5]"),
-                 new ValidatorFieldRules("Country", "country", "required|shorterthan[31]"),
-                 new ValidatorFieldRules("Default Shipping Address", "defaultShippingAddress", "trim"),
-                 new ValidatorFieldRules("Default Billing Address", "defaultBillingAddress", "trim")
+                 new ValidatorFieldRules("Default Payment", "defaultPayment", "trim"),
+                 new ValidatorFieldRules("Payment Type", "paymentType", "required|integer"), 
+                 new ValidatorFieldRules("Card Name", "cardName", "required"),
+                 new ValidatorFieldRules("Card Number", "cardNumber", "required|integer"),
+                 new ValidatorFieldRules("Card CVV", "cardCVV", "required|integer")
             });
 
             if (!validator.validate(request))
@@ -320,41 +316,41 @@ public class AddressesController extends HttpServlet {
                 return;
             }
             
-            IAddress dbAddress = new DBAddress();
-            Address address = new Address();
-            address.loadRequest(request);
+            IPaymentMethod dbPaymentMethod = new DBPaymentMethod();
+            PaymentMethod paymethod = new PaymentMethod();
+            paymethod.loadRequest(request);
             
             if (customer != null)
-                address.setCustomerId(customer.getId());
+                paymethod.setCustomerId(customer.getId());
             
             if (user != null)
-                address.setUserId(user.getId());
+                paymethod.setUserId(user.getId());
             
-            if (dbAddress.addAddress(address, customer))
+            if (dbPaymentMethod.addPaymentMethod(paymethod, customer))
             {
-                DBAuditLogs.addEntry(DBAuditLogs.Entity.Addresses, "Added", "Added address", customer.getId());
-                flash.add(Flash.MessageType.Success, "New address added successfully");
-                response.sendRedirect(URL.Absolute("addresses/list", request));
+                DBAuditLogs.addEntry(DBAuditLogs.Entity.PaymentMethods, "Added", "Added paymethod", customer.getId());
+                flash.add(Flash.MessageType.Success, "New paymethod added successfully");
+                response.sendRedirect(URL.Absolute("paymethods/list", request));
                 return;
             }
             else
             {
-                flash.add(Flash.MessageType.Error, "Failed to add new address");
+                flash.add(Flash.MessageType.Error, "Failed to add new paymethod");
                 RequestDispatcher requestDispatcher; 
-                requestDispatcher = request.getRequestDispatcher("/view/addresses/add.jsp");
+                requestDispatcher = request.getRequestDispatcher("/view/paymethods/add.jsp");
                 requestDispatcher.forward(request, response); 
             }
         }
         catch (Exception e)
         {
-            Logging.logMessage("Unable to add address", e);
-            flash.add(Flash.MessageType.Error, "Unable to add address");
+            Logging.logMessage("Unable to add paymethod", e);
+            flash.add(Flash.MessageType.Error, "Unable to add paymethod");
             URL.GoBack(request, response);
             return;
         }
     }
     
-    protected void doUpdateAddressPost(HttpServletRequest request, HttpServletResponse response, String addressStr)
+    protected void doUpdatePaymentMethodPost(HttpServletRequest request, HttpServletResponse response, String paymethodStr)
             throws ServletException, IOException 
     {
         HttpSession session = request.getSession();
@@ -373,16 +369,11 @@ public class AddressesController extends HttpServlet {
             }
 
             Validator validator = new Validator(new ValidatorFieldRules[] {
-                 new ValidatorFieldRules("Address 2", "addressPrefix1", "trim"),
-                 new ValidatorFieldRules("Street Number", "streetNumber", "required|shorterthan[11]"), 
-                 new ValidatorFieldRules("Street Name", "streetName", "required|shorterthan[61]"),
-                 new ValidatorFieldRules("Street Type", "streetType", "required|shorterthan[21]"),
-                 new ValidatorFieldRules("Suburb", "suburb", "required|shorterthan[61]"),
-                 new ValidatorFieldRules("State", "state", "required|shorterthan[31]"),
-                 new ValidatorFieldRules("Post Code", "postcode", "required|shorterthan[5]"),
-                 new ValidatorFieldRules("Country", "country", "required|shorterthan[31]"),
-                 new ValidatorFieldRules("Default Shipping Address", "defaultShippingAddress", "trim"),
-                 new ValidatorFieldRules("Default Billing Address", "defaultBillingAddress", "trim")
+                 new ValidatorFieldRules("Default Payment", "defaultPayment", "trim"),
+                 new ValidatorFieldRules("Payment Type", "paymentType", "required|integer"), 
+                 new ValidatorFieldRules("Card Name", "cardName", "required"),
+                 new ValidatorFieldRules("Card Number", "cardNumber", "required|integer"),
+                 new ValidatorFieldRules("Card CVV", "cardCVV", "required|integer")
             });
 
             if (!validator.validate(request))
@@ -391,59 +382,58 @@ public class AddressesController extends HttpServlet {
                 return;
             }
             
-            IAddress dbAddress = new DBAddress();
+            IPaymentMethod dbPaymentMethod = new DBPaymentMethod();
             
-            //Instead of creating a blank address, fetch the existing address from the DB
+            //Instead of creating a blank paymethod, fetch the existing paymethod from the DB
             //so we have a fully populated oobject and don't risk losing data.
-            int addressId = Integer.parseInt(addressStr);
-            Address address = dbAddress.getAddressById(addressId);
+            int paymethodId = Integer.parseInt(paymethodStr);
+            PaymentMethod paymethod = dbPaymentMethod.getPaymentMethodById(paymethodId);
             
-            if (address == null)
+            if (paymethod == null)
             {
-                flash.add(Flash.MessageType.Error, "Unable to find address to edit");
+                flash.add(Flash.MessageType.Error, "Unable to find paymethod to edit");
                 URL.GoBack(request, response);
                 return;
             }
             
              //Only staff can access records not related to them.
-            if ((address.getCustomerId() != user.getCustomerId()) && !user.isAdmin())
+            if ((paymethod.getCustomerId() != user.getCustomerId()) && !user.isAdmin())
             {
                 flash.add(Flash.MessageType.Error, "Access denied");
                 URL.GoBack(request, response);
                 return;
             }
             
-            //Now load the submitted form fields into the address object
+            //Now load the submitted form fields into the paymethod object
             //over the top of the DB data.
-            address.loadRequest(request);
+            paymethod.loadRequest(request);
             
             //Run update instead of add
-            if (dbAddress.updateAddress(address, customer))
+            if (dbPaymentMethod.updatePaymentMethod(paymethod, customer))
             {
-                DBAuditLogs.addEntry(DBAuditLogs.Entity.Addresses, "Updated", "Updated address", customer.getId());
-                flash.add(Flash.MessageType.Success, "Existing address updated successfully");
-                response.sendRedirect(URL.Absolute("addresses/list", request));
+                DBAuditLogs.addEntry(DBAuditLogs.Entity.PaymentMethods, "Updated", "Updated paymethod", customer.getId());
+                flash.add(Flash.MessageType.Success, "Existing paymethod updated successfully");
+                response.sendRedirect(URL.Absolute("paymethods/list", request));
                 return;
             }
             else
             {
-                flash.add(Flash.MessageType.Error, "Failed to update address");
+                flash.add(Flash.MessageType.Error, "Failed to update paymethod");
                 RequestDispatcher requestDispatcher; 
-                requestDispatcher = request.getRequestDispatcher("/view/addresses/edit.jsp");
+                requestDispatcher = request.getRequestDispatcher("/view/paymethods/edit.jsp");
                 requestDispatcher.forward(request, response); 
             }
         }
         catch (Exception e)
         {
-            Logging.logMessage("Unable to update address", e);
-            flash.add(Flash.MessageType.Error, "Unable to update address");
+            Logging.logMessage("Unable to update paymethod", e);
+            flash.add(Flash.MessageType.Error, "Unable to update paymethod");
             URL.GoBack(request, response);
             return;
         }
     }
     
-    
-    protected void doDeleteAddressPost(HttpServletRequest request, HttpServletResponse response, String addressStr)
+    protected void doDeletePaymentMethodPost(HttpServletRequest request, HttpServletResponse response, String paymethodStr)
             throws ServletException, IOException 
     {
         HttpSession session = request.getSession();
@@ -468,30 +458,30 @@ public class AddressesController extends HttpServlet {
                 return;
             }
             
-            IAddress dbAddress = new DBAddress();
+            IPaymentMethod dbPaymentMethod = new DBPaymentMethod();
             
-            //Instead of creating a blank address, fetch the existing address from the DB
+            //Instead of creating a blank paymethod, fetch the existing paymethod from the DB
             //so we have a fully populated oobject and don't risk losing data.
-            int addressId = Integer.parseInt(addressStr);;
+            int paymethodId = Integer.parseInt(paymethodStr);;
             
             //Run update instead of add
-            if (dbAddress.deleteAddressById(addressId))
+            if (dbPaymentMethod.deletePaymentMethodById(paymethodId))
             {
-                DBAuditLogs.addEntry(DBAuditLogs.Entity.Addresses, "Deleted", "Deleted address "+addressStr, customer.getId());
-                flash.add(Flash.MessageType.Success, "Address deleted successfully");
-                response.sendRedirect(URL.Absolute("addresses/list", request));
+                DBAuditLogs.addEntry(DBAuditLogs.Entity.PaymentMethods, "Deleted", "Deleted paymethod "+paymethodStr, customer.getId());
+                flash.add(Flash.MessageType.Success, "PaymentMethod deleted successfully");
+                response.sendRedirect(URL.Absolute("paymethods/list", request));
                 return;
             }
             else
             {
-                flash.add(Flash.MessageType.Error, "Failed to delete address");
-                response.sendRedirect(URL.Absolute("addresses/list", request));
+                flash.add(Flash.MessageType.Error, "Failed to delete paymethod");
+                response.sendRedirect(URL.Absolute("paymethods/list", request));
             }
         }
         catch (Exception e)
         {
-            Logging.logMessage("Unable to delete address", e);
-            flash.add(Flash.MessageType.Error, "Unable to delete address");
+            Logging.logMessage("Unable to delete paymethod", e);
+            flash.add(Flash.MessageType.Error, "Unable to delete paymethod");
             URL.GoBack(request, response);
             return;
         }

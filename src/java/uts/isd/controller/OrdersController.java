@@ -99,12 +99,20 @@ public class OrdersController extends HttpServlet {
         
         switch (segments[1])
         {
-            case "cart":
-                doViewCartPost(request, response);
+            case "addline":
+                doAddLinePost(request, response);
+                break;
+                
+            case "deleteline":
+                doDeleteLinePost(request, response);
+                break;
+                
+            case "updateqty":
+                doUpdateQuantityPost(request, response);
                 break;
                 
             case "checkout":
-                doCheckoutPost(request, response);
+                doCheckoutGet(request, response);
                 break;
         }
     }
@@ -164,7 +172,28 @@ public class OrdersController extends HttpServlet {
     {
         request.getRequestDispatcher("/orders/checkout.jsp").forward(request, response);
     }
-
+    
+    /*
+     * Order Lines
+     */
+    protected void doAddLinePost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException 
+    {
+        request.getRequestDispatcher("/orders/checkout.jsp").forward(request, response);
+    }
+    
+    protected void doDeleteLinePost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException 
+    {
+        request.getRequestDispatcher("/orders/checkout.jsp").forward(request, response);
+    }
+    
+    protected void doUpdateQuantityPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException 
+    {
+        request.getRequestDispatcher("/orders/checkout.jsp").forward(request, response);
+    }
+    
     /**
      * Returns a short description of the servlet.
      *

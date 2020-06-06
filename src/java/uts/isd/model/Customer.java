@@ -25,6 +25,7 @@ public class Customer implements Serializable {
     private String email;
     private String firstName;
     private String lastName;
+    private String phone;
     private Date createdDate;
     private int createdBy;
     private Date modifiedDate;
@@ -40,6 +41,7 @@ public class Customer implements Serializable {
             this.email = rs.getString("Email");
             this.firstName = rs.getString("FirstName");
             this.lastName = rs.getString("LastName");
+            this.phone = rs.getString("Phone");
 
             this.createdDate = rs.getDate("CreatedDate");
             this.createdBy = rs.getInt("CreatedBy");
@@ -52,24 +54,19 @@ public class Customer implements Serializable {
         }
     }
 
-    public Customer(String email, String firstName, String lastName) {
+    public Customer(String email, String firstName, String lastName, String phone) {
         this.email = email;
         this.firstName = firstName;
         this.lastName = lastName;
-    }
-    
-    public void loadRequest(ServletRequest request)
-    {
-        this.loadRequest(request, null);
+        this.phone = phone;
     }
     
     /**
      * This method populates this instance's properties based on form inputs.
      * 
      * @param request The controller's HTTPServlet POST request properties.
-     * @param changedBy The customer who is making this request 
      */
-    public void loadRequest(ServletRequest request, Customer changedBy)
+    public void loadRequest(ServletRequest request)
     {
         if (request.getParameter("id") != null)
             this.id = Integer.parseInt(request.getParameter("id"));
@@ -77,23 +74,21 @@ public class Customer implements Serializable {
         this.email = request.getParameter("email");
         this.firstName = request.getParameter("firstName");
         this.lastName = request.getParameter("lastName");
+        this.phone = request.getParameter("phone");
 
         this.createdDate = new Date();
         this.modifiedDate = new Date();
-        if (changedBy != null)
-        {
-            this.createdBy = changedBy.getId(); //Set this properly
-            this.modifiedBy = changedBy.getId(); //Set this properly.
-        }
+        this.createdBy = 0;
+        this.modifiedBy = 0;
     }
     
-    public boolean add(ICustomer db)
+    public boolean add(ICustomer db, Customer customer)
     {
         try
         {
             //Assumes the User object (this) has been populated already.
             //Takes object properties and inserts into DB.
-            boolean added = db.addCustomer(this);
+            boolean added = db.addCustomer(this, customer);
             //Always close DB when done.
             return added;
         }
@@ -104,13 +99,13 @@ public class Customer implements Serializable {
         }
     }
     
-    public boolean update(ICustomer db)
+    public boolean update(ICustomer db, Customer customer)
     {
         try
         {
             //Assumes the User object (this) has been populated already.
             //Takes object properties and updates in DB.
-            boolean updated = db.updateCustomer(this);
+            boolean updated = db.updateCustomer(this, customer);
             //Always close DB when done.
             return updated;
         }
@@ -171,6 +166,14 @@ public class Customer implements Serializable {
         this.lastName = lastName;
     }
     
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String email) {
+        this.phone = phone;
+    }
+
     public Date getCreatedDate() {
         return this.createdDate;
     }
