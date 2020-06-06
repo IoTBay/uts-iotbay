@@ -420,6 +420,12 @@ public class OrdersController extends HttpServlet {
             }
             else if (request.getParameter("doSubtract") != null)
             {
+                if (quantity == 1)
+                {
+                    flash.add(Flash.MessageType.Error, "Can't lower quantity any further.");
+                    URL.GoBack(request, response);
+                    return;
+                }
                 existingLine.setQuantity(quantity - 1);
             }
             else
@@ -427,6 +433,17 @@ public class OrdersController extends HttpServlet {
                 flash.add(Flash.MessageType.Error, "Quantity change was not submitted properly.");
                 URL.GoBack(request, response);
                 return;
+            }
+            
+            //Need to set the new quantity on the session's cart object, so it doesn't
+            //get out of sync
+            for (OrderLine line : this.cart.getOrderLines())
+            {
+                if (line.getId() == existingLine.getId())
+                {
+                    line.setQuantity(existingLine.getQuantity());
+                    break;
+                }
             }
             
             if (dbOrder.updateOrderLine(existingLine, this.customer))
