@@ -59,6 +59,7 @@ public class Product {
             this.id = rs.getInt("ID");
             this.categoryId = rs.getInt("CategoryID");
             //this.defaultCurrencyId = 
+            this.price = rs.getDouble("price");
             this.name = rs.getString("Name");
             this.description = rs.getString("Description");
             this.image = rs.getString("Image");
@@ -86,7 +87,6 @@ public class Product {
     {
         if (request.getParameter("name") != null) 
             this.name = request.getParameter("name");
-        Logging.logMessage("the categor is " + request.getParameter("categoryId"));
         this.categoryId = Integer.parseInt(request.getParameter("categoryId"));
         this.price = Double.parseDouble(request.getParameter("price"));
         this.description = request.getParameter("description");
@@ -144,7 +144,7 @@ public class Product {
         if (request.getParameter("id") != null)
             this.id = Integer.parseInt(request.getParameter("id"));
         this.categoryId = Integer.parseInt(request.getParameter("categoryId"));
-        this.price = Double.parseDouble(request.getParameter("productId"));
+        this.price = Double.parseDouble(request.getParameter("price"));
         this.name = request.getParameter("name");
         this.description = request.getParameter("description");
         this.createdDate = new Timestamp(System.currentTimeMillis());

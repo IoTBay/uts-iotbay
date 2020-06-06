@@ -87,7 +87,7 @@ public class DBProduct implements IProduct{
     @Override
     public boolean updateProduct(Product pr) {
         try {
-            PreparedStatement p = this.conn.prepareStatement("UPDATE APP.Products SET categoryId = ?,price = ?,description = ?,image = ?,initialQuantity = ?,currentQuantity = ?,lastReorderDate = ?,createdDate = ?,createdBy = ?,modifiedDate = ?,modifiedBy = ? WHERE name = ?");
+            PreparedStatement p = this.conn.prepareStatement("UPDATE APP.Products SET categoryId = ?,price = ?,description = ?,image = ?,initialQuantity = ?,currentQuantity = ?,lastReorderDate = ?,createdDate = ?,createdBy = ?,modifiedDate = ?,modifiedBy = ?, name = ? WHERE id=?");
             p.setInt(1, pr.getCategoryId());
             p.setDouble(2, pr.getPrice());
             p.setString(3, pr.getDescription());
@@ -101,6 +101,7 @@ public class DBProduct implements IProduct{
             p.setTimestamp(10, new java.sql.Timestamp(new java.util.Date().getTime()));
             p.setInt(11, pr.getModifiedBy());
             p.setString(12, pr.getName());
+            p.setInt(13, pr.getId());
             //Was update successful?
             int result = p.executeUpdate();
             return (result > 0);

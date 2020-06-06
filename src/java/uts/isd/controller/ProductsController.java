@@ -238,7 +238,7 @@ public class ProductsController extends HttpServlet {
             }
 
             Validator validator = new Validator(new ValidatorFieldRules[] {
-                 new ValidatorFieldRules("Product Price", "price", "ValidateDouble"),
+                 //new ValidatorFieldRules("Product Price", "price", "ValidateDouble"),
                  new ValidatorFieldRules("Product Name", "name", "required|shorterthan[61]"),
                  new ValidatorFieldRules("Product Description", "description", "required|shorterthan[61]"),
             });
@@ -279,7 +279,7 @@ public class ProductsController extends HttpServlet {
             if (dbProduct.updateProduct(product))
             {
                 flash.add(Flash.MessageType.Success, "Existing product updated successfully");
-                response.sendRedirect(URL.Absolute("/view_product.jsp", request));
+                response.sendRedirect(URL.Absolute("product/update/" +product.getId(), request));
                 return;
             }
             else
@@ -309,7 +309,7 @@ public class ProductsController extends HttpServlet {
             List<Product> products = dbProduct.getAllProducts();
             request.setAttribute("products", products);
         } catch (Exception e) {
-            Logging.logMessage("Unable to update product");
+            Logging.logMessage("Unable to view product");
             return;
         }
         
