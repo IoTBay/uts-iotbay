@@ -8,9 +8,9 @@
   Validator v = new Validator(session);
   Product product = (Product)request.getAttribute("product");
 %>
-<main role="main"  class="mt-5 pt-4">
+<main role="main">
   <div style="margin-top: 50px;"></div>
-  <div class="container dark-grey-text mt-5">  
+  <div class="container">  
     <%= flash.displayMessages() %>
   <!--Main layout-->
     <!--Grid row-->
