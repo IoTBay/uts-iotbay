@@ -18,7 +18,9 @@ import uts.isd.model.Customer;
 import uts.isd.model.Product;
 import uts.isd.model.User;
 import uts.isd.model.dao.DBAuditLogs;
+import uts.isd.model.dao.DBCategory;
 import uts.isd.model.dao.DBProduct;
+import uts.isd.model.dao.ICategory;
 import uts.isd.model.dao.IProduct;
 import uts.isd.util.Flash;
 import uts.isd.util.Logging;
@@ -114,9 +116,8 @@ public class ProductsController extends HttpServlet {
                //create a connection to the DB for the Products table
                IProduct dbProduct = new DBProduct();
                Product product = new Product();
-               product.loadRequest(request, user);
-               product.add(dbProduct);
-               boolean added = product.add(dbProduct); 
+               product.loadRequest(request);
+               boolean added = product.add(dbProduct, customer); 
               
                if(added)
                    flash.add(Flash.MessageType.Success, "New product "+product.getName()+" added successfully");
@@ -168,9 +169,9 @@ public class ProductsController extends HttpServlet {
                //create a connection to the DB for the Products table
                IProduct dbProduct = new DBProduct();
                Product product = new Product();
-               product.loadRequest(request, user);
+               product.loadRequest(request);
                //product.add(dbProduct);
-               boolean added = product.add(dbProduct); 
+               boolean added = product.add(dbProduct, customer); 
               
                if(added)
                    flash.add(Flash.MessageType.Success, "New product "+product.getName()+" added successfully");
@@ -286,10 +287,10 @@ public class ProductsController extends HttpServlet {
 
             //Now load the submitted form fields into the address object
             //over the top of the DB data.
-            product.loadRequest(request, user);
+            product.loadRequest(request);
 
             //Run update
-            if (dbProduct.updateProduct(product))
+            if (dbProduct.updateProduct(product, customer))
             {
                 flash.add(Flash.MessageType.Success, "Existing product updated successfully");
                 response.sendRedirect(URL.Absolute("product/update/" +product.getId(), request));
@@ -332,7 +333,7 @@ public class ProductsController extends HttpServlet {
     } 
     
     /**
-     * This funcion is for the customer view for a single product
+     * This function is for the customer view for a single product
      * 
      * @param request
      * @param response
@@ -351,6 +352,9 @@ public class ProductsController extends HttpServlet {
             productId = Integer.parseInt(productStr);
             IProduct dbProduct = new DBProduct();
             product = dbProduct.getProductById(productId);
+            
+            ICategory dbCategory = new DBCategory();
+            product.setCategory(dbCategory.getCategoryById(product.getCategoryId()));
             
             if (product == null)
             {

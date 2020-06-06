@@ -31,14 +31,8 @@
         <div class="p-4">
 
           <div class="mb-3">
-            <a href="">
-              <span class="badge badge-pill badge-primary">Category 2</span>
-            </a>
-            <a href="">
-              <span class="badge badge-pill badge-primary">New</span>
-            </a>
-            <a href="">
-              <span class="badge badge-pill badge-primary">Bestseller</span>
+              <a href="<%= URL.Absolute("categories/view/"+product.getCategoryId(), request) %>">
+              <span class="badge badge-pill badge-primary"><%= product.getCategory().getName() %></span>
             </a>
           </div>
 

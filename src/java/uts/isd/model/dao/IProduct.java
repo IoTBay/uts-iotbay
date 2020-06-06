@@ -6,6 +6,7 @@
 package uts.isd.model.dao;
 import java.util.List;
 import javax.servlet.ServletRequest;
+import uts.isd.model.Customer;
 import uts.isd.model.Product;
 import uts.isd.model.User;
 
@@ -45,17 +46,19 @@ public interface IProduct {
      * Updates a user in the database based on the passed in User model object.
      * 
      * @param u The user object to take updated values from.
+     * @param customer The user making the change
      * @return Returns true if user was updated, or false if no updates were performed.
      */
-    public boolean updateProduct(Product pr);
+    public boolean updateProduct(Product pr, Customer customer);
     
     /**
      * Adds a user in the database based on the passed in User model object.
      *
      * @param u The user object to insert values from
+     * @param customer The user making the change
      * @return Returns true if user was added, or false if no insert was performed.
      */
-    public boolean addProduct(Product pr);
+    public boolean addProduct(Product pr, Customer customer);
     
     /* Delete queries */
 
