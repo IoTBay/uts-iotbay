@@ -391,12 +391,12 @@ public class DBOrder implements IOrder {
             
             //Update TotalCost on the order.
             //Find the delta
-            double existingLineTotal = (existingLine.getPrice() * existingLine.getQuantity());
-            double newLineTotal = (o.getPrice() * o.getQuantity());
+            double existingLineTotal = existingLine.getPrice();
+            double newLineTotal = o.getPrice();
             double deltaLineTotal = (newLineTotal - existingLineTotal);
 
             p = this.conn.prepareCall("UPDATE APP.Orders SET TotalCost = (TotalCost + ?) WHERE ID = ?");
-            p.setDouble(2, deltaLineTotal);
+            p.setDouble(1, deltaLineTotal);
             p.setInt(2, o.getOrderId());
             updated &= (p.executeUpdate() > 0);
             return updated;

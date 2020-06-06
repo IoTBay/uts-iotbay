@@ -26,13 +26,16 @@
         <% for (OrderLine line : order.getOrderLines()) { %>
         <li class="list-group-item d-flex justify-content-between lh-condensed">
           <div class="col-md-1">
-              <div class="btn-group" role="group" aria-label="Change item quantity">
-                <a href="<%= URL.Absolute("order/updateqty/"+line.getId(), request) %>" class="btn btn-outline-dark">-</a>
-                <a href="<%= URL.Absolute("order/updateqty/"+line.getId(), request) %>" class="btn btn-outline-dark">+</a>
-              </div>
+              <form method="post" action="<%= URL.Absolute("order/updateqty", request) %>">
+                <input type="hidden" name="lineId" value="<%= line.getId() %>">
+                <div class="btn-group" role="group" aria-label="Change item quantity">
+                  <input type="submit" class="btn btn-outline-dark" name="doSubtract" value="-">
+                  <input type="submit" class="btn btn-outline-dark" name="doAdd" value="+">
+                </div>
+              </form>
           </div>
           <div class="col-md-10">
-            <h6 class="my-0"><%= line.getProduct().getName() %></h6>
+            <h6 class="my-0"><%= line.getQuantity() %> x <%= line.getProduct().getName() %></h6>
             <small class="text-muted"><%= line.getProduct().getDescription() %></small>
           </div>
           <span class="text-muted"><%= line.getUnitPriceFormatted() %></span>

@@ -63,9 +63,9 @@ public class Product {
             this.image = rs.getString("Image");
             this.initialQuantity = rs.getInt("InitialQuantity");
             this.currentQuantity = rs.getInt("CurrentQuantity");
-            this.createdDate = rs.getDate("CreatedDate");
+            this.createdDate = rs.getTimestamp("CreatedDate");
             this.createdBy = rs.getInt("CreatedBy");
-            this.modifiedDate = rs.getDate("ModifiedDate");
+            this.modifiedDate = rs.getTimestamp("ModifiedDate");
             this.modifiedBy = rs.getInt("ModifiedBy");
         }
         catch (Exception e)

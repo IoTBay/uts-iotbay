@@ -27,6 +27,10 @@ import uts.isd.util.URL;
  * @since 2020-05-30
  */
 public class OrdersController extends HttpServlet {
+    
+    private Customer customer;
+    private Order cart;
+    private Product product;
 
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
@@ -217,50 +221,62 @@ public class OrdersController extends HttpServlet {
         return customer;
     }
     
+    protected boolean initialiseCart(HttpServletRequest request, HttpServletResponse response)
+    {
+        try
+        {   
+            HttpSession session = request.getSession();
+            Flash flash = Flash.getInstance(session);
+            this.customer = this.getCustomerForOrder(session);
+            IOrder dbOrder = new DBOrder();
+            
+            if (this.customer == null)
+            {
+                flash.add(Flash.MessageType.Error, "Unable to initialise your customer");
+                URL.GoBack(request, response);
+                return false;
+            }
+            
+            this.cart = (Order)session.getAttribute("order");
+                    
+            if (this.cart == null)
+            {
+                this.cart = dbOrder.getCartOrderByCustomer(customer);
+                session.setAttribute("order", cart);
+            }
+            
+            //If still null cart, then throw error.
+            if (this.cart == null)
+            {
+                flash.add(Flash.MessageType.Error, "Unable to load your cart to add item");
+                URL.GoBack(request, response);
+                return false;
+            }
+        }
+        catch (Exception e)
+        {
+            Logging.logMessage("Failed to initialise cart in: initialiseCart", e);
+            return false;
+        }
+        return true;
+    }
+    
     protected void doAddLinePost(HttpServletRequest request, HttpServletResponse response, String productIdStr)
             throws ServletException, IOException 
     {
         try 
         {
+            if (!this.initialiseCart(request, response))
+            {
+                Logging.logMessage("Failed to initialise cart");
+                return;
+            }
+            
             int productId = Integer.parseInt(productIdStr);
             
             HttpSession session = request.getSession();
             Flash flash = Flash.getInstance(session);
-            Customer customer = this.getCustomerForOrder(session);
             IOrder dbOrder = new DBOrder();
-            
-            if (customer == null)
-            {
-                flash.add(Flash.MessageType.Error, "Unable to initialise your customer");
-                URL.GoBack(request, response);
-                return;
-            }
-            
-            Order cart = (Order)session.getAttribute("order");
-                    
-            if (cart == null)
-            {
-                cart = dbOrder.getCartOrderByCustomer(customer);
-                session.setAttribute("order", cart);
-            }
-            
-            //If still null cart, then throw error.
-            if (cart == null)
-            {
-                flash.add(Flash.MessageType.Error, "Unable to load your cart to add item");
-                URL.GoBack(request, response);
-                return;
-            }
-            
-            IProduct dbProduct = new DBProduct();
-            Product product = dbProduct.getProductById(productId);
-            
-            if (product == null)
-            {
-                flash.add(Flash.MessageType.Error, "Could not find this product");
-                URL.GoBack(request, response);
-                return;
-            }
             
             if (request.getParameter("addQuantity") == null)
             {
@@ -268,20 +284,31 @@ public class OrdersController extends HttpServlet {
                 URL.GoBack(request, response);
                 return;
             }
+            
             String qtyStr = request.getParameter("addQuantity");
             int quantity = Integer.parseInt(qtyStr);
+            
+            IProduct dbProduct = new DBProduct();
+            this.product = dbProduct.getProductById(productId);
+            
+            if (product == null)
+            {
+                flash.add(Flash.MessageType.Error, "Could not find this product");
+                URL.GoBack(request, response);
+                return;
+            }
 
             OrderLine line = new OrderLine();
-            line.setOrderId(cart.getId());
-            line.setProductId(product.getId());
-            line.setProduct(product);
+            line.setOrderId(this.cart.getId());
+            line.setProductId(this.product.getId());
+            line.setProduct(this.product);
             line.setQuantity(quantity);
-            line.setUnitPrice(product.getPrice());
+            line.setUnitPrice(this.product.getPrice());
             
-            if (dbOrder.addOrderLine(line, customer))
+            if (dbOrder.addOrderLine(line, this.customer))
             {
-                cart.addOrderLine(line);
-                flash.add(Flash.MessageType.Success, "Successfully added new item '"+product.getName()+"' to cart!");
+                this.cart.addOrderLine(line);
+                flash.add(Flash.MessageType.Success, "Successfully added new item '"+this.product.getName()+"' to cart!");
             }
             else
             {
@@ -310,7 +337,67 @@ public class OrdersController extends HttpServlet {
     protected void doUpdateQuantityPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException 
     {
-        request.getRequestDispatcher("/view/orders/checkout.jsp").forward(request, response);
+        try 
+        {
+            if (!this.initialiseCart(request, response))
+            {
+                Logging.logMessage("Failed to initialise cart");
+                return;
+            }
+            
+            HttpSession session = request.getSession();
+            Flash flash = Flash.getInstance(session);
+            IOrder dbOrder = new DBOrder();
+            
+            String lineIdStr = request.getParameter("lineId");
+            int orderLineId = Integer.parseInt(lineIdStr);
+
+            OrderLine existingLine = dbOrder.getOrderLineById(orderLineId);
+            
+            if (existingLine == null)
+            {
+                flash.add(Flash.MessageType.Error, "This order line no longer exists");
+                URL.GoBack(request, response);
+                return;
+            }
+            
+            int quantity = existingLine.getQuantity();
+            
+            if (request.getParameter("doAdd") != null)
+            {
+                existingLine.setQuantity(quantity + 1);
+            }
+            else if (request.getParameter("doSubtract") != null)
+            {
+                existingLine.setQuantity(quantity - 1);
+            }
+            else
+            {
+                flash.add(Flash.MessageType.Error, "Quantity change was not submitted properly.");
+                URL.GoBack(request, response);
+                return;
+            }
+            
+            if (dbOrder.updateOrderLine(existingLine, this.customer))
+            {
+                flash.add(Flash.MessageType.Success, "Successfully updated quantity");
+            }
+            else
+            {
+                flash.add(Flash.MessageType.Error, "Failed to update item quantity. Try Again?");
+                URL.GoBack(request, response);
+                return;
+            }
+            
+            //Still return back to the product page even when successful
+            URL.GoBack(request, response);
+        }
+        catch (Exception  e)
+        {
+            Logging.logMessage("Unable to doUpdateQuantityPost", e);
+            URL.GoBack(request, response);
+            return;
+        }
     }
     
     /**
