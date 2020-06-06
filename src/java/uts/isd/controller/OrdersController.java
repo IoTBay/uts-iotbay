@@ -275,6 +275,11 @@ public class OrdersController extends HttpServlet {
         }
     }
     
+    protected boolean checkProductStock(Product product, int quantity)
+    {
+        return (product.getCurrentQuantity() >= quantity);
+    }
+    
     protected void doAddLinePost(HttpServletRequest request, HttpServletResponse response, String productIdStr)
             throws ServletException, IOException 
     {
@@ -323,6 +328,14 @@ public class OrdersController extends HttpServlet {
                     existingLine = line;
                     break;
                 }
+            }
+            
+            //Check stock of order
+            if (!checkProductStock(this.product, (existingLine == null ? quantity : existingLine.getQuantity() + quantity)))
+            {
+                flash.add(Flash.MessageType.Error, "This product has insufficient stock");
+                URL.GoBack(request, response);
+                return;
             }
 
             if (existingLine != null)
@@ -458,8 +471,10 @@ public class OrdersController extends HttpServlet {
             int orderLineId = Integer.parseInt(lineIdStr);
 
             OrderLine existingLine = dbOrder.getOrderLineById(orderLineId);
+            IProduct dbProduct = new DBProduct();
+            this.product = dbProduct.getProductById(existingLine.getProductId());
             
-            if (existingLine == null)
+            if (existingLine == null || this.product == null)
             {
                 flash.add(Flash.MessageType.Error, "This order line no longer exists");
                 URL.GoBack(request, response);
@@ -468,12 +483,21 @@ public class OrdersController extends HttpServlet {
             
             int quantity = existingLine.getQuantity();
             
+            //Check stock of order
+            if (!checkProductStock(this.product, (request.getParameter("doAdd") != null ? (quantity + 1) : quantity)))
+            {
+                flash.add(Flash.MessageType.Error, "This product has insufficient stock");
+                URL.GoBack(request, response);
+                return;
+            }
+            
             if (request.getParameter("doAdd") != null)
             {
                 existingLine.setQuantity(quantity + 1);
             }
             else if (request.getParameter("doSubtract") != null)
             {
+                //If subtracting, do checks on minimum quantity
                 if (quantity == 1)
                 {
                     flash.add(Flash.MessageType.Error, "Can't lower quantity any further.");
