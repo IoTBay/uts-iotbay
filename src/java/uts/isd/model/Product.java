@@ -6,8 +6,11 @@
 package uts.isd.model;
 
 import java.sql.ResultSet;
+import java.sql.Timestamp;
 import java.util.Date;
 import javax.servlet.ServletRequest;
+import uts.isd.model.dao.DBCustomer;
+import uts.isd.model.dao.ICustomer;
 import uts.isd.model.dao.IProduct;
 import uts.isd.util.Logging;
 
@@ -19,7 +22,9 @@ public class Product {
     
     private int id;
     private int categoryId;
-    //private int currencyId;
+    private ProductCategory category;
+    private int currencyId;
+    private Currency currency;
     private String name;
     private double price;
     private String description;
@@ -27,10 +32,13 @@ public class Product {
     private int initialQuantity;
     private int currentQuantity;
     private String lastReorderDate;
-    private Date createdDate;
+    private Timestamp createdDate;
     private int createdBy;
-    private Date modifiedDate;
+    private Timestamp modifiedDate;
     private int modifiedBy;
+    
+    //Set a threshold for low stock
+    public static final int LOW_STOCK = 10;
 
     public Product() {
     }
@@ -57,15 +65,16 @@ public class Product {
         {
             this.id = rs.getInt("ID");
             this.categoryId = rs.getInt("CategoryID");
-            //this.defaultCurrencyId = 
+            //this.currencyId = rs.getInt("CurrencyID");
+            this.price = rs.getDouble("price");
             this.name = rs.getString("Name");
             this.description = rs.getString("Description");
             this.image = rs.getString("Image");
             this.initialQuantity = rs.getInt("InitialQuantity");
             this.currentQuantity = rs.getInt("CurrentQuantity");
-            this.createdDate = rs.getDate("CreatedDate");
+            this.createdDate = rs.getTimestamp("CreatedDate");
             this.createdBy = rs.getInt("CreatedBy");
-            this.modifiedDate = rs.getDate("ModifiedDate");
+            this.modifiedDate = rs.getTimestamp("ModifiedDate");
             this.modifiedBy = rs.getInt("ModifiedBy");
         }
         catch (Exception e)
@@ -75,40 +84,34 @@ public class Product {
         
     }
     
-    public void loadRequest(ServletRequest request)
-    {
-        this.loadRequest(request, null);
-    }
-    
     //load values from the fields into the object 
-    public void loadRequest(ServletRequest request, User changedBy)
+    public void loadRequest(ServletRequest request)
     {
         if (request.getParameter("name") != null) 
             this.name = request.getParameter("name");
-        Logging.logMessage("the categor is " + request.getParameter("categoryId"));
+        
         this.categoryId = Integer.parseInt(request.getParameter("categoryId"));
+        
+        if (request.getParameter("currencyId") != null)
+            this.currencyId = Integer.parseInt(request.getParameter("currencyId"));
+        
         this.price = Double.parseDouble(request.getParameter("price"));
         this.description = request.getParameter("description");
         this.initialQuantity = Integer.parseInt(request.getParameter("initialQuantity"));
         this.currentQuantity = Integer.parseInt(request.getParameter("initialQuantity"));
-        this.createdDate = new Date();
-        this.modifiedDate = new Date();
-        this.createdBy = 1;
-        this.modifiedBy = 1;
-        if (changedBy != null)
-        {
-            this.createdBy = changedBy.getId(); //Set this properly
-            this.modifiedBy = changedBy.getId(); //Set this properly.
-        } 
+        this.createdDate = new Timestamp(System.currentTimeMillis());
+        this.modifiedDate = new Timestamp(System.currentTimeMillis());
+        this.createdBy = 0;
+        this.modifiedBy = 0;
     }
     
-    public boolean add(IProduct pr)
+    public boolean add(IProduct pr, Customer customer)
     {
         try
         {
             //Assumes the User object (this) has been populated already.
             //Takes object properties and inserts into DB.
-            boolean added = pr.addProduct(this);
+            boolean added = pr.addProduct(this, customer);
             //Always close DB when done.
             return added;
         }
@@ -131,35 +134,13 @@ public class Product {
         }
     }
     
-    /**
-     * This method populates this instance's properties based on form inputs.
-     * 
-     * @param request The controller's HTTPServlet POST request properties.
-     * @return boolean - Returns true if adding the properties was successful. Otherwise false.
-     */
-    
-    public boolean addProduct(ServletRequest request)
-    {
-        if (request.getParameter("id") != null)
-            this.id = Integer.parseInt(request.getParameter("id"));
-        this.categoryId = Integer.parseInt(request.getParameter("categoryId"));
-        this.price = Double.parseDouble(request.getParameter("productId"));
-        this.name = request.getParameter("name");
-        this.description = request.getParameter("description");
-        this.createdDate = new Date();
-        this.modifiedDate = new Date();
-        this.createdBy = 0;
-        this.modifiedBy = 0;
-        return true;
-    }
-    
-    public boolean update(IProduct db)
+    public boolean update(IProduct db, Customer customer)
     {
         try
         {
             //Assumes the User object (this) has been populated already.
             //Takes object properties and updates in DB.
-            boolean updated = db.updateProduct(this);
+            boolean updated = db.updateProduct(this, customer);
             //Always close DB when done.
             return updated;
         }
@@ -186,13 +167,29 @@ public class Product {
         this.categoryId = categoryId;
     }
     
-    /* public int getCurrencyId() {
+    public ProductCategory getCategory() {
+        return category;
+    }
+    
+    public void setCategory(ProductCategory category) {
+        this.category = category;
+    }
+    
+    public int getCurrencyId() {
         return this.currencyId;
     }
     
     public void setCurrencyId(int currencyId) {
         this.currencyId = currencyId;
-    } */
+    }
+    
+    public Currency getCurrency() {
+        return currency;
+    }
+    
+    public void setCurrency(Currency currency) {
+        this.currency = currency;
+    }
 
     public String getName() {
         return name;
@@ -259,19 +256,37 @@ public class Product {
     }
     
     public Date getCreatedDate() {
-        return this.createdDate;
+        return createdDate;
     }
-    
+
     public Date getModifiedDate() {
-        return this.modifiedDate;
+        return modifiedDate;
+    }
+
+    public Customer getCreatedBy() {
+        try
+        {
+            ICustomer dbCustomer = new DBCustomer();
+            Customer c = dbCustomer.getCustomerById(this.createdBy);
+            return c;
+        }
+        catch (Exception e)
+        {
+            return new Customer();
+        }
     }
     
-    public int getCreatedBy() {
-        return this.createdBy;
-    }
-    
-    public int getModifiedBy() {
-        return this.modifiedBy;
+    public Customer getModifiedBy() {
+        try
+        {
+            ICustomer dbCustomer = new DBCustomer();
+            Customer c = dbCustomer.getCustomerById(this.modifiedBy);
+            return c;
+        }
+        catch (Exception e)
+        {
+            return new Customer();
+        }
     }
 
 }

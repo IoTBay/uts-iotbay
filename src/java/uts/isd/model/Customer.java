@@ -31,7 +31,14 @@ public class Customer implements Serializable {
     private Date modifiedDate;
     private int modifiedBy;
     
-    public Customer() { }
+    public Customer()
+    { 
+        this.id = 0;
+        this.email = "";
+        this.firstName = "";
+        this.lastName = "";
+        this.phone = "";
+    }
     
     public Customer(ResultSet rs)
     {
@@ -43,9 +50,9 @@ public class Customer implements Serializable {
             this.lastName = rs.getString("LastName");
             this.phone = rs.getString("Phone");
 
-            this.createdDate = rs.getDate("CreatedDate");
+            this.createdDate = rs.getTimestamp("CreatedDate");
             this.createdBy = rs.getInt("CreatedBy");
-            this.modifiedDate = rs.getDate("ModifiedDate");
+            this.modifiedDate = rs.getTimestamp("ModifiedDate");
             this.modifiedBy = rs.getInt("ModifiedBy");
         }
         catch (Exception e)

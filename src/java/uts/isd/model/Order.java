@@ -61,6 +61,7 @@ public class Order {
 
     public Order() {
         this.orderLines = new ArrayList<>();
+        this.currencyId = 1; //Hard set to ID 1 because we only have 1 currency right now.
     }
     
     /**
@@ -83,10 +84,12 @@ public class Order {
             this.totalCost = rs.getDouble("TotalCost");
             this.status = rs.getInt("Status");
             
-            this.createdDate = rs.getDate("CreatedDate");
+            this.createdDate = rs.getTimestamp("CreatedDate");
             this.createdBy = rs.getInt("CreatedBy");
-            this.modifiedDate = rs.getDate("ModifiedDate");
-            this.modifiedBy = rs.getInt("ModifiedBy");            
+            this.modifiedDate = rs.getTimestamp("ModifiedDate");
+            this.modifiedBy = rs.getInt("ModifiedBy");    
+            
+            this.orderLines = new ArrayList<>();
         }
         catch (Exception e)
         {
@@ -114,8 +117,10 @@ public class Order {
         
         if (request.getParameter("userId") != null)
             this.userId = Integer.parseInt(request.getParameter("userId"));
-
-        this.currencyId = Integer.parseInt("currencyId");
+        
+        if (request.getParameter("currencyId") != null)
+            this.currencyId = Integer.parseInt("currencyId");
+        
         this.shippingAddressId = Integer.parseInt(request.getParameter("shippingAddressId"));
         this.billingAddressId = Integer.parseInt(request.getParameter("billingAddressId"));
         this.paymentMethodId = Integer.parseInt(request.getParameter("paymentMethodId"));
@@ -288,13 +293,13 @@ public class Order {
     public void addOrderLine(OrderLine line)
     {
         this.orderLines.add(line);
-        this.totalCost += (line.getUnitPrice() * line.getQuantity());
+        this.totalCost += line.getPrice();
     }
     
     public void removeOrderLine(OrderLine line)
     {
         this.orderLines.remove(line);
-        this.totalCost -= (line.getUnitPrice() * line.getQuantity());
+        this.totalCost -= line.getPrice();
     }
     
     public int getTotalQuantity()

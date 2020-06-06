@@ -11,6 +11,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import uts.isd.model.Customer;
 import uts.isd.model.Product;
 import uts.isd.util.Logging;
 /**
@@ -55,9 +56,33 @@ public class DBProduct implements IProduct{
         }
     }
     
+    @Override
+    public List<Product> getProductsByCategoryId(int categoryId)
+    {
+        try {
+            PreparedStatement p = this.conn.prepareStatement("SELECT * FROM APP.Products WHERE CategoryID = ?");
+            p.setInt(1, categoryId);
+            ResultSet rs = p.executeQuery();
+            
+            //Build list of user objects to return
+            ArrayList<Product> products = new ArrayList<Product>();
+            
+            while (rs.next())
+            {
+                products.add(new Product(rs));
+            }
+            return products;
+        }
+        catch (Exception e)
+        {
+            Logging.logMessage("Unable to getProductsByCategoryId", e);
+            return null;
+        }
+    }
+    
     //Adding a new product to the database 
     @Override
-    public boolean addProduct(Product pr)
+    public boolean addProduct(Product pr, Customer customer)
     {
         try {
             PreparedStatement p = this.conn.prepareStatement("INSERT  INTO APP.Products (categoryId,name,price,description,image,initialQuantity,currentQuantity,lastReorderDate,createdDate,createdBy,modifiedDate,modifiedBy) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
@@ -68,11 +93,11 @@ public class DBProduct implements IProduct{
             p.setString(5, pr.getImage());
             p.setInt(6, pr.getInitialQuantity());
             p.setInt(7, pr.getCurrentQuantity());
-            p.setDate(8, new java.sql.Date(new java.util.Date().getTime()));
-            p.setDate(9, new java.sql.Date(new java.util.Date().getTime()));
-            p.setInt(10, pr.getCreatedBy());
-            p.setDate(11, new java.sql.Date(new java.util.Date().getTime()));
-            p.setInt(12, pr.getModifiedBy());
+            p.setTimestamp(8, new java.sql.Timestamp(new java.util.Date().getTime()));
+            p.setTimestamp(9, new java.sql.Timestamp(new java.util.Date().getTime()));
+            p.setInt(10, customer.getId());
+            p.setTimestamp(11, new java.sql.Timestamp(new java.util.Date().getTime()));
+            p.setInt(12, customer.getId());
             //Was insert successful?
             return (p.executeUpdate() > 0);
         }
@@ -85,22 +110,23 @@ public class DBProduct implements IProduct{
 
     //Updating an existing product in the database - this method only changes the stored values, it does not check product exists 
     @Override
-    public boolean updateProduct(Product pr) {
+    public boolean updateProduct(Product pr, Customer customer) {
         try {
-            PreparedStatement p = this.conn.prepareStatement("UPDATE APP.Products SET categoryId = ?,price = ?,description = ?,image = ?,initialQuantity = ?,currentQuantity = ?,lastReorderDate = ?,createdDate = ?,createdBy = ?,modifiedDate = ?,modifiedBy = ? WHERE name = ?");
+            PreparedStatement p = this.conn.prepareStatement("UPDATE APP.Products SET categoryId = ?,price = ?,description = ?,image = ?,initialQuantity = ?,currentQuantity = ?,lastReorderDate = ?,createdDate = ?,createdBy = ?,modifiedDate = ?,modifiedBy = ?, name = ? WHERE id=?");
             p.setInt(1, pr.getCategoryId());
             p.setDouble(2, pr.getPrice());
             p.setString(3, pr.getDescription());
             p.setString(4, pr.getImage());
             p.setInt(5, pr.getInitialQuantity());
             p.setInt(6, pr.getCurrentQuantity());
-            p.setDate(7, new java.sql.Date(new java.util.Date().getTime()));
-            p.setDate(8, new java.sql.Date(new java.util.Date().getTime()));
-            p.setInt(9, pr.getCreatedBy());
+            p.setTimestamp(7, new java.sql.Timestamp(new java.util.Date().getTime()));
+            p.setTimestamp(8, new java.sql.Timestamp(new java.util.Date().getTime()));
+            p.setInt(9, customer.getId());
             //Modified date - Modified by
-            p.setDate(10, new java.sql.Date(new java.util.Date().getTime()));
-            p.setInt(11, pr.getModifiedBy());
+            p.setTimestamp(10, new java.sql.Timestamp(new java.util.Date().getTime()));
+            p.setInt(11, customer.getId());
             p.setString(12, pr.getName());
+            p.setInt(13, pr.getId());
             //Was update successful?
             int result = p.executeUpdate();
             return (result > 0);

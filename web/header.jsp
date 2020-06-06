@@ -8,10 +8,9 @@
     User user = (User)session.getAttribute("user");
     Customer customer = (Customer)session.getAttribute("customer");
     Order order = (Order)session.getAttribute("order");
-    List<Product> products = (List<Product>)session.getAttribute("products");
     
-    int totalQuantity = (order == null || products == null ? 0 : order.getTotalQuantity());
-    String totalCost = (order == null || products == null ? "$0.00" : order.getTotalCostFormatted());
+    int totalQuantity = (order == null ? 0 : order.getTotalQuantity());
+    String totalCost = (order == null ? "$0.00" : order.getTotalCostFormatted());
     boolean isLoggedIn = (user != null && customer != null);
 %>
 <head>
@@ -109,7 +108,7 @@
                 for (int i = 0; i < order.getLineCount(); i++) {
                     OrderLine line = order.getOrderLines().get(i);
                 %>
-                <a class="dropdown-item" href="#"><%= line.getQuantity() %>x <%= products.get(line.getProductId() - 1).getName() %>: <%= line.getPriceFormatted() %></a>
+                <a class="dropdown-item" href="#"><%= line.getQuantity() %>x <%= line.getProduct().getName() %>: <%= line.getPriceFormatted() %></a>
                 <% } //End of for %>
                 <hr>
                 <div class="dropdown-item">

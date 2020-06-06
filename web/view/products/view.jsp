@@ -8,9 +8,9 @@
   Validator v = new Validator(session);
   Product product = (Product)request.getAttribute("product");
 %>
-<main role="main"  class="mt-5 pt-4">
+<main role="main">
   <div style="margin-top: 50px;"></div>
-  <div class="container dark-grey-text mt-5">  
+  <div class="container">  
     <%= flash.displayMessages() %>
   <!--Main layout-->
     <!--Grid row-->
@@ -31,14 +31,8 @@
         <div class="p-4">
 
           <div class="mb-3">
-            <a href="">
-              <span class="badge badge-pill badge-primary">Category 2</span>
-            </a>
-            <a href="">
-              <span class="badge badge-pill badge-primary">New</span>
-            </a>
-            <a href="">
-              <span class="badge badge-pill badge-primary">Bestseller</span>
+              <a href="<%= URL.Absolute("categories/view/"+product.getCategoryId(), request) %>">
+              <span class="badge badge-pill badge-primary"><%= product.getCategory().getName() %></span>
             </a>
           </div>
 
@@ -50,15 +44,20 @@
 
           <p><%= product.getDescription() %></p>
 
-          <form class="d-flex justify-content-left">
+          <form method="post" action="<%= URL.Absolute("order/addline/"+product.getId(), request) %>" class="d-flex justify-content-left">
             <!-- Default input -->
-            <input type="text" value="1" aria-label="Search" class="form-control" style="width: 100px">
+            <input type="text" value="1" aria-label="Quantity" name="addQuantity" class="form-control" style="width: 100px">
             &nbsp;
             <button class="btn btn-primary" type="submit">Add to cart
               <i class="fas fa-shopping-cart ml-1"></i>
             </button>
 
           </form>
+          <% if (product.getCurrentQuantity() == 0) { %>
+          <span class="badge badge-pill badge-danger">Out of Stock</span>
+          <% } else if (product.getCurrentQuantity() < Product.LOW_STOCK) { %>
+          <span class="badge badge-pill badge-danger">Low stock</span>
+          <% } %>
 
         </div>
         <!--Content-->

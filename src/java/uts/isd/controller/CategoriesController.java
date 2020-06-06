@@ -16,9 +16,12 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import uts.isd.model.ProductCategory;
 import uts.isd.model.Customer;
+import uts.isd.model.Product;
 import uts.isd.model.User;
 import uts.isd.model.dao.DBCategory;
+import uts.isd.model.dao.DBProduct;
 import uts.isd.model.dao.ICategory;
+import uts.isd.model.dao.IProduct;
 import uts.isd.util.Flash;
 import uts.isd.util.Logging;
 import uts.isd.util.URL;
@@ -122,9 +125,13 @@ public class CategoriesController extends HttpServlet {
                 return;
             }
             
+            IProduct dbProduct = new DBProduct();
+            List<Product> products = dbProduct.getProductsByCategoryId(category.getId());
+            
             //Set the address object on the request so it can be used by the view for this request only.
             //i.e. Don't use the session because this is for a single page request.
             request.setAttribute("category", category);
+            request.setAttribute("products", products);
             
             RequestDispatcher requestDispatcher; 
             requestDispatcher = request.getRequestDispatcher("/view/categories/view_customer.jsp");
