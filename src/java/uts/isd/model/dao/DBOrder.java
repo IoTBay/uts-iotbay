@@ -312,8 +312,8 @@ public class DBOrder implements IOrder {
             o.setId(id);
             
             //Update TotalCost on the order.
-            p = this.conn.prepareCall("UPDATE APP.Orders SET TotalCost = (TotalCost + ?) WHERE OrderID = ?");
-            p.setDouble(2, (o.getPrice() * o.getQuantity()));
+            p = this.conn.prepareCall("UPDATE APP.Orders SET TotalCost = (TotalCost + ?) WHERE ID = ?");
+            p.setDouble(1, (o.getPrice() * o.getQuantity()));
             p.setInt(2, o.getOrderId());
             added &= (p.executeUpdate() > 0);
             
@@ -395,7 +395,7 @@ public class DBOrder implements IOrder {
             double newLineTotal = (o.getPrice() * o.getQuantity());
             double deltaLineTotal = (newLineTotal - existingLineTotal);
 
-            p = this.conn.prepareCall("UPDATE APP.Orders SET TotalCost = (TotalCost + ?) WHERE OrderID = ?");
+            p = this.conn.prepareCall("UPDATE APP.Orders SET TotalCost = (TotalCost + ?) WHERE ID = ?");
             p.setDouble(2, deltaLineTotal);
             p.setInt(2, o.getOrderId());
             updated &= (p.executeUpdate() > 0);
