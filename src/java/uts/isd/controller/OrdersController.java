@@ -282,7 +282,7 @@ public class OrdersController extends HttpServlet {
             if (dbOrder.addOrderLine(line, customer))
             {
                 cart.addOrderLine(line);
-                flash.add(Flash.MessageType.Error, "Successfully added new item '"+product.getName()+"' to cart!");
+                flash.add(Flash.MessageType.Success, "Successfully added new item '"+product.getName()+"' to cart!");
             }
             else
             {
@@ -297,6 +297,8 @@ public class OrdersController extends HttpServlet {
         catch (Exception  e)
         {
             Logging.logMessage("Unable to doAddLinePost", e);
+            URL.GoBack(request, response);
+            return;
         }
     }
     
