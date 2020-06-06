@@ -62,7 +62,7 @@
         </div>
     </div>
      
-     <div class="form-row" style='padding-left: 450px'>
+    <!--<div class="form-row" style='padding-left: 450px'>
           <div class="form-group col-md-2">
             <label for="createddate">Created Date</label>
             <input type="date" class="form-control" name="createdDate">
@@ -70,7 +70,7 @@
           <div class="form-group col-md-2">
             <label for="modifieddate">Modified Date</label>
             <input type="date" class="form-control" name="modifiedDate">
-          </div>
+        </div>-->
      </div> 
       
     <div class="form-row" style='padding-left: 470px'>
