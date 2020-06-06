@@ -150,6 +150,18 @@ public class ProductsController extends HttpServlet {
         Flash flash = Flash.getInstance(session);
         int status = 0;
         
+        Validator validator = new Validator(new ValidatorFieldRules[] {
+                 //new ValidatorFieldRules("Product Price", "price", "ValidateDouble"),
+                 new ValidatorFieldRules("Product Name", "name", "required|shorterthan[61]"),
+                 new ValidatorFieldRules("Product Description", "description", "required|shorterthan[61]"),
+            });
+
+            if (!validator.validate(request))
+            {
+                URL.GoBack(request, response);
+                return;
+            }
+        
         try {
             if (isLoggedIn){ 
                //create a connection to the DB for the Products table
@@ -419,7 +431,7 @@ public class ProductsController extends HttpServlet {
         try
         {
             //Is Logged in and submitted form
-            if (isLoggedIn || !user.isAdmin())
+            if (!isLoggedIn || !user.isAdmin())
             {
                 flash.add(Flash.MessageType.Error, "Access denied");
                 URL.GoBack(request, response);
@@ -437,21 +449,20 @@ public class ProductsController extends HttpServlet {
             
             //Instead of creating a blank address, fetch the existing address from the DB
             //so we have a fully populated oobject and don't risk losing data.
-            int productId = Integer.parseInt(productStr);;
+            int productId = Integer.parseInt(productStr);
             
             //Run update instead of add
-            
              if (dbProduct.deleteProductById(productId))
             {
                 //DBAuditLogs.addEntry(DBAuditLogs.Entity.Product, "Deleted", "Deleted product "+productStr, product.getId());
                 flash.add(Flash.MessageType.Success, "Product deleted successfully");
-                response.sendRedirect(URL.Absolute("/view_product.jsp", request));
+                response.sendRedirect(URL.Absolute("product/list", request));
                 return;
             }
             else
             {
                 flash.add(Flash.MessageType.Error, "Failed to delete product");
-                response.sendRedirect(URL.Absolute("/view_product.jsp", request));
+                response.sendRedirect(URL.Absolute("product/list.jsp", request));
             }
         }
         catch (Exception e)

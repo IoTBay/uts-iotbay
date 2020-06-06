@@ -18,10 +18,10 @@
         Validator v = new Validator(session);
     %>
     
-    <h1> you sure you want to delete? </h1>
+    <h1> Are you sure you want to delete? </h1>
         
     <form method="post" action="<%= URL.Absolute("product/delete/"+product.getId(), request) %>">
-                <input type="submit" class="btn btn-primary" value="submit">
+                <input type="submit" name="doDelete" class="btn btn-primary" value="submit">
     </form>
 
 </html>
