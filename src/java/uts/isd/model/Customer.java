@@ -31,7 +31,14 @@ public class Customer implements Serializable {
     private Date modifiedDate;
     private int modifiedBy;
     
-    public Customer() { }
+    public Customer()
+    { 
+        this.id = 0;
+        this.email = "";
+        this.firstName = "";
+        this.lastName = "";
+        this.phone = "";
+    }
     
     public Customer(ResultSet rs)
     {
