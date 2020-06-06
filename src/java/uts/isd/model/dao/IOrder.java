@@ -33,6 +33,15 @@ public interface IOrder {
     
     /**
      * 
+     * Returns a single orderLine based on their ID
+     *
+     * @param id The orderLine's primary key ID.
+     * @return OrderLine object containing the order line record.
+     */
+    public OrderLine getOrderLineById(int id);
+    
+    /**
+     * 
      * Returns the current draft order for the customer.
      *
      * @param customer The customer object to get the draft for.
@@ -112,9 +121,9 @@ public interface IOrder {
     
     /**
      *
-     * @param id The primary key ID field of a orderLine to delete
+     * @param o The OrderLine object of a orderLine to delete
      * @return Returns true if orderLine was deleted, or false if it failed
      */
 
-    public boolean deleteOrderLineById(int id);
+    public boolean deleteOrderLineById(OrderLine o);
 }

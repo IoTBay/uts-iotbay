@@ -63,6 +63,30 @@ public class DBOrder implements IOrder {
     }
     
     @Override
+    public OrderLine getOrderLineById(int id)
+    {
+        try {
+            //Using SQL prepared statements: https://stackoverflow.com/questions/3451269/parameterized-oracle-sql-query-in-java
+            //this protects against SQL Injection attacks. Each parameter must have a ? in the query, and a corresponding parameter
+            //set.
+            PreparedStatement p = this.conn.prepareStatement("SELECT * FROM APP.OrderLines WHERE ID = ?");
+            p.setInt(1, id);
+            ResultSet rs = p.executeQuery();
+            if (!rs.next())
+            {
+                System.out.println("getOrderLineById returned no records for ID: "+id);
+                return null; //No records returned
+            }
+            return new OrderLine(rs);
+        }
+        catch (Exception e)
+        {
+            Logging.logMessage("Unable to getOrderLineById", e);
+            return null;
+        }
+    }
+    
+    @Override
     public Order getCartOrderByCustomer(Customer customer)
     {
         try {
@@ -234,7 +258,7 @@ public class DBOrder implements IOrder {
             
             //Was insert successful?
             boolean added = (p.executeUpdate() > 0);
-            
+                        
             //Now that customer is added, try and get the last inserted record ID.
             ResultSet rs = p.getGeneratedKeys();
             int id = -1;
@@ -244,6 +268,12 @@ public class DBOrder implements IOrder {
             //https://stackoverflow.com/questions/35670858/rs-getgeneratedkeys-not-working-in-derby
             //This should set the new record's ID field on the passed in object
             o.setId(id);
+            
+            //Update TotalCost on the order.
+            p = this.conn.prepareCall("UPDATE APP.Orders SET TotalCost = (TotalCost + ?) WHERE OrderID = ?");
+            p.setDouble(2, (o.getPrice() * o.getQuantity()));
+            p.setInt(2, o.getOrderId());
+            added &= (p.executeUpdate() > 0);
             
             return added;
         }
@@ -289,6 +319,16 @@ public class DBOrder implements IOrder {
     @Override
     public boolean updateOrderLine(OrderLine o) {
         try {
+            //Need to find the existing order line so we can determine the
+            //existing total cost.
+            OrderLine existingLine = this.getOrderLineById(o.getId());
+            
+            if (existingLine == null)
+            {
+                Logging.logMessage("Failed to find existing order line for ID "+o.getId()+" that we are trying to update?!");
+                return false;
+            }
+            
             //Using SQL prepared statements: https://stackoverflow.com/questions/3451269/parameterized-oracle-sql-query-in-java
             //this protects against SQL Injection attacks. Each parameter must have a ? in the query, and a corresponding parameter
             //set.
@@ -302,7 +342,19 @@ public class DBOrder implements IOrder {
             p.setInt(5, o.getId());
             
             //Was update successful?
-            return (p.executeUpdate() > 0);
+            boolean updated = (p.executeUpdate() > 0);
+            
+            //Update TotalCost on the order.
+            //Find the delta
+            double existingLineTotal = (existingLine.getPrice() * existingLine.getQuantity());
+            double newLineTotal = (o.getPrice() * o.getQuantity());
+            double deltaLineTotal = (newLineTotal - existingLineTotal);
+
+            p = this.conn.prepareCall("UPDATE APP.Orders SET TotalCost = (TotalCost + ?) WHERE OrderID = ?");
+            p.setDouble(2, deltaLineTotal);
+            p.setInt(2, o.getOrderId());
+            updated &= (p.executeUpdate() > 0);
+            return updated;
         }
         catch (Exception e)
         {
@@ -332,17 +384,25 @@ public class DBOrder implements IOrder {
     }
     
     @Override
-    public boolean deleteOrderLineById(int id) {
+    public boolean deleteOrderLineById(OrderLine o) {
         try {
             //Using SQL prepared statements: https://stackoverflow.com/questions/3451269/parameterized-oracle-sql-query-in-java
             //this protects against SQL Injection attacks. Each parameter must have a ? in the query, and a corresponding parameter
             //set.
             PreparedStatement p = this.conn.prepareStatement("DELETE FROM APP.OrderLines WHERE ID = ?");
             //WHERE ID = ?
-            p.setInt(1, id);
+            p.setInt(1, o.getId());
             
             //Was update successful?
-            return (p.executeUpdate() > 0);
+            boolean deleted = (p.executeUpdate() > 0);
+            
+            //Update TotalCost on the order.
+            p = this.conn.prepareCall("UPDATE APP.Orders SET TotalCost = (TotalCost - ?) WHERE OrderID = ?");
+            p.setDouble(2, (o.getPrice() * o.getQuantity()));
+            p.setInt(2, o.getOrderId());
+            deleted &= (p.executeUpdate() > 0);
+            
+            return deleted;
         }
         catch (Exception e)
         {

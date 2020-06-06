@@ -50,9 +50,9 @@
 
           <p><%= product.getDescription() %></p>
 
-          <form class="d-flex justify-content-left">
+          <form method="post" action="<%= URL.Absolute("order/addline/"+product.getId(), request) %>" class="d-flex justify-content-left">
             <!-- Default input -->
-            <input type="text" value="1" aria-label="Search" class="form-control" style="width: 100px">
+            <input type="text" value="1" aria-label="Quantity" name="addQuantity" class="form-control" style="width: 100px">
             &nbsp;
             <button class="btn btn-primary" type="submit">Add to cart
               <i class="fas fa-shopping-cart ml-1"></i>
