@@ -472,7 +472,7 @@ public class AddressesController extends HttpServlet {
             
             //Instead of creating a blank address, fetch the existing address from the DB
             //so we have a fully populated oobject and don't risk losing data.
-            int addressId = Integer.parseInt(addressStr);;
+            int addressId = Integer.parseInt(addressStr);
             
             //Run update instead of add
             if (dbAddress.deleteAddressById(addressId))
