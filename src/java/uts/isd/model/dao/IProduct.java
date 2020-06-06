@@ -21,11 +21,11 @@ public interface IProduct {
      * Returns a single Product based on its ID
      * @param id The Product's primary key ID.
      * @return Product object containing the product record.
-     */
-
+     */    
+    public Product getProductById(int id);
+    
     public Product authenticateProduct(String name);
     
-    public Product getProductById(int id);
     /**
      * Returns a single product based on unique id
      * @param email The user's unique email address.???
@@ -34,11 +34,20 @@ public interface IProduct {
     public Product getProductByName(String name);
     
     /**
-     * Returns all users in the users table
+     * Returns all products in the products table
      * 
-     * @return List of all users
+     * @return List of all products
      */
     public List<Product> getAllProducts();
+    
+    
+    /**
+     * Returns all products belonging to a particular category.
+     * 
+     * @param categoryId The categoryID primary key to get products for.
+     * @return List of product objects
+     */
+    public List<Product> getProductsByCategoryId(int categoryId);
     
     /* Update queries */
     

@@ -56,6 +56,30 @@ public class DBProduct implements IProduct{
         }
     }
     
+    @Override
+    public List<Product> getProductsByCategoryId(int categoryId)
+    {
+        try {
+            PreparedStatement p = this.conn.prepareStatement("SELECT * FROM APP.Products WHERE CategoryID = ?");
+            p.setInt(1, categoryId);
+            ResultSet rs = p.executeQuery();
+            
+            //Build list of user objects to return
+            ArrayList<Product> products = new ArrayList<Product>();
+            
+            while (rs.next())
+            {
+                products.add(new Product(rs));
+            }
+            return products;
+        }
+        catch (Exception e)
+        {
+            Logging.logMessage("Unable to getProductsByCategoryId", e);
+            return null;
+        }
+    }
+    
     //Adding a new product to the database 
     @Override
     public boolean addProduct(Product pr, Customer customer)

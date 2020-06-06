@@ -36,6 +36,9 @@ public class Product {
     private int createdBy;
     private Timestamp modifiedDate;
     private int modifiedBy;
+    
+    //Set a threshold for low stock
+    public static final int LOW_STOCK = 10;
 
     public Product() {
     }

@@ -53,6 +53,11 @@
             </button>
 
           </form>
+          <% if (product.getCurrentQuantity() == 0) { %>
+          <span class="badge badge-pill badge-danger">Out of Stock</span>
+          <% } else if (product.getCurrentQuantity() < Product.LOW_STOCK) { %>
+          <span class="badge badge-pill badge-danger">Low stock</span>
+          <% } %>
 
         </div>
         <!--Content-->
