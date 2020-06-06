@@ -422,23 +422,17 @@ public class DBOrder implements IOrder {
     }
     
     @Override
-    public boolean deleteOrderLineById(OrderLine o) {
+    public boolean deleteOrderLineById(int id) {
         try {
             //Using SQL prepared statements: https://stackoverflow.com/questions/3451269/parameterized-oracle-sql-query-in-java
             //this protects against SQL Injection attacks. Each parameter must have a ? in the query, and a corresponding parameter
             //set.
             PreparedStatement p = this.conn.prepareStatement("DELETE FROM APP.OrderLines WHERE ID = ?");
             //WHERE ID = ?
-            p.setInt(1, o.getId());
+            p.setInt(1, id);
             
             //Was update successful?
             boolean deleted = (p.executeUpdate() > 0);
-            
-            //Update TotalCost on the order.
-            p = this.conn.prepareCall("UPDATE APP.Orders SET TotalCost = (TotalCost - ?) WHERE OrderID = ?");
-            p.setDouble(2, (o.getPrice() * o.getQuantity()));
-            p.setInt(2, o.getOrderId());
-            deleted &= (p.executeUpdate() > 0);
             
             return deleted;
         }

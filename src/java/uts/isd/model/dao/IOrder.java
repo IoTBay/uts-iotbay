@@ -123,9 +123,9 @@ public interface IOrder {
     
     /**
      *
-     * @param o The OrderLine object of a orderLine to delete
+     * @param id The primary key ID of a orderLine to delete
      * @return Returns true if orderLine was deleted, or false if it failed
      */
 
-    public boolean deleteOrderLineById(OrderLine o);
+    public boolean deleteOrderLineById(int id);
 }

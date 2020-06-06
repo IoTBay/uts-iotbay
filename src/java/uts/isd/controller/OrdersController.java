@@ -382,7 +382,61 @@ public class OrdersController extends HttpServlet {
     protected void doDeleteLinePost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException 
     {
-        request.getRequestDispatcher("/view/orders/checkout.jsp").forward(request, response);
+        try 
+        {
+            if (!this.initialiseCart(request, response))
+            {
+                Logging.logMessage("Failed to initialise cart");
+                return;
+            }
+                        
+            HttpSession session = request.getSession();
+            Flash flash = Flash.getInstance(session);
+            IOrder dbOrder = new DBOrder();
+            
+            if (request.getParameter("lineId") == null || request.getParameter("productId") == null)
+            {
+                flash.add(Flash.MessageType.Error, "This request is invalid");
+                URL.GoBack(request, response);
+                return;
+            }
+            
+            int lineId = Integer.parseInt(request.getParameter("lineId"));
+            int productId = Integer.parseInt(request.getParameter("productId"));
+            
+            IProduct dbProduct = new DBProduct();
+            Product product = dbProduct.getProductById(productId);
+            String productName = (product == null ? "" : "("+product.getName()+") ");
+            
+            if (dbOrder.deleteOrderLineById(lineId))
+            {
+                //Keep cart in sync
+                for (OrderLine line : this.cart.getOrderLines())
+                {
+                    if (line.getId() == lineId)
+                    {
+                        this.cart.removeOrderLine(line);
+                        break;
+                    }
+                }
+                flash.add(Flash.MessageType.Success, "Successfully deleted product "+productName+"from cart");
+            }
+            else
+                flash.add(Flash.MessageType.Error, "Failed to remove product from cart");
+            
+            if (!this.updateOrderTotal())
+            {
+                flash.add(Flash.MessageType.Error, "Failed to update order total");
+                Logging.logMessage("Failed to update order total");
+            }
+            
+            //Still return back to the product page even when successful
+            URL.GoBack(request, response);
+        }
+        catch (Exception e)
+        {
+            Logging.logMessage("Unable to delete line item", e);
+        }
     }
     
     protected void doUpdateQuantityPost(HttpServletRequest request, HttpServletResponse response)
