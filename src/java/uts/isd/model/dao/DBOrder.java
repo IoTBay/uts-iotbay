@@ -10,6 +10,7 @@ import uts.isd.model.Order;
 import java.util.*;
 import java.sql.*;
 import uts.isd.model.Customer;
+import uts.isd.model.Currency;
 import uts.isd.model.OrderLine;
 import uts.isd.util.Logging;
 
@@ -96,17 +97,36 @@ public class DBOrder implements IOrder {
             PreparedStatement p = this.conn.prepareStatement("SELECT * FROM APP.Orders WHERE CustomerID = ? AND Status = 0");
             p.setInt(1, customer.getId());
             ResultSet rs = p.executeQuery();
+            ICurrency dbCurrency = new DBCurrency();
+            Currency currency = new Currency();
+            Order order = new Order();
+            
             if (!rs.next())
             {
                 //No order was returned, instead create a new draft order.
                 Order o = new Order();
                 o.setCustomerId(customer.getId());
+                o.setCurrencyId(1); //Just use currency ID 1 for now
+                
                 if (!this.addOrder(o, customer))
                     return null; //Failed to add order
                 
-                return o; //Return new draft order
+                //Set the currency on the order.
+                currency = dbCurrency.getCurrencyById(1);
+                
+                //Fetch the order we just created so we have the created date.
+                order = this.getOrderById(o.getId());
+                order.setCurrency(currency);
+                return order; //Return new draft order
             }
-            return new Order(rs);
+            else
+            {
+                order = new Order(rs);
+                //Set the currency on the order.
+                currency = dbCurrency.getCurrencyById(order.getCurrencyId());
+                order.setCurrency(currency);
+                return order;
+            }
         }
         catch (Exception e)
         {

@@ -202,6 +202,7 @@ public class OrdersController extends HttpServlet {
             customer = new Customer();
             if (dbCustomer.addCustomer(customer, null)) //Customer is an anonymous user so don't pass changed by.
             {
+                customer = dbCustomer.getCustomerById(customer.getId());
                 session.setAttribute("customer", customer);
                 Logging.logMessage("Successfully added customer ID "+customer.getId()+" for anonymous user.");
             }
@@ -272,6 +273,8 @@ public class OrdersController extends HttpServlet {
             int quantity = Integer.parseInt(qtyStr);
 
             OrderLine line = new OrderLine();
+            line.setOrderId(cart.getId());
+            line.setProductId(product.getId());
             line.setProduct(product);
             line.setQuantity(quantity);
             line.setUnitPrice(product.getPrice());
