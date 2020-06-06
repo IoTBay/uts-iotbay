@@ -297,24 +297,55 @@ public class OrdersController extends HttpServlet {
                 URL.GoBack(request, response);
                 return;
             }
-
-            OrderLine line = new OrderLine();
-            line.setOrderId(this.cart.getId());
-            line.setProductId(this.product.getId());
-            line.setProduct(this.product);
-            line.setQuantity(quantity);
-            line.setUnitPrice(this.product.getPrice());
             
-            if (dbOrder.addOrderLine(line, this.customer))
+            //Figure out if this product exists in an order line, and if so update quantity.
+            OrderLine existingLine = null;
+            
+            for (OrderLine line : this.cart.getOrderLines())
             {
-                this.cart.addOrderLine(line);
-                flash.add(Flash.MessageType.Success, "Successfully added new item '"+this.product.getName()+"' to cart!");
+                if (line.getProductId() == product.getId())
+                {
+                    Logging.logMessage("Adding quantity to existing line ID: "+line.getId());
+                    existingLine = line;
+                    break;
+                }
+            }
+
+            if (existingLine != null)
+            {
+                existingLine.setQuantity(existingLine.getQuantity() + quantity);
+                
+                if (dbOrder.updateOrderLine(existingLine, this.customer))
+                {
+                    flash.add(Flash.MessageType.Success, "Successfully updated quantity");
+                }
+                else
+                {
+                    flash.add(Flash.MessageType.Error, "Failed to update item quantity. Try Again?");
+                    URL.GoBack(request, response);
+                    return;
+                }
             }
             else
             {
-                flash.add(Flash.MessageType.Error, "Failed to add new item to cart. Try Again?");
-                URL.GoBack(request, response);
-                return;
+                OrderLine line = new OrderLine();
+                line.setOrderId(this.cart.getId());
+                line.setProductId(this.product.getId());
+                line.setProduct(this.product);
+                line.setQuantity(quantity);
+                line.setUnitPrice(this.product.getPrice());
+
+                if (dbOrder.addOrderLine(line, this.customer))
+                {
+                    this.cart.addOrderLine(line);
+                    flash.add(Flash.MessageType.Success, "Successfully added new item '"+this.product.getName()+"' to cart!");
+                }
+                else
+                {
+                    flash.add(Flash.MessageType.Error, "Failed to add new item to cart. Try Again?");
+                    URL.GoBack(request, response);
+                    return;
+                }
             }
             
             //Still return back to the product page even when successful
