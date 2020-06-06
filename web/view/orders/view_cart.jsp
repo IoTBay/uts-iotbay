@@ -17,7 +17,7 @@
     <div class="col-md-12 order-md-2 mb-12">
       <h4 class="d-flex justify-content-between align-items-center mb-3">
         <span class="text-muted">Your cart</span>
-        <span class="badge badge-secondary badge-pill"><%= order.getLineCount() %></span>
+        <span class="badge badge-secondary badge-pill"><%= order.getTotalQuantity()%></span>
       </h4>
       <% if (order == null || order.isEmpty()) { %>
       <h5>Your cart is empty.</h5>
