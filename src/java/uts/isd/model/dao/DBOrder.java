@@ -311,12 +311,6 @@ public class DBOrder implements IOrder {
             //This should set the new record's ID field on the passed in object
             o.setId(id);
             
-            //Update TotalCost on the order.
-            p = this.conn.prepareCall("UPDATE APP.Orders SET TotalCost = (TotalCost + ?) WHERE ID = ?");
-            p.setDouble(1, (o.getPrice() * o.getQuantity()));
-            p.setInt(2, o.getOrderId());
-            added &= (p.executeUpdate() > 0);
-            
             return added;
         }
         catch (Exception e)
@@ -334,11 +328,30 @@ public class DBOrder implements IOrder {
             //set.
             PreparedStatement p = this.conn.prepareStatement("UPDATE APP.Orders SET CustomerID = ?, UserID = ?, CurrencyID = ?, BillingAddressID = ?, ShippingAddressID = ?, PaymentMethodID = ?, Status = ?, TotalCost = ?, ModifiedDate = ?, ModifiedBy = ? WHERE ID = ?");
             p.setInt(1, o.getCustomerId());
-            p.setInt(2, o.getUserId());
+            
+            //We have to set null instead of 0 to avoid FK constraints.
+            if (o.getUserId() > 0)
+                p.setInt(2, o.getUserId());
+            else
+                p.setNull(2, java.sql.Types.INTEGER);
+            
             p.setInt(3, o.getCurrencyId());
-            p.setInt(4, o.getBillingAddressId());
-            p.setInt(5, o.getShippingAddressId());
-            p.setInt(6, o.getPaymentMethodId());
+            
+            if (o.getBillingAddressId() > 0)
+                p.setInt(4, o.getBillingAddressId());
+            else
+                p.setNull(4, java.sql.Types.INTEGER);
+            
+            if (o.getShippingAddressId() > 0)
+                p.setInt(5, o.getShippingAddressId());
+            else
+                p.setNull(5, java.sql.Types.INTEGER);
+            
+            if (o.getPaymentMethodId() > 0)
+                p.setInt(6, o.getPaymentMethodId());
+            else
+                p.setNull(6, java.sql.Types.INTEGER);
+            
             p.setInt(7, o.getStatus());
             p.setDouble(8, o.getTotalCost());
             
@@ -361,16 +374,6 @@ public class DBOrder implements IOrder {
     @Override
     public boolean updateOrderLine(OrderLine o, Customer customer) {
         try {
-            //Need to find the existing order line so we can determine the
-            //existing total cost.
-            OrderLine existingLine = this.getOrderLineById(o.getId());
-            
-            if (existingLine == null)
-            {
-                Logging.logMessage("Failed to find existing order line for ID "+o.getId()+" that we are trying to update?!");
-                return false;
-            }
-            
             //Using SQL prepared statements: https://stackoverflow.com/questions/3451269/parameterized-oracle-sql-query-in-java
             //this protects against SQL Injection attacks. Each parameter must have a ? in the query, and a corresponding parameter
             //set.
@@ -389,16 +392,6 @@ public class DBOrder implements IOrder {
             //Was update successful?
             boolean updated = (p.executeUpdate() > 0);
             
-            //Update TotalCost on the order.
-            //Find the delta
-            double existingLineTotal = existingLine.getPrice();
-            double newLineTotal = o.getPrice();
-            double deltaLineTotal = (newLineTotal - existingLineTotal);
-
-            p = this.conn.prepareCall("UPDATE APP.Orders SET TotalCost = (TotalCost + ?) WHERE ID = ?");
-            p.setDouble(1, deltaLineTotal);
-            p.setInt(2, o.getOrderId());
-            updated &= (p.executeUpdate() > 0);
             return updated;
         }
         catch (Exception e)

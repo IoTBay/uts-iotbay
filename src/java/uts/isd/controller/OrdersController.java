@@ -157,12 +157,6 @@ public class OrdersController extends HttpServlet {
         }
     }
     
-    protected void doViewCartPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException 
-    {    
-        request.getRequestDispatcher("/view/orders/view_cart.jsp").forward(request, response);
-    }
-    
     /*
      * Checkout
      */
@@ -261,6 +255,26 @@ public class OrdersController extends HttpServlet {
         return true;
     }
     
+    protected boolean updateOrderTotal()
+    {
+        try
+        {
+            double totalPrice = 0;
+
+            for (OrderLine line : this.cart.getOrderLines())
+                totalPrice += line.getPrice();
+
+            this.cart.setTotalCost(totalPrice);
+            IOrder dbOrder = new DBOrder();
+            return dbOrder.updateOrder(this.cart, this.customer);
+        }
+        catch (Exception e)
+        {
+            Logging.logMessage("Failed to update order total", e);
+            return false;
+        }
+    }
+    
     protected void doAddLinePost(HttpServletRequest request, HttpServletResponse response, String productIdStr)
             throws ServletException, IOException 
     {
@@ -348,6 +362,12 @@ public class OrdersController extends HttpServlet {
                 }
             }
             
+            if (!this.updateOrderTotal())
+            {
+                flash.add(Flash.MessageType.Error, "Failed to update order total");
+                Logging.logMessage("Failed to update order total");
+            }
+            
             //Still return back to the product page even when successful
             URL.GoBack(request, response);
         }
@@ -418,6 +438,12 @@ public class OrdersController extends HttpServlet {
                 flash.add(Flash.MessageType.Error, "Failed to update item quantity. Try Again?");
                 URL.GoBack(request, response);
                 return;
+            }
+            
+            if (!this.updateOrderTotal())
+            {
+                flash.add(Flash.MessageType.Error, "Failed to update order total");
+                Logging.logMessage("Failed to update order total");
             }
             
             //Still return back to the product page even when successful
