@@ -43,8 +43,8 @@
             </tbody>
         </table>
     </form>
-</body>
-<div style='padding-top: 100px'>
-<jsp:include page="footer.jsp" />
+<div class="form-row" style='padding-left: 870px'>
+        <a href="<%= URL.Absolute("product/add", request) %>" class="btn btn-primary"> Add a new product </a>
 </div>
+<jsp:include page="footer.jsp" />
 </html>

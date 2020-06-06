@@ -17,6 +17,7 @@ import javax.servlet.http.HttpSession;
 import uts.isd.model.Customer;
 import uts.isd.model.Product;
 import uts.isd.model.User;
+import uts.isd.model.dao.DBAuditLogs;
 import uts.isd.model.dao.DBProduct;
 import uts.isd.model.dao.IProduct;
 import uts.isd.util.Flash;
@@ -451,12 +452,17 @@ public class ProductsController extends HttpServlet {
             //so we have a fully populated oobject and don't risk losing data.
             int productId = Integer.parseInt(productStr);
             
+            // Audit logs object - record successful deletion
+            DBAuditLogs dbAuditLogs = new DBAuditLogs();
+            
             //Run update instead of add
              if (dbProduct.deleteProductById(productId))
             {
-                //DBAuditLogs.addEntry(DBAuditLogs.Entity.Product, "Deleted", "Deleted product "+productStr, product.getId());
+                
+                //dbAuditLogs.addEntry(DBAuditLogs.Entity.Products, "Deleted", "Deleted product "+productStr, productId);
                 flash.add(Flash.MessageType.Success, "Product deleted successfully");
                 response.sendRedirect(URL.Absolute("product/list", request));
+                
                 return;
             }
             else

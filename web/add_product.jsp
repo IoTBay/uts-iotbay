@@ -21,9 +21,9 @@
     <div style="margin-top: 50px;"></div>
     <div class="container">
         <%= flash.displayMessages() %>
-    
+      
 <form method="post" action="<%= URL.Absolute("product/add", request) %>">
-  <div id="col" class="col-md-12 align-self-center" style='padding-top: 100px' style='padding-bottom: 100px'>
+<div id="col" class="col-md-12 align-self-center" style='padding-top: 100px' style='padding-bottom: 100px'>
     
     <div class="form-row" style='padding-left: 450px'>
         <div class="form-group col-md-5">
@@ -61,25 +61,13 @@
             <input type="text" class="form-control" name="currentQuantity">
         </div>
     </div>
-     
-    <!--<div class="form-row" style='padding-left: 450px'>
-          <div class="form-group col-md-2">
-            <label for="createddate">Created Date</label>
-            <input type="date" class="form-control" name="createdDate">
-          </div>
-          <div class="form-group col-md-2">
-            <label for="modifieddate">Modified Date</label>
-            <input type="date" class="form-control" name="modifiedDate">
-        </div>-->
-     </div> 
-      
     <div class="form-row" style='padding-left: 470px'>
         <input type="submit" class="btn btn-primary" value="submit">
+        <div style="padding-left: 10px">
+            <a href="<%= URL.Absolute("product/list", request) %>" class="btn btn-secondary"> Return to product list </a>
+        </div>
     </div>
-  </div>
-</form>
-  
-<div style='padding-top: 100px'>
-    <jsp:include page="footer.jsp" />
 </div>
+</form>
+<jsp:include page="footer.jsp" />
 </html>
