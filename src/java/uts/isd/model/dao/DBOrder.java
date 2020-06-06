@@ -101,7 +101,8 @@ public class DBOrder implements IOrder {
                 //No order was returned, instead create a new draft order.
                 Order o = new Order();
                 o.setCustomerId(customer.getId());
-                this.addOrder(o, customer);
+                if (!this.addOrder(o, customer))
+                    return null; //Failed to add order
                 
                 return o; //Return new draft order
             }
@@ -207,16 +208,34 @@ public class DBOrder implements IOrder {
                     //https://db.apache.org/derby/docs/10.2/ref/crefjavstateautogen.html
                     Statement.RETURN_GENERATED_KEYS);
             p.setInt(1, o.getCustomerId());
-            p.setInt(2, o.getUserId());
+            //We have to set null instead of 0 to avoid FK constraints.
+            if (o.getUserId() > 0)
+                p.setInt(2, o.getUserId());
+            else
+                p.setNull(2, java.sql.Types.INTEGER);
+            
             p.setInt(3, o.getCurrencyId());
-            p.setInt(4, o.getBillingAddressId());
-            p.setInt(5, o.getShippingAddressId());
-            p.setInt(6, o.getPaymentMethodId());
+            
+            if (o.getBillingAddressId() > 0)
+                p.setInt(4, o.getBillingAddressId());
+            else
+                p.setNull(4, java.sql.Types.INTEGER);
+            
+            if (o.getShippingAddressId() > 0)
+                p.setInt(5, o.getShippingAddressId());
+            else
+                p.setNull(5, java.sql.Types.INTEGER);
+            
+            if (o.getPaymentMethodId() > 0)
+                p.setInt(6, o.getPaymentMethodId());
+            else
+                p.setNull(6, java.sql.Types.INTEGER);
+            
             p.setInt(7, o.getStatus());
             p.setDouble(8, o.getTotalCost());
             
             p.setTimestamp(9, new java.sql.Timestamp(new java.util.Date().getTime()));
-            p.setInt(10, customer.getId()); //TODO: Pass in current user object
+            p.setInt(10, customer.getId());
             
             //Was insert successful?
             boolean added = (p.executeUpdate() > 0);
@@ -241,13 +260,13 @@ public class DBOrder implements IOrder {
     }
     
     @Override
-    public boolean addOrderLine(OrderLine o)
+    public boolean addOrderLine(OrderLine o, Customer customer)
     {
         try {
             //Using SQL prepared statements: https://stackoverflow.com/questions/3451269/parameterized-oracle-sql-query-in-java
             //this protects against SQL Injection attacks. Each parameter must have a ? in the query, and a corresponding parameter
             //set.
-            PreparedStatement p = this.conn.prepareStatement("INSERT INTO APP.OrderLines (OrderID, ProductID, Quantity, UnitPrice) VALUES (?, ?, ?, ?)",
+            PreparedStatement p = this.conn.prepareStatement("INSERT INTO APP.OrderLines (OrderID, ProductID, Quantity, UnitPrice, CreatedDate, CreatedBy) VALUES (?, ?, ?, ?, ?, ?)",
                     //Added this to return the primary key of this new record
                     //https://db.apache.org/derby/docs/10.2/ref/crefjavstateautogen.html
                     Statement.RETURN_GENERATED_KEYS);
@@ -255,6 +274,9 @@ public class DBOrder implements IOrder {
             p.setInt(2, o.getProductId());
             p.setInt(3, o.getQuantity());
             p.setDouble(4, o.getUnitPrice());
+            
+            p.setTimestamp(5, new java.sql.Timestamp(new java.util.Date().getTime()));
+            p.setInt(6, customer.getId());
             
             //Was insert successful?
             boolean added = (p.executeUpdate() > 0);
@@ -317,7 +339,7 @@ public class DBOrder implements IOrder {
     }
     
     @Override
-    public boolean updateOrderLine(OrderLine o) {
+    public boolean updateOrderLine(OrderLine o, Customer customer) {
         try {
             //Need to find the existing order line so we can determine the
             //existing total cost.
@@ -332,14 +354,17 @@ public class DBOrder implements IOrder {
             //Using SQL prepared statements: https://stackoverflow.com/questions/3451269/parameterized-oracle-sql-query-in-java
             //this protects against SQL Injection attacks. Each parameter must have a ? in the query, and a corresponding parameter
             //set.
-            PreparedStatement p = this.conn.prepareStatement("UPDATE APP.OrderLines SET OrderID = ?, ProductID = ?, Quantity = ?, UnitPrice = ? WHERE ID = ?");
+            PreparedStatement p = this.conn.prepareStatement("UPDATE APP.OrderLines SET OrderID = ?, ProductID = ?, Quantity = ?, UnitPrice = ?, ModifiedDate = ?, ModifiedBy = ? WHERE ID = ?");
             p.setInt(1, o.getOrderId());
             p.setInt(2, o.getProductId());
             p.setInt(3, o.getQuantity());
             p.setDouble(4, o.getUnitPrice());
             
+            p.setTimestamp(5, new java.sql.Timestamp(new java.util.Date().getTime()));
+            p.setInt(6, customer.getId());
+            
             //WHERE ID = ?
-            p.setInt(5, o.getId());
+            p.setInt(7, o.getId());
             
             //Was update successful?
             boolean updated = (p.executeUpdate() > 0);

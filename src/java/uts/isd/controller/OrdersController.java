@@ -276,7 +276,7 @@ public class OrdersController extends HttpServlet {
             line.setQuantity(quantity);
             line.setUnitPrice(product.getPrice());
             
-            if (dbOrder.addOrderLine(line))
+            if (dbOrder.addOrderLine(line, customer))
             {
                 cart.addOrderLine(line);
                 flash.add(Flash.MessageType.Error, "Successfully added new item '"+product.getName()+"' to cart!");

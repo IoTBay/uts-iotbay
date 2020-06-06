@@ -61,6 +61,7 @@ public class Order {
 
     public Order() {
         this.orderLines = new ArrayList<>();
+        this.currencyId = 1; //Hard set to ID 1 because we only have 1 currency right now.
     }
     
     /**
@@ -114,8 +115,10 @@ public class Order {
         
         if (request.getParameter("userId") != null)
             this.userId = Integer.parseInt(request.getParameter("userId"));
-
-        this.currencyId = Integer.parseInt("currencyId");
+        
+        if (request.getParameter("currencyId") != null)
+            this.currencyId = Integer.parseInt("currencyId");
+        
         this.shippingAddressId = Integer.parseInt(request.getParameter("shippingAddressId"));
         this.billingAddressId = Integer.parseInt(request.getParameter("billingAddressId"));
         this.paymentMethodId = Integer.parseInt(request.getParameter("paymentMethodId"));
