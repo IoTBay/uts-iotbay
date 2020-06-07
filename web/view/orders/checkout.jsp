@@ -12,6 +12,8 @@
     Address defaultBillingAddress = (Address)request.getAttribute("defaultBillingAddress");
     Address defaultShippingAddress = (Address)request.getAttribute("defaultShippingAddress");
     List<Address> savedAddresses = (List<Address>)request.getAttribute("savedAddresses");
+    PaymentMethod defaultPaymentMethod = (PaymentMethod)request.getAttribute("defaultPaymentMethod");
+    List<PaymentMethod> savedPaymethods = (List<PaymentMethod>)request.getAttribute("savedPaymethods");
 %>
 <main role="main">
     <div style="margin-top: 50px;"></div>
@@ -55,7 +57,7 @@
             
             <div class="col-md-8 order-md-1">
                 <div class="col-md-8 order-md-1">
-                    
+                  <form method="post" action="<%= URL.Absolute("order/checkout", request) %>">
                   <h4 class="mb-3">User Details</h4>
                 <!-- User details form -->
                 <div class="row">
@@ -223,44 +225,47 @@
                 <!-- Payment method -->
                 
                     <h4 class="mb-3">Payment</h4>
+                    
+                    <div class="row">
+                       <div class="col-md-12 mb-3">
+                        <label for="paymentMethodSelect">Select Payment Method</label>
+                        <input type="hidden" name="paymentMethod" value="<%= v.repopulate("paymentMethod", defaultPaymentMethod.getId()) %>">
+                        <select class="custom-select d-block w-100" id="paymentMethodSelect" name="paymentMethodSelect">
+                          <option value="-1">Add New...</option>
+                          <% for (PaymentMethod paymethod : savedPaymethods) { %>
+                          <option value="<%= paymethod.getId() %>" <%= (v.repopulate("paymentMethod", defaultPaymentMethod.getId()).isEmpty() == false && Integer.parseInt(v.repopulate("paymentMethod", defaultPaymentMethod.getId())) == paymethod.getId() ? "selected=\"selected\"" : "") %>><%= paymethod.getDescription() %></option>
+                          <% } %>
+                        </select>
+                        <br>
+                        <h6 class="mb-3">Or select "Add New" and input below.</h6>
+                      </div>
+                    </div>
 
                     <div class="d-block my-3">
                         <div class="custom-control custom-radio">
-                            <input id="credit" name="paymentType" type="radio" value="1" class="custom-control-input" checked required>
+                            <input id="credit" name="paymentType" type="radio" value="1" class="custom-control-input paymentField" checked>
                             <label class="custom-control-label" for="credit">Credit card</label>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label for="cc-name">Name on card</label>
-                            <input type="text" class="form-control" id="cc-name" placeholder="" required>
+                            <label for="cardName">Name on card</label>
+                            <input type="text" class="form-control paymentField" id="cardName" name="cardName" placeholder="John Smith" value="<%= v.repopulate("cardName", defaultPaymentMethod.getCardName()) %>">
                             <small class="text-muted">Full name as displayed on card</small>
-                            <div class="invalid-feedback">
-                                Name on card is required
-                            </div>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label for="cc-number">Credit card number</label>
-                            <input type="text" class="form-control" id="cc-number" placeholder="" required>
-                            <div class="invalid-feedback">
-                                Credit card number is required
-                            </div>
+                            <label for="cardNumber">Credit card number</label>
+                            <input type="text" class="form-control paymentField" id="cardNumber" name="cardNumber" placeholder="" value="<%= v.repopulate("cardNumber", defaultPaymentMethod.getCardNumber()) %>">
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-md-3 mb-3">
-                            <label for="cc-expiration">Expiration</label>
-                            <input type="text" class="form-control" id="cc-expiration" placeholder="" required>
-                            <div class="invalid-feedback">
-                                Expiration date required
-                            </div>
+                            <label for="cardExpiry">Expiration</label>
+                            <input type="text" class="form-control paymentField" id="cardExpiry" name="cardExpiry" placeholder="MMYY" value="<%= v.repopulate("cardExpiry") %>">
                         </div>
                         <div class="col-md-3 mb-3">
-                            <label for="cc-cvv">CVV</label>
-                            <input type="text" class="form-control" id="cc-cvv" placeholder="" required>
-                            <div class="invalid-feedback">
-                                Security code required
-                            </div>
+                            <label for="cardCVV">CVV</label>
+                            <input type="text" class="form-control paymentField" id="cardCVV" name="cardCVV" placeholder="123" value="<%= v.repopulate("cardCVV", defaultPaymentMethod.getCardCVV()) %>">
                         </div>
                     </div>
                     <hr class="mb-4">
@@ -280,9 +285,14 @@ $(document).ready(function() {
     
     var billingAddress = $('input[name="billingAddress"]');
     var billingAddressSelect = $('#billingAddressSelect');
+    
+    var paymentMethod = $('input[name="paymentMethod"]');
+    var paymentMethodSelect = $('#paymentMethodSelect');
+    
     //Run on form load
     setShippingAddressFields(shippingAddressSelect.val());
     setBillingAddressFields(billingAddressSelect.val());
+    setPaymentFields(paymentMethodSelect.val());
     
     //Run on address field change
     $('#shippingAddressSelect').on('change', function () {
@@ -293,6 +303,11 @@ $(document).ready(function() {
     $('#billingAddressSelect').on('change', function () {
         billingAddress.val(billingAddressSelect.val()); //Controller uses this to decide whether to create new address.
         setBillingAddressFields(billingAddressSelect.val()); //Update whether address fields should be disabled
+    });
+    
+    $('#paymentMethodSelect').on('change', function () {
+        paymentMethod.val(paymentMethodSelect.val());
+        setPaymentFields(paymentMethodSelect.val());
     });
     
     function setShippingAddressFields(selectedShippingValue) {
@@ -330,6 +345,21 @@ $(document).ready(function() {
         else
         {
             $('.billingField').prop("disabled", true);
+        }
+    }
+    
+    function setPaymentFields(selectedPaymentValue) {
+        if (selectedPaymentValue === "-1")
+        {
+            $('.paymentField').prop("disabled", false);
+            $('#cardName').val('');
+            $('#cardNumber').val('');
+            $('#cardCVV').val('');
+            $('#cardExpiry').val('');
+        }
+        else
+        {
+            $('.paymentField').prop("disabled", true);
         }
     }
 });

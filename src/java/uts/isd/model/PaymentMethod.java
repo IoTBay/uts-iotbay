@@ -155,6 +155,37 @@ public class PaymentMethod implements Serializable {
             return false;
         }        
     }
+    
+    /**
+     * Using method from here to obfuscate card details:
+     * https://stackoverflow.com/questions/8544234/replacing-last-4-characters-with-a
+     * 
+     * @param s String to obfuscate
+     * @param count Number of characters to replace
+     * @return Obfuscated string
+     */
+    public static String replaceCharacters(String s, int count) {
+        int length = s.length();
+        //Check whether or not the string contains at least four characters; if not, this method is useless
+        if (length < count) return "Error: The provided string is not greater than four characters long.";
+        String replaced = s.substring(0, length - count);
+        
+        for (int i = 0; i < count; i++)
+            replaced += "X";
+        
+        return replaced;
+    }
+    
+    /**
+     * This method returns the description of a saved payment method
+     * 
+     * @return String with description of card
+     */
+    public String getDescription()
+    {
+        return PaymentMethod.replaceCharacters(this.cardNumber, 4)+" "+
+               PaymentMethod.replaceCharacters(this.cardCVV, 2);
+    }
 
     public int getId() {
         return id;

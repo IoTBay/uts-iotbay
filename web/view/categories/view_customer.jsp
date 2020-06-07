@@ -18,7 +18,7 @@
     <div class="container">
         <h1><%= category.getName() %></h1>
         <% if (products == null || products.size() == 0) { %>
-        <p>There are no categories yet.</p>
+        <p>There are no products yet.</p>
         <% } else { %>
         <p>Take a look at some of the products in this category. <%= category.getDescription() %></p>
         <div class="row row-cols-1 row-cols-md-3">

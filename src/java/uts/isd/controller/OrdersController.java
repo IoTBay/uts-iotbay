@@ -192,6 +192,9 @@ public class OrdersController extends HttpServlet {
             Address defaultBillingAddress = new Address();
             List<Address> savedAddresses = new ArrayList<Address>();
             
+            PaymentMethod defaultPaymentMethod = new PaymentMethod();
+            List<PaymentMethod> savedPaymethods = new ArrayList<PaymentMethod>();
+            
             //Check if user is logged in
             if (user != null)
             {
@@ -208,11 +211,25 @@ public class OrdersController extends HttpServlet {
                 
                 if (savedAddresses == null)
                     savedAddresses = new ArrayList<Address>();
+                
+                IPaymentMethod dbPaymentMethod = new DBPaymentMethod();
+                defaultPaymentMethod = dbPaymentMethod.getDefaultPaymentMethodByUserId(user.getId());
+                savedPaymethods = dbPaymentMethod.getAllPaymentMethodsByCustomerId(this.customer.getId());
+                
+                
+                if (defaultPaymentMethod == null)
+                    defaultPaymentMethod = new PaymentMethod();
+                
+                if (savedPaymethods == null)
+                    savedPaymethods = new ArrayList<PaymentMethod>();
             }
             
             request.setAttribute("defaultShippingAddress", defaultShippingAddress);
             request.setAttribute("defaultBillingAddress", defaultBillingAddress);
             request.setAttribute("savedAddresses", savedAddresses);
+            
+            request.setAttribute("defaultPaymentMethod", defaultPaymentMethod);
+            request.setAttribute("savedPaymethods", savedPaymethods);
             
             RequestDispatcher requestDispatcher; 
             requestDispatcher = request.getRequestDispatcher("/view/orders/checkout.jsp");

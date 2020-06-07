@@ -159,6 +159,27 @@ public class DBPaymentMethod implements IPaymentMethod{
             return null;
         }
     }
+    
+    @Override
+    public PaymentMethod getDefaultPaymentMethodByUserId(int userId)
+    {
+        try {
+            PreparedStatement p = this.conn.prepareStatement("SELECT * FROM APP.PaymentMethods WHERE UserID = ? AND DefaultPayment = 1");
+            p.setInt(1, userId);
+            ResultSet rs = p.executeQuery();
+            if (!rs.next())
+            {
+                System.out.println("getDefaultPaymentMethodByUserId returned no records for ID: "+userId);
+                return null; //No records returned
+            }
+            return new PaymentMethod(rs);
+        }
+        catch (Exception e)
+        {
+            Logging.logMessage("Unable to getDefaultPaymentMethodByUserId", e);
+            return null;
+        }
+    }
 
     //Delete paymethods 
     @Override
