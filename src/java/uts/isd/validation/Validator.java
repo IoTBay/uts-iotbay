@@ -126,7 +126,7 @@ public class Validator {
         //then return that value, otherwise return dbValue if it exists,
         //otherwise return an empty string
         
-        if (this.validatorFields == null)
+        if (this.validatorFields == null && existingValue != null)
             return existingValue.toString();
         
         for (ValidatorFieldRules field : this.validatorFields)
@@ -134,7 +134,11 @@ public class Validator {
             if (field.getField().equals(fieldName))
                 return field.getValue();
         }
-        return existingValue.toString();
+        
+        if (existingValue != null)
+            return existingValue.toString();
+        
+        return ""; //Nothing left to return.
     }
     
     public String repopulate(String fieldName)
