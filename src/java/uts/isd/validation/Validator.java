@@ -43,6 +43,11 @@ public class Validator {
             this.validatorFields.add(field);
     }
     
+    public void addField(ValidatorFieldRules field)
+    {
+        this.validatorFields.add(field);
+    }
+    
     /**
      * Load the validation fields values
      * into array from the previous page request.

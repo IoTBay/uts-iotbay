@@ -55,8 +55,34 @@
             
             <div class="col-md-8 order-md-1">
                 <div class="col-md-8 order-md-1">
+                    
+                  <h4 class="mb-3">User Details</h4>
+                <!-- User details form -->
+                <div class="row">
+                    <div class="col-md-4 mb-4">
+                      <label for="firstName">First Name</label>
+                      <input type="text" class="form-control" id="firstName" name="firstName" placeholder="John" value="<%= v.repopulate("firstName", customer.getFirstName()) %>" >
+                    </div>
+
+                    <div class="col-md-4 mb-4">
+                      <label for="lastName">Last Name</label>
+                      <input type="text" class="form-control" id="lastName" name="lastName" placeholder="Smith" value="<%= v.repopulate("lastName", customer.getLastName()) %>" >
+                    </div>
+
+                    <div class="col-md-4 mb-4">
+                      <label for="phone">Phone</label>
+                      <input type="text" class="form-control" id="phone" name="phone" placeholder="0499999999" value="<%= v.repopulate("phone", customer.getPhone()) %>" >
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                  <label for="email">Email</label>
+                  <input type="text" class="form-control" id="phone" name="phone" placeholder="some@one.com" value="<%= v.repopulate("email", customer.getEmail()) %>" >
+                </div>
+
+                <hr class="mb-4">
+                    
                   <h4 class="mb-3">Shipping Address</h4>
-                  <form class="needs-validation" novalidate>
                 <!-- Shipping address form -->
                 <div class="row">
                    <div class="col-md-12 mb-3">
@@ -125,9 +151,7 @@
                 </div>
                 <hr class="mb-4">
                 
-                <!-- Billing Address -->
                 <h4 class="mb-3">Billing Address</h4>
-                <form class="needs-validation" novalidate>
                 <!-- Billing address form -->
                 <div class="row">
                    <div class="col-md-12 mb-3">
