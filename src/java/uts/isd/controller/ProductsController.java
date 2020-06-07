@@ -173,12 +173,11 @@ public class ProductsController extends HttpServlet {
                //product.add(dbProduct);
 
                boolean added = product.add(dbProduct, customer); 
-               DBAuditLogs dbAuditLogs = new DBAuditLogs();
         
                if(added)
                {   
                    flash.add(Flash.MessageType.Success, "New product "+product.getName()+" added successfully");
-                   dbAuditLogs.addEntry(DBAuditLogs.Entity.Products, "Added", "Added product ", customer.getId());
+                   DBAuditLogs.addEntry(DBAuditLogs.Entity.Products, "Added", "Added product ", customer.getId());
                }
                else
                    flash.add(Flash.MessageType.Error, "Failed to add new product: "+product.getName());
@@ -293,14 +292,11 @@ public class ProductsController extends HttpServlet {
             //Now load the submitted form fields into the address object
             //over the top of the DB data.
             product.loadRequest(request);
-            
-            // Audit logs object - record successful Update
-            DBAuditLogs dbAuditLogs = new DBAuditLogs();
 
             //Run update
             if (dbProduct.updateProduct(product, customer))
             {
-                dbAuditLogs.addEntry(DBAuditLogs.Entity.Products, "Updated", "Updated product", customer.getId());
+                DBAuditLogs.addEntry(DBAuditLogs.Entity.Products, "Updated", "Updated product", customer.getId());
                 flash.add(Flash.MessageType.Success, "Existing product updated successfully");
                 response.sendRedirect(URL.Absolute("product/update/" +product.getId(), request));
                 return;
@@ -465,14 +461,11 @@ public class ProductsController extends HttpServlet {
             //so we have a fully populated oobject and don't risk losing data.
             int productId = Integer.parseInt(productStr);
             
-            // Audit logs object - record successful deletion
-            DBAuditLogs dbAuditLogs = new DBAuditLogs();
-            
             //Run update instead of add
              if (dbProduct.deleteProductById(productId))
             {
                 
-                dbAuditLogs.addEntry(DBAuditLogs.Entity.Products, "Deleted", "Deleted product ", customer.getId());
+                DBAuditLogs.addEntry(DBAuditLogs.Entity.Products, "Deleted", "Deleted product ", customer.getId());
                 flash.add(Flash.MessageType.Success, "Product deleted successfully");
                 response.sendRedirect(URL.Absolute("product/list", request));
                 
