@@ -138,12 +138,13 @@ public class OrdersController extends HttpServlet {
             //Get order and pass it to request for JSP
             IOrder dbOrder = new DBOrder();
             IProduct dbProduct = new DBProduct();
+            ICurrency dbCurrency = new DBCurrency();
             
             Customer customer = getCustomerForOrder(request.getSession());
 
             Order o = dbOrder.getCartOrderByCustomer(customer);
             o.setOrderLines(dbOrder.getOrderLines(o.getId()));
-            //o.setCurrency(dbCurrency.getCurrencyById(o.getCurrencyId()));
+            o.setCurrency(dbCurrency.getCurrencyById(o.getCurrencyId()));
             
             for (OrderLine line : o.getOrderLines())
                 line.setProduct(dbProduct.getProductById(line.getProductId()));
