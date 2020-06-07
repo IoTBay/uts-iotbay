@@ -173,7 +173,10 @@ public class DBUser implements IUser {
             //Using SQL prepared statements: https://stackoverflow.com/questions/3451269/parameterized-oracle-sql-query-in-java
             //this protects against SQL Injection attacks. Each parameter must have a ? in the query, and a corresponding parameter
             //set.
-            PreparedStatement p = this.conn.prepareStatement("INSERT  INTO APP.Users (CustomerID, Email, Password, AccessLevel, Biography, BirthDate, Gender, CreatedDate, CreatedBy) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            PreparedStatement p = this.conn.prepareStatement("INSERT  INTO APP.Users (CustomerID, Email, Password, AccessLevel, Biography, BirthDate, Gender, CreatedDate, CreatedBy) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                    //Added this to return the primary key of this new record
+                    //https://db.apache.org/derby/docs/10.2/ref/crefjavstateautogen.html
+                    Statement.RETURN_GENERATED_KEYS);
             p.setInt(1, u.getCustomerId());
             p.setString(2, u.getEmail());
             p.setString(3, u.getPassword());
@@ -185,7 +188,19 @@ public class DBUser implements IUser {
             p.setInt(9, customer.getId());
             
             //Was insert successful?
-            return (p.executeUpdate() > 0);
+            boolean added = (p.executeUpdate() > 0);
+            
+            //Now that customer is added, try and get the last inserted record ID.
+            ResultSet rs = p.getGeneratedKeys();
+            int id = -1;
+            if(rs.next())
+                id = rs.getInt(1);
+            
+            //https://stackoverflow.com/questions/35670858/rs-getgeneratedkeys-not-working-in-derby
+            //This should set the new record's ID field on the passed in object
+            u.setId(id);
+            
+            return added;
         }
         catch (Exception e)
         {
