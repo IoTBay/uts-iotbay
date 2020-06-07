@@ -178,7 +178,7 @@ public class ProductsController extends HttpServlet {
                if(added)
                {   
                    flash.add(Flash.MessageType.Success, "New product "+product.getName()+" added successfully");
-                   dbAuditLogs.addEntry(DBAuditLogs.Entity.Products, "Added", "Added product ", product.getId());
+                   dbAuditLogs.addEntry(DBAuditLogs.Entity.Products, "Added", "Added product ", customer.getId());
                }
                else
                    flash.add(Flash.MessageType.Error, "Failed to add new product: "+product.getName());
@@ -300,7 +300,7 @@ public class ProductsController extends HttpServlet {
             //Run update
             if (dbProduct.updateProduct(product, customer))
             {
-                dbAuditLogs.addEntry(DBAuditLogs.Entity.Products, "Updated", "Updated product", Integer.parseInt(productStr));
+                dbAuditLogs.addEntry(DBAuditLogs.Entity.Products, "Updated", "Updated product", customer.getId());
                 flash.add(Flash.MessageType.Success, "Existing product updated successfully");
                 response.sendRedirect(URL.Absolute("product/update/" +product.getId(), request));
                 return;
@@ -472,7 +472,7 @@ public class ProductsController extends HttpServlet {
              if (dbProduct.deleteProductById(productId))
             {
                 
-                dbAuditLogs.addEntry(DBAuditLogs.Entity.Products, "Deleted", "Deleted product ", Integer.parseInt(productStr));
+                dbAuditLogs.addEntry(DBAuditLogs.Entity.Products, "Deleted", "Deleted product ", customer.getId());
                 flash.add(Flash.MessageType.Success, "Product deleted successfully");
                 response.sendRedirect(URL.Absolute("product/list", request));
                 
