@@ -8,10 +8,9 @@
     User user = (User)session.getAttribute("user");
     Customer customer = (Customer)session.getAttribute("customer");
     Order order = (Order)session.getAttribute("order");
-    List<Product> products = (List<Product>)session.getAttribute("products");
     
-    int totalQuantity = (order == null || products == null ? 0 : order.getTotalQuantity());
-    String totalCost = (order == null || products == null ? "$0.00" : order.getTotalCostFormatted());
+    int totalQuantity = (order == null ? 0 : order.getTotalQuantity());
+    String totalCost = (order == null ? "$0.00" : order.getTotalCostFormatted());
     boolean isLoggedIn = (user != null && customer != null);
 %>
 <head>
@@ -24,6 +23,7 @@
     <!-- Bootstrap core CSS -->
     <link rel="stylesheet" href="<%= URL.Absolute("css/bootstrap.min.css", request) %>">
     <link rel="stylesheet" href="<%= URL.Absolute("css/style.css", request) %>">
+    <script src="<%= URL.Absolute("js/jquery-3.4.1.slim.min.js", request) %>"></script>
     <meta name="theme-color" content="#563d7c">
   </head>
   <body>
@@ -52,11 +52,10 @@
             <a class="nav-link" href="#" id="dropdown-admin" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Staff</a>
             <div class="dropdown-menu" aria-labelledby="dropdown-cart">                
                 <a class="dropdown-item" href="<%= URL.Absolute("staff/categories", request) %>">Categories</a>
-                <a class="dropdown-item" href="<%= URL.Absolute("staff/products", request) %>">Products</a>
+                <a class="dropdown-item" href="<%= URL.Absolute("product/list", request) %>">Products</a>
                 <a class="dropdown-item" href="<%= URL.Absolute("staff/users", request) %>">Users</a>
                 <a class="dropdown-item" href="<%= URL.Absolute("staff/orders", request) %>">Orders</a>
                 <a class="dropdown-item" href="<%= URL.Absolute("staff/logs", request) %>">Access Logs</a>
-                <a class="dropdown-item" href="<%= URL.Absolute("staff/currencies", request) %>">Currencies</a>
             </div>
         </div>
       </li>
@@ -108,8 +107,9 @@
                 <%
                 for (int i = 0; i < order.getLineCount(); i++) {
                     OrderLine line = order.getOrderLines().get(i);
+                    String productName = (line.getProduct() == null ? "" : line.getProduct().getName());
                 %>
-                <a class="dropdown-item" href="#"><%= line.getQuantity() %>x <%= products.get(line.getProductId() - 1).getName() %>: <%= line.getPriceFormatted() %></a>
+                <a class="dropdown-item" href="#"><%= line.getQuantity() %>x <%= productName %>: <%= line.getPriceFormatted() %></a>
                 <% } //End of for %>
                 <hr>
                 <div class="dropdown-item">

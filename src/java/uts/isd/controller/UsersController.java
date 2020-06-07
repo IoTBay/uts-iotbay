@@ -198,34 +198,21 @@ public class UsersController extends HttpServlet {
                 DBAuditLogs.addEntry(DBAuditLogs.Entity.Users, "LoggedIn", user.getEmail()+" has logged in.", customer.getId());
                 //Setup flash messages
                 flash.add(Flash.MessageType.Success, "You logged in successfully. Welcome back!");
+                
+                //Instead of mocking, load the real order for this user.
+                //This is because when a user logs in, their customer object changes.
+                IOrder dbOrder = new DBOrder();
+                IProduct dbProduct = new DBProduct();
+                ICurrency dbCurrency = new DBCurrency();
+                
+                Order o = dbOrder.getCartOrderByCustomer(customer);
+                o.setOrderLines(dbOrder.getOrderLines(o.getId()));
+                o.setCurrency(dbCurrency.getCurrencyById(o.getCurrencyId()));
 
-                //For now mock everything else till they are implemented.
+                for (OrderLine line : o.getOrderLines())
+                    line.setProduct(dbProduct.getProductById(line.getProductId()));
 
-                //Load order
-                Order order = new Order();
-                order.setId(1);
-                order.setCustomerId(1);
-                order.setBillingAddressId(1);
-                order.setShippingAddressId(1);
-                order.setPaymentMethodId(1);
-                order.setUserId(1);
-
-                OrderLine line = new OrderLine();
-                line.setId(1);
-                line.setOrderId(1);
-                line.setProductId(1);
-                line.setQuantity(3);
-                line.setUnitPrice(12.50);
-                order.addOrderLine(line);
-
-                OrderLine line2 = new OrderLine();
-                line2.setId(2);
-                line2.setOrderId(1);
-                line2.setProductId(2);
-                line2.setQuantity(2);
-                line2.setUnitPrice(52.75);
-                order.addOrderLine(line2);
-                session.setAttribute("order", order);
+                request.getSession().setAttribute("order", o);
                 
                 //Now load index.jsp
                 Logging.logMessage("Logged in OK. RequestDispatcher to index.jsp");
@@ -260,8 +247,9 @@ public class UsersController extends HttpServlet {
                 new ValidatorFieldRules("First Name", "firstName", "required"),
                 new ValidatorFieldRules("Last Name", "lastName", "required"),
                 new ValidatorFieldRules("Phone", "phone", "required|longerthan[9]|shorterthan[11]"),
-                new ValidatorFieldRules("Email", "email", "required|trim|email"), 
+                new ValidatorFieldRules("Email", "email", "required|trim|email"),
                 new ValidatorFieldRules("Password", "password", "required|longerthan[2]"),
+                new ValidatorFieldRules("Birth Date", "birthDate", "required|date"),
             });
             
             if (!validator.validate(request))
@@ -316,7 +304,7 @@ public class UsersController extends HttpServlet {
                 user.setCustomerId(customer.getId()); //Link the new user to the customer we just created above.
                 //Add user to DB
                 user.loadRequest(request);
-                
+
                 if(request.getParameter("staffcode") != null && request.getParameter("staffcode").equals(User.STAFF_CODE))  
                 { 
                     user.setAccessLevel(10);
@@ -331,6 +319,7 @@ public class UsersController extends HttpServlet {
 
                 if (added)
                 {
+                    DBAuditLogs.addEntry(DBAuditLogs.Entity.Users, "Added", "Added user", customer.getId());
                     flash.add(Flash.MessageType.Success, "New user "+user.getEmail()+" added successfully!");
                 }
                 else
@@ -418,7 +407,7 @@ public class UsersController extends HttpServlet {
                 new ValidatorFieldRules("First Name", "firstName", "required"),
                 new ValidatorFieldRules("Last Name", "lastName", "required"),
                 new ValidatorFieldRules("Phone", "phone", "required|longerthan[9]|shorterthan[11]"),
-                new ValidatorFieldRules("Email", "email", "required|trim|email") 
+                new ValidatorFieldRules("Email", "email", "required|trim|email")
             });
             
         if (!validator.validate(request))
@@ -461,6 +450,7 @@ public class UsersController extends HttpServlet {
                 Logging.logMessage("Updated profile");
 
                 if (updated){
+                    DBAuditLogs.addEntry(DBAuditLogs.Entity.Users, "Updated", "Updated user", customer.getId());
                     flash.add(Flash.MessageType.Success, "Your profile was updated successfully!");}
                 else{
                     flash.add(Flash.MessageType.Error, "Failed to update your profile");}
@@ -552,6 +542,7 @@ public class UsersController extends HttpServlet {
                 Logging.logMessage("Updated profile");
 
                 if (updated){
+                    DBAuditLogs.addEntry(DBAuditLogs.Entity.Users, "Canceled", "Cancelled user", customer.getId());
                     flash.add(Flash.MessageType.Success, "Your profile was cancelled successfully!");
                     session.setAttribute("userCancelled" , true);
                     }

@@ -5,6 +5,7 @@
  */
 package uts.isd.model;
 
+import java.io.Serializable;
 import java.util.Date;
 import javax.servlet.ServletRequest;
 
@@ -13,7 +14,7 @@ import javax.servlet.ServletRequest;
  * @author Rhys Hanrahan 11000801
  * @since 2020-05-16
  */
-public class ProductReview {
+public class ProductReview implements Serializable {
     private int id;
     private int customerId;
     private String text;
@@ -24,7 +25,14 @@ public class ProductReview {
     private Date modifiedDate;
     private int modifiedBy;
     
-    public ProductReview() { }
+    public ProductReview() {
+    
+        this.createdDate = new Date();
+        this.modifiedDate = new Date();
+        this.createdBy = 0;
+        this.modifiedBy = 0;
+        
+    }
     
     /**
      * This method populates this instance's properties based on form inputs.

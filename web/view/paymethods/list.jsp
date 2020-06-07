@@ -17,6 +17,8 @@
     <h5>You have no payment methods</h5>
     <a href="<%= URL.Absolute("paymethods/add", request) %>" class="btn btn-primary">Add a payment method</a>
     <% } else { %>
+        <a href="<%= URL.Absolute("paymethods/add", request) %>" class="btn btn-primary">Add a payment method</a>
+        <hr>
         <table class="table table-striped">
           <thead>
             <tr>
@@ -25,6 +27,7 @@
               <th scope="col">Type</th>
               <th scope="col">Name</th>
               <th scope="col">Number</th>
+              <th scope="col">Expiry</th>
               <th scope="col">CVV</th>
             </tr>
           </thead>
@@ -37,9 +40,10 @@
                   <a href="<%= URL.Absolute("paymethods/delete/"+method.getId(), request) %>" class="btn btn-danger">Delete</a>
               </th>
               <td><%= (method.getDefaultPayment() ? "Yes" : "No") %></td>
-              <td><%= method.getPaymentType() %></td>
+              <td><%= PaymentMethod.PAYMENT_TYPES[method.getPaymentType()] %></td>
               <td><%= method.getCardName() %></td>
               <td><%= method.getCardNumber() %></td>
+              <td><%= method.getCardExpiry() %></td>
               <td><%= method.getCardCVV() %></td>
             </tr>
             <% } %>

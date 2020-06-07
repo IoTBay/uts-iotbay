@@ -211,9 +211,9 @@ public class AddressesController extends HttpServlet {
         try
         {
             User user = (User)request.getSession().getAttribute("user");
-            if (user == null || !user.isAdmin())
+            if (user == null)
             {
-                flash.add(Flash.MessageType.Error, "Access denied");
+                flash.add(Flash.MessageType.Error, "You are not logged in");
                 URL.GoBack(request, response);
                 return;
             }
@@ -277,7 +277,7 @@ public class AddressesController extends HttpServlet {
                 
             case "delete":
                 //Segments[2] is the ID to delete in /addresses/delete/x
-                doDeleteAddressGet(request, response, (segments.length == 3 ? segments[2] : ""));
+                doDeleteAddressPost(request, response, (segments.length == 3 ? segments[2] : ""));
                 break;
                 
         }
@@ -303,7 +303,7 @@ public class AddressesController extends HttpServlet {
 
             Validator validator = new Validator(new ValidatorFieldRules[] {
                  new ValidatorFieldRules("Address 2", "addressPrefix1", "trim"),
-                 new ValidatorFieldRules("Street Number", "streetNumber", "required|shorterthan[11]"), 
+                 new ValidatorFieldRules("Street Number", "streetNumber", "required|integer|shorterthan[11]"), 
                  new ValidatorFieldRules("Street Name", "streetName", "required|shorterthan[61]"),
                  new ValidatorFieldRules("Street Type", "streetType", "required|shorterthan[21]"),
                  new ValidatorFieldRules("Suburb", "suburb", "required|shorterthan[61]"),
@@ -374,7 +374,7 @@ public class AddressesController extends HttpServlet {
 
             Validator validator = new Validator(new ValidatorFieldRules[] {
                  new ValidatorFieldRules("Address 2", "addressPrefix1", "trim"),
-                 new ValidatorFieldRules("Street Number", "streetNumber", "required|shorterthan[11]"), 
+                 new ValidatorFieldRules("Street Number", "streetNumber", "required|integer|shorterthan[11]"), 
                  new ValidatorFieldRules("Street Name", "streetName", "required|shorterthan[61]"),
                  new ValidatorFieldRules("Street Type", "streetType", "required|shorterthan[21]"),
                  new ValidatorFieldRules("Suburb", "suburb", "required|shorterthan[61]"),
@@ -454,9 +454,9 @@ public class AddressesController extends HttpServlet {
         
         try
         {
-            if (!isLoggedIn || !user.isAdmin())
+            if (!isLoggedIn)
             {
-                flash.add(Flash.MessageType.Error, "Access denied");
+                flash.add(Flash.MessageType.Error, "You are not logged in");
                 URL.GoBack(request, response);
                 return;
             }

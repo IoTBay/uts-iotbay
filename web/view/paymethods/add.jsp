@@ -37,6 +37,11 @@
             </div>
         </div>
         <div class="row">
+            <div class="col-md-2 mb-3">
+              <label for="cardExpiry">Expiry</label>
+              <input type="text" class="form-control" id="cardExpiry" name="cardExpiry" placeholder="MMYY" value="<%= v.repopulate("cardExpiry") %>">
+            </div>
+            
            <div class="col-md-4 mb-3">
             <label for="paymentType">Type</label>
             <select class="custom-select d-block w-100" id="paymentType" name="paymentType" value="<%= v.repopulate("paymentType") %>">

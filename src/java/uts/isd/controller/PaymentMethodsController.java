@@ -212,9 +212,9 @@ public class PaymentMethodsController extends HttpServlet {
         try
         {
             User user = (User)request.getSession().getAttribute("user");
-            if (user == null || !user.isAdmin())
+            if (user == null)
             {
-                flash.add(Flash.MessageType.Error, "Access denied");
+                flash.add(Flash.MessageType.Error, "You are not logged in");
                 URL.GoBack(request, response);
                 return;
             }
@@ -278,7 +278,7 @@ public class PaymentMethodsController extends HttpServlet {
                 
             case "delete":
                 //Segments[2] is the ID to delete in /paymethods/delete/x
-                doDeletePaymentMethodGet(request, response, (segments.length == 3 ? segments[2] : ""));
+                doDeletePaymentMethodPost(request, response, (segments.length == 3 ? segments[2] : ""));
                 break;
                 
         }
@@ -306,8 +306,9 @@ public class PaymentMethodsController extends HttpServlet {
                  new ValidatorFieldRules("Default Payment", "defaultPayment", "trim"),
                  new ValidatorFieldRules("Payment Type", "paymentType", "required|integer"), 
                  new ValidatorFieldRules("Card Name", "cardName", "required"),
-                 new ValidatorFieldRules("Card Number", "cardNumber", "required|integer"),
-                 new ValidatorFieldRules("Card CVV", "cardCVV", "required|integer")
+                 new ValidatorFieldRules("Card Number", "cardNumber", "required|integer|longerthan[7]|shorterthan[20]"),
+                 new ValidatorFieldRules("Card CVV", "cardCVV", "required|integer|longerthan[2]|shorterthan[4]"),
+                 new ValidatorFieldRules("Card Expiry", "cardExpiry", "required|integer|shorterthan[5]|longerthan[3]")
             });
 
             if (!validator.validate(request))
@@ -372,8 +373,9 @@ public class PaymentMethodsController extends HttpServlet {
                  new ValidatorFieldRules("Default Payment", "defaultPayment", "trim"),
                  new ValidatorFieldRules("Payment Type", "paymentType", "required|integer"), 
                  new ValidatorFieldRules("Card Name", "cardName", "required"),
-                 new ValidatorFieldRules("Card Number", "cardNumber", "required|integer"),
-                 new ValidatorFieldRules("Card CVV", "cardCVV", "required|integer")
+                 new ValidatorFieldRules("Card Number", "cardNumber", "required|integer|longerthan[7]|shorterthan[20]"),
+                 new ValidatorFieldRules("Card CVV", "cardCVV", "required|integer|longerthan[2]|shorterthan[4]"),
+                 new ValidatorFieldRules("Card Expiry", "cardExpiry", "required|integer|shorterthan[5]|longerthan[3]")
             });
 
             if (!validator.validate(request))
@@ -444,9 +446,9 @@ public class PaymentMethodsController extends HttpServlet {
         
         try
         {
-            if (!isLoggedIn || !user.isAdmin())
+            if (!isLoggedIn)
             {
-                flash.add(Flash.MessageType.Error, "Access denied");
+                flash.add(Flash.MessageType.Error, "You are not logged in");
                 URL.GoBack(request, response);
                 return;
             }

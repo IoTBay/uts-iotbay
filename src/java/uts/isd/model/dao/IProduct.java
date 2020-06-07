@@ -6,6 +6,7 @@
 package uts.isd.model.dao;
 import java.util.List;
 import javax.servlet.ServletRequest;
+import uts.isd.model.Customer;
 import uts.isd.model.Product;
 import uts.isd.model.User;
 
@@ -20,11 +21,11 @@ public interface IProduct {
      * Returns a single Product based on its ID
      * @param id The Product's primary key ID.
      * @return Product object containing the product record.
-     */
-
+     */    
+    public Product getProductById(int id);
+    
     public Product authenticateProduct(String name);
     
-    public Product getProductById(int id);
     /**
      * Returns a single product based on unique id
      * @param email The user's unique email address.???
@@ -33,11 +34,20 @@ public interface IProduct {
     public Product getProductByName(String name);
     
     /**
-     * Returns all users in the users table
+     * Returns all products in the products table
      * 
-     * @return List of all users
+     * @return List of all products
      */
     public List<Product> getAllProducts();
+    
+    
+    /**
+     * Returns all products belonging to a particular category.
+     * 
+     * @param categoryId The categoryID primary key to get products for.
+     * @return List of product objects
+     */
+    public List<Product> getProductsByCategoryId(int categoryId);
     
     /* Update queries */
     
@@ -45,17 +55,19 @@ public interface IProduct {
      * Updates a user in the database based on the passed in User model object.
      * 
      * @param u The user object to take updated values from.
+     * @param customer The user making the change
      * @return Returns true if user was updated, or false if no updates were performed.
      */
-    public boolean updateProduct(Product pr);
+    public boolean updateProduct(Product pr, Customer customer);
     
     /**
      * Adds a user in the database based on the passed in User model object.
      *
      * @param u The user object to insert values from
+     * @param customer The user making the change
      * @return Returns true if user was added, or false if no insert was performed.
      */
-    public boolean addProduct(Product pr);
+    public boolean addProduct(Product pr, Customer customer);
     
     /* Delete queries */
 

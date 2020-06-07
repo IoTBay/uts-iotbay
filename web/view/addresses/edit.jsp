@@ -51,10 +51,10 @@
           </div>
           <div class="col-md-4 mb-3">
             <label for="state">State</label>
-            <select class="custom-select d-block w-100" id="state" name="state" value="<%= v.repopulate("state", address.getState()) %>">
+            <select class="custom-select d-block w-100" id="state" name="state">
               <option value="">Choose...</option>
               <% for (String state : Address.STATES) { %>
-              <option value="<%= state %>"><%= state %></option>
+              <option value="<%= state %>" <%= (v.repopulate("state", address.getState()).equals(state) ? "selected=\"selected\"" : "") %>><%= state %></option>
               <% } %>
             </select>
           </div>
@@ -67,10 +67,10 @@
         <div class="row">
            <div class="col-md-5 mb-3">
             <label for="country">Country</label>
-            <select class="custom-select d-block w-100" id="country" name="country" value="<%= v.repopulate("country", address.getCountry()) %>">
+            <select class="custom-select d-block w-100" id="country" name="country">
               <option value="">Choose...</option>
               <% for (String country : Address.COUNTRIES) { %>
-              <option value="<%= country %>"><%= country %></option>
+              <option value="<%= country %>" <%= (v.repopulate("country", address.getCountry()).equals(country) ? "selected=\"selected\"" : "") %>><%= country %></option>
               <% } %>
             </select>
           </div>
@@ -78,11 +78,11 @@
           
         <hr class="mb-4">
         <div class="custom-control custom-checkbox">
-          <input type="checkbox" class="custom-control-input" id="defaultShippingAddress" name="default_shipping_address" value="<%= v.repopulate("defaultShippingAddress", address.getDefaultShippingAddress()) %>">
+            <input type="checkbox" class="custom-control-input" id="defaultShippingAddress" name="defaultShippingAddress" value="1" <%= (v.repopulate("defaultShippingAddress", address.getDefaultShippingAddress()).equals("1") ? "checked=\"checked\"" : "") %>>
           <label class="custom-control-label" for="defaultShippingAddress">Use this as my default shipping address</label>
         </div>
         <div class="custom-control custom-checkbox">
-          <input type="checkbox" class="custom-control-input" id="defaultBillingAddress" name="defaultBillingAddress" value="<%= v.repopulate("defaultBillingAddress", address.getDefaultBillingAddress()) %>">
+            <input type="checkbox" class="custom-control-input" id="defaultBillingAddress" name="defaultBillingAddress" value="1" <%= (v.repopulate("defaultBillingAddress", address.getDefaultBillingAddress()).equals("1") ? "checked=\"checked\"" : "") %>>
           <label class="custom-control-label" for="defaultBillingAddress">Use this as my default billing address</label>
         </div>
         <hr class="mb-4">

@@ -44,7 +44,14 @@ public class User implements Serializable {
     //Use this code to allow users to register as a staff member.
     public static final String STAFF_CODE = "Escalate";
     
-    public User() {  }
+    public User() { 
+    
+        this.createdDate = new Date();
+        this.modifiedDate = new Date();
+        this.createdBy = 0;
+        this.modifiedBy = 0;
+    
+    }
     
     /**
      * This constructor takes an SQL ResultSet and grabs the values from the DB Record
@@ -67,9 +74,9 @@ public class User implements Serializable {
             this.biography = rs.getString("Biography");
             //this.passwordResetHash = rs.getString("PasswordResetHash");
             
-            this.createdDate = rs.getDate("CreatedDate");
+            this.createdDate = rs.getTimestamp("CreatedDate");
             this.createdBy = rs.getInt("CreatedBy");
-            this.modifiedDate = rs.getDate("ModifiedDate");
+            this.modifiedDate = rs.getTimestamp("ModifiedDate");
             this.modifiedBy = rs.getInt("ModifiedBy");
         }
         catch (Exception e)
@@ -112,11 +119,6 @@ public class User implements Serializable {
         }
         
         this.sex = Integer.parseInt(request.getParameter("sex"));
-
-        this.createdDate = new Date();
-        this.modifiedDate = new Date();
-        this.createdBy = 0;
-        this.modifiedBy = 0;
     }
 
     public boolean add(IUser db, Customer customer)
@@ -286,11 +288,29 @@ public class User implements Serializable {
         return this.modifiedDate;
     }
     
-    public int getCreatedBy() {
-        return this.createdBy;
+    public Customer getCreatedBy() {
+        try
+        {
+            ICustomer dbCustomer = new DBCustomer();
+            Customer c = dbCustomer.getCustomerById(this.createdBy);
+            return c;
+        }
+        catch (Exception e)
+        {
+            return new Customer();
+        }
     }
     
-    public int getModifiedBy() {
-        return this.modifiedBy;
+    public Customer getModifiedBy() {
+        try
+        {
+            ICustomer dbCustomer = new DBCustomer();
+            Customer c = dbCustomer.getCustomerById(this.modifiedBy);
+            return c;
+        }
+        catch (Exception e)
+        {
+            return new Customer();
+        }
     }
 }

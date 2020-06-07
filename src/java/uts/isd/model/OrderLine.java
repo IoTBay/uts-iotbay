@@ -5,8 +5,12 @@
  */
 package uts.isd.model;
 
+import java.io.Serializable;
 import java.sql.ResultSet;
+import java.util.Date;
 import javax.servlet.ServletRequest;
+import uts.isd.model.dao.DBCustomer;
+import uts.isd.model.dao.ICustomer;
 import uts.isd.util.Logging;
 
 /**
@@ -15,7 +19,7 @@ import uts.isd.util.Logging;
  * @author Rhys Hanrahan 11000801
  * @since 2020-05-16
  */
-public class OrderLine {
+public class OrderLine implements Serializable {
     
     private int id;
     private int orderId;
@@ -24,7 +28,18 @@ public class OrderLine {
     private int quantity;
     private double unitPrice;
     
+    private Date createdDate;
+    private int createdBy;
+    private Date modifiedDate;
+    private int modifiedBy;
+    
     public OrderLine() {
+        
+        this.createdDate = new Date();
+        this.modifiedDate = new Date();
+        this.createdBy = 0;
+        this.modifiedBy = 0;
+        
     }
 
     /**
@@ -41,30 +56,16 @@ public class OrderLine {
             this.productId = rs.getInt("ProductID");
             this.quantity = rs.getInt("Quantity");
             this.unitPrice = rs.getDouble("UnitPrice");
+            
+            this.createdDate = rs.getTimestamp("CreatedDate");
+            this.createdBy = rs.getInt("CreatedBy");
+            this.modifiedDate = rs.getTimestamp("ModifiedDate");
+            this.modifiedBy = rs.getInt("ModifiedBy");
         }
         catch (Exception e)
         {
             Logging.logMessage("Unable to load OrderLine from ResultSet", e);
         }
-    }
-    
-    /**
-     * This method populates this instance's properties based on form inputs.
-     * 
-     * @param request The controller's HTTPServlet POST request properties.
-     * @return boolean - Returns true if adding the properties was successful. Otherwise false.
-     */
-    public boolean addOrderLine(ServletRequest request)
-    {
-        if (request.getParameter("id") != null)
-            this.id = Integer.parseInt(request.getParameter("id"));
-        
-        this.orderId = Integer.parseInt(request.getParameter("orderId"));
-        this.productId = Integer.parseInt(request.getParameter("productId"));
-        this.quantity = Integer.parseInt(request.getParameter("quantity"));
-        this.unitPrice = Integer.parseInt(request.getParameter("unitPrice"));
-        
-        return true;
     }
 
     public int getId() {
@@ -120,7 +121,7 @@ public class OrderLine {
     }
     
     public double getPrice() {
-        return this.unitPrice * this.quantity;
+        return ((double)this.unitPrice * (double)this.quantity);
     }
    
     public String getPriceFormatted(String format) {
@@ -133,5 +134,39 @@ public class OrderLine {
 
     public void setUnitPrice(double unitPrice) {
         this.unitPrice = unitPrice;
+    }
+    
+    public Date getCreatedDate() {
+        return this.createdDate;
+    }
+    
+    public Date getModifiedDate() {
+        return this.modifiedDate;
+    }
+    
+    public Customer getCreatedBy() {
+        try
+        {
+            ICustomer dbCustomer = new DBCustomer();
+            Customer c = dbCustomer.getCustomerById(this.createdBy);
+            return c;
+        }
+        catch (Exception e)
+        {
+            return new Customer();
+        }
+    }
+    
+    public Customer getModifiedBy() {
+        try
+        {
+            ICustomer dbCustomer = new DBCustomer();
+            Customer c = dbCustomer.getCustomerById(this.modifiedBy);
+            return c;
+        }
+        catch (Exception e)
+        {
+            return new Customer();
+        }
     }
 }

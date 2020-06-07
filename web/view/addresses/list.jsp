@@ -17,6 +17,8 @@
     <h5>You have no addresses</h5>
     <a href="<%= URL.Absolute("addresses/add", request) %>" class="btn btn-primary">Add an address</a>
     <% } else { %>
+        <a href="<%= URL.Absolute("addresses/add", request) %>" class="btn btn-primary">Add an address</a>
+        <hr>
         <table class="table table-striped">
           <thead>
             <tr>
