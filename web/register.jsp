@@ -1,3 +1,4 @@
+<%@page import="uts.isd.validation.Validator"%>
 <%@page import="uts.isd.util.Flash"%>
 <%@page import="uts.isd.util.URL"%>
 <%@page import="uts.isd.model.*"%>
@@ -12,6 +13,7 @@
   boolean isLoggedIn = (user != null);
   
   Flash flash = Flash.getInstance(session);
+  Validator v = new Validator(session);
 %>
 
 <jsp:include page="header.jsp" />
@@ -86,14 +88,14 @@
                 <div class="col-md-6 mb-3">
                   <label for="dob_dd">Birth Date</label>
                   <div class="input-group">
-                    <input type="text" class="form-control col-md-2" id="dob_dd" name="dob_dd" placeholder="DD" value="" required>
+                      <input type="text" class="form-control col-md-2" id="dob_dd" name="dob_dd" placeholder="DD" value="<%= v.repopulate("dob_dd") %>">
                     <div class="input-group-append">
                       <div class="input-group-text">/</div>
-                      <input type="text" class="form-control col-md-2" id="dob_mm" name="dob_mm" placeholder="MM" required>
+                      <input type="text" class="form-control col-md-2" id="dob_mm" name="dob_mm" placeholder="MM" value="<%= v.repopulate("dob_mm") %>">
                       <div class="input-group-append">
                         <div class="input-group-text">/</div>
                       </div>
-                      <input type="text" class="form-control col-md-2" id="dob_yyyy" name="dob_yyyy" placeholder="YYYY" required>
+                      <input type="text" class="form-control col-md-2" id="dob_yyyy" name="dob_yyyy" placeholder="YYYY" value="<%= v.repopulate("dob_yyyy") %>">
                     </div>
                   </div>
                   <div class="invalid-feedback">
@@ -119,137 +121,6 @@
                 </div>
               </div>
             </div>
-        
-            
-
-        <!-- Shipping address form
-        <div class="row">
-            <div class="col-md-2 mb-3">
-              <label for="streetNumber">Number</label>
-              <input type="text" class="form-control" id="streetNumber" name="streetNumber" placeholder="1234" required>
-              <div class="invalid-feedback">
-                Please enter your shipping address street number.
-              </div>
-            </div>
-
-            <div class="col-md-4 mb-3">
-              <label for="streetName">Name</label>
-              <input type="text" class="form-control" id="streetName" name="streetName" placeholder="Main" required>
-              <div class="invalid-feedback">
-                Please enter your shipping address street name.
-              </div>
-            </div>
-
-            <div class="col-md-3 mb-3">
-              <label for="streetType">Type</label>
-              <input type="text" class="form-control" id="streetType" name="streetType" placeholder="Street" required>
-              <div class="invalid-feedback">
-                Please enter your shipping address street type.
-              </div>
-            </div>
-        </div>
-
-        <div class="mb-3">
-          <label for="addressPrefix1">Address 2 <span class="text-muted">(Optional)</span></label>
-          <input type="text" class="form-control" id="addressPrefix1" name="addressPrefix1" placeholder="Apartment or suite">
-        </div>
-
-        <div class="row">
-          <div class="col-md-5 mb-3">
-            <label for="country">Country</label>
-            <select class="custom-select d-block w-100" id="country" name="country" required>
-              <option value="">Choose...</option>
-              <option value="Australia">Australia</option>
-            </select>
-            <div class="invalid-feedback">
-              Please select a valid country.
-            </div>
-          </div>
-          <div class="col-md-4 mb-3">
-            <label for="state">State</label>
-            <select class="custom-select d-block w-100" id="state" name="state" required>
-              <option value="">Choose...</option>
-              <option value="New South Wales">New South Wales</option>
-            </select>
-            <div class="invalid-feedback">
-              Please provide a valid state.
-            </div>
-          </div>
-          <div class="col-md-3 mb-3">
-            <label for="postcode">Postcode</label>
-            <input type="text" class="form-control" id="postcode" name="postcode" placeholder="" required>
-            <div class="invalid-feedback">
-              Post code required.
-            </div>
-          </div>
-        </div>
-        -->
-          
-        <!--
-        Use this later
-        <hr class="mb-4">
-        <div class="custom-control custom-checkbox">
-          <input type="checkbox" class="custom-control-input" id="same-address">
-          <label class="custom-control-label" for="same-address">Shipping address is the same as my billing address</label>
-        </div>
-        <div class="custom-control custom-checkbox">
-          <input type="checkbox" class="custom-control-input" id="save-info">
-          <label class="custom-control-label" for="save-info">Save this information for next time</label>
-        </div>
-        <hr class="mb-4">
-        -->
-
-        <!-- Payment form
-        <h4 class="mb-3">Payment</h4>
-
-        <div class="d-block my-3">
-          <div class="custom-control custom-radio">
-            <input id="credit" name="paymentMethod" type="radio" class="custom-control-input" checked required>
-            <label class="custom-control-label" for="credit">Credit card</label>
-          </div>
-          <div class="custom-control custom-radio">
-            <input id="debit" name="paymentMethod" type="radio" class="custom-control-input" required>
-            <label class="custom-control-label" for="debit">Debit card</label>
-          </div>
-          <div class="custom-control custom-radio">
-            <input id="paypal" name="paymentMethod" type="radio" class="custom-control-input" required>
-            <label class="custom-control-label" for="paypal">PayPal</label>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col-md-6 mb-3">
-            <label for="cc-name">Name on card</label>
-            <input type="text" class="form-control" id="cc-name" placeholder="" required>
-            <small class="text-muted">Full name as displayed on card</small>
-            <div class="invalid-feedback">
-              Name on card is required
-            </div>
-          </div>
-          <div class="col-md-6 mb-3">
-            <label for="cc-number">Credit card number</label>
-            <input type="text" class="form-control" id="cc-number" placeholder="" required>
-            <div class="invalid-feedback">
-              Credit card number is required
-            </div>
-          </div>
-        </div>
-        <div class="row">
-            <div class="col-md-3 mb-3">
-                <label for="cc-expiration">Expiration</label>
-                <input type="text" class="form-control" id="cc-expiration" placeholder="" required>
-                <div class="invalid-feedback">
-                  Expiration date required
-                </div>
-            </div>
-            <div class="col-md-3 mb-3">
-                <label for="cc-cvv">CVV</label>
-                <input type="text" class="form-control" id="cc-cvv" placeholder="" required>
-                <div class="invalid-feedback">
-                  Security code required
-                </div>
-            </div>
-        </div>
-        -->
         <hr class="mb-4">
         <button class="btn btn-primary btn-lg btn-block col-md-6" name="doRegister" value="doRegister" type="submit">Register</button>
     </form>
