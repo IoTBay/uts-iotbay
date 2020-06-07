@@ -212,9 +212,9 @@ public class PaymentMethodsController extends HttpServlet {
         try
         {
             User user = (User)request.getSession().getAttribute("user");
-            if (user == null || !user.isAdmin())
+            if (user == null)
             {
-                flash.add(Flash.MessageType.Error, "Access denied");
+                flash.add(Flash.MessageType.Error, "You are not logged in");
                 URL.GoBack(request, response);
                 return;
             }
@@ -278,7 +278,7 @@ public class PaymentMethodsController extends HttpServlet {
                 
             case "delete":
                 //Segments[2] is the ID to delete in /paymethods/delete/x
-                doDeletePaymentMethodGet(request, response, (segments.length == 3 ? segments[2] : ""));
+                doDeletePaymentMethodPost(request, response, (segments.length == 3 ? segments[2] : ""));
                 break;
                 
         }
@@ -444,9 +444,9 @@ public class PaymentMethodsController extends HttpServlet {
         
         try
         {
-            if (!isLoggedIn || !user.isAdmin())
+            if (!isLoggedIn)
             {
-                flash.add(Flash.MessageType.Error, "Access denied");
+                flash.add(Flash.MessageType.Error, "You are not logged in");
                 URL.GoBack(request, response);
                 return;
             }

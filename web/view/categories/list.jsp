@@ -17,6 +17,8 @@
     <h5>You have no categories</h5>
     <a href="<%= URL.Absolute("categories/add", request) %>" class="btn btn-primary">Add a category</a>
     <% } else { %>
+        <a href="<%= URL.Absolute("categories/add", request) %>" class="btn btn-primary">Add a category</a>
+        <hr>
         <table class="table table-striped">
           <thead>
             <tr>

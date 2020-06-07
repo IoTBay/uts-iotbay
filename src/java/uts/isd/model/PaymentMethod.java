@@ -89,7 +89,11 @@ public class PaymentMethod implements Serializable {
         if (request.getParameter("customerId") != null)
             this.customerId = Integer.parseInt(request.getParameter("customerId"));
         
-        this.defaultPayment = Boolean.parseBoolean(request.getParameter("productId"));
+        if (request.getParameter("defaultPayment") != null)
+            this.defaultPayment = true;
+        else
+            this.defaultPayment = false;
+        
         this.paymentType = Integer.parseInt(request.getParameter("paymentType"));
         this.cardName = request.getParameter("cardName");
         this.cardNumber = request.getParameter("cardNumber");

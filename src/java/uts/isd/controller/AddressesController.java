@@ -211,9 +211,9 @@ public class AddressesController extends HttpServlet {
         try
         {
             User user = (User)request.getSession().getAttribute("user");
-            if (user == null || !user.isAdmin())
+            if (user == null)
             {
-                flash.add(Flash.MessageType.Error, "Access denied");
+                flash.add(Flash.MessageType.Error, "You are not logged in");
                 URL.GoBack(request, response);
                 return;
             }
@@ -277,7 +277,7 @@ public class AddressesController extends HttpServlet {
                 
             case "delete":
                 //Segments[2] is the ID to delete in /addresses/delete/x
-                doDeleteAddressGet(request, response, (segments.length == 3 ? segments[2] : ""));
+                doDeleteAddressPost(request, response, (segments.length == 3 ? segments[2] : ""));
                 break;
                 
         }
@@ -454,9 +454,9 @@ public class AddressesController extends HttpServlet {
         
         try
         {
-            if (!isLoggedIn || !user.isAdmin())
+            if (!isLoggedIn)
             {
-                flash.add(Flash.MessageType.Error, "Access denied");
+                flash.add(Flash.MessageType.Error, "You are not logged in");
                 URL.GoBack(request, response);
                 return;
             }
