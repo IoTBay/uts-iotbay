@@ -23,6 +23,7 @@
     <!-- Bootstrap core CSS -->
     <link rel="stylesheet" href="<%= URL.Absolute("css/bootstrap.min.css", request) %>">
     <link rel="stylesheet" href="<%= URL.Absolute("css/style.css", request) %>">
+    <script src="<%= URL.Absolute("js/jquery-3.4.1.slim.min.js", request) %>"></script>
     <meta name="theme-color" content="#563d7c">
   </head>
   <body>
