@@ -80,6 +80,10 @@ public class OrdersController extends HttpServlet {
                 doCheckoutGet(request, response);
                 break;
                 
+            case "list":
+                doOrdersList(request, response);
+                break;
+                
         }
     }
     
@@ -151,6 +155,54 @@ public class OrdersController extends HttpServlet {
         catch (Exception e)
         {
             Logging.logMessage("Unable to doViewCartGet", e);
+        }
+    }
+    
+    /*
+     * Orders list
+     */
+    
+        protected void doOrdersList(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException 
+    {
+        try
+        {   
+            HttpSession session = request.getSession();
+            Flash flash = Flash.getInstance(session);
+            Customer customer = (Customer)session.getAttribute("customer");
+            User user = (User)session.getAttribute("user");
+            
+            if (customer == null || user == null)
+            {
+                flash.add(Flash.MessageType.Error, "You are not logged in");
+                URL.GoBack(request, response);
+                return;
+            }
+            
+            IOrder dbOrder = new DBOrder();
+            IAddress dbAddress = new DBAddress();
+            IPaymentMethod dbPaymethod = new DBPaymentMethod();
+            ICurrency dbCurrency = new DBCurrency();
+            
+            List<Order> orders = dbOrder.getOrdersByCustomerId(customer.getId());
+            for (Order o : orders)
+            {
+                o.setCurrency(dbCurrency.getCurrencyById(o.getCurrencyId()));
+                o.setBillingAddress(dbAddress.getAddressById(o.getBillingAddressId()));
+                o.setShippingAddress(dbAddress.getAddressById(o.getShippingAddressId()));
+                o.setPaymentMethod(dbPaymethod.getPaymentMethodById(o.getPaymentMethodId()));
+                o.setOrderLines(dbOrder.getOrderLines(o.getId()));
+            }
+            
+            request.setAttribute("orders", orders);
+            
+            RequestDispatcher requestDispatcher; 
+            requestDispatcher = request.getRequestDispatcher("/view/orders/list.jsp");
+            requestDispatcher.forward(request, response);
+        }
+        catch (Exception e)
+        {
+            
         }
     }
     

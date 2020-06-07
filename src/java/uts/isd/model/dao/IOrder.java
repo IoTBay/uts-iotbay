@@ -55,7 +55,7 @@ public interface IOrder {
      * @param customerId The order's related customer ID
      * @return  List of orders related to the customer.
      */
-    public Iterable<Order> getOrdersByCustomerId(int customerId);
+    public List<Order> getOrdersByCustomerId(int customerId);
     
     
     /**
@@ -63,7 +63,26 @@ public interface IOrder {
      * 
      * @return List of all orders
      */
-    public Iterable<Order> getAllOrders();
+    public List<Order> getAllOrders();
+        
+    /**
+     * Returns all orders that matches the date range.
+     * 
+     * @param start The start date
+     * @param end The end date
+     * @param customerId The customer primary key ID
+     * @return List of order objects
+     */
+    public List<Order> searchOrdersByDateForCustomerId(String start, String end, int customerId);
+    
+    /**
+     * Returns all orders that matches the date range.
+     * 
+     * @param start The start date
+     * @param end The end date
+     * @return List of order objects
+     */
+    public List<Order> searchOrdersByDate(String start, String end);
     
     /**
      * Returns a list of order lines based for the order
