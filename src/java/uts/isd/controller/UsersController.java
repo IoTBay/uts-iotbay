@@ -244,13 +244,15 @@ public class UsersController extends HttpServlet {
             throws ServletException, IOException {
         
         Validator validator = new Validator(new ValidatorFieldRules[] {
-                new ValidatorFieldRules("First Name", "firstName", "required"),
-                new ValidatorFieldRules("Last Name", "lastName", "required"),
-                new ValidatorFieldRules("Phone", "phone", "required|longerthan[9]|shorterthan[11]"),
-                new ValidatorFieldRules("Email", "email", "required|trim|email"),
-                new ValidatorFieldRules("Password", "password", "required|longerthan[2]"),
-                new ValidatorFieldRules("Birth Date", "birthDate", "required|date"),
-            });
+            new ValidatorFieldRules("First Name", "firstName", "required"),
+            new ValidatorFieldRules("Last Name", "lastName", "required"),
+            new ValidatorFieldRules("Phone", "phone", "required|longerthan[9]|shorterthan[11]"),
+            new ValidatorFieldRules("Email", "email", "required|trim|email"),
+            new ValidatorFieldRules("Password", "password", "required|longerthan[2]"),
+            new ValidatorFieldRules("Birth Day", "dob_dd", "required|integer|longerthan[1]|shorterthan[3]"),
+            new ValidatorFieldRules("Birth Month", "dob_mm", "required|integer|longerthan[1]|shorterthan[3]"),
+            new ValidatorFieldRules("Birth Year", "dob_yyyy", "required|integer|longerthan[3]|shorterthan[5]")
+        });
             
             if (!validator.validate(request))
             {
@@ -290,6 +292,7 @@ public class UsersController extends HttpServlet {
                 if (!validator.validate(request))
                 {
                     response.sendRedirect(request.getHeader("referer"));
+                    return;
                 }
               
                 //Create a connection to the DB for the customers table
@@ -332,33 +335,6 @@ public class UsersController extends HttpServlet {
                 //Store objects in session so we dont have to load from DB on every page.
                 session.setAttribute("customer", customer);
                 session.setAttribute("user", user);
-
-                //Load order
-                Order order = new Order();
-                order.setId(1);
-                order.setCustomerId(1);
-                order.setBillingAddressId(1);
-                order.setShippingAddressId(1);
-                order.setPaymentMethodId(1);
-                order.setUserId(1);
-
-                OrderLine line = new OrderLine();
-                line.setId(1);
-                line.setOrderId(1);
-                line.setProductId(1);
-                line.setQuantity(3);
-                line.setUnitPrice(12.50);
-                order.addOrderLine(line);
-
-                OrderLine line2 = new OrderLine();
-                line2.setId(2);
-                line2.setOrderId(1);
-                line2.setProductId(2);
-                line2.setQuantity(2);
-                line2.setUnitPrice(52.75);
-                order.addOrderLine(line2);
-                session.setAttribute("order", order);
-                
             }
             else
             {
