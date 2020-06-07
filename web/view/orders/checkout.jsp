@@ -79,7 +79,7 @@
 
                 <div class="mb-3">
                   <label for="email">Email</label>
-                  <input type="text" class="form-control" id="phone" name="phone" placeholder="some@one.com" value="<%= v.repopulate("email", customer.getEmail()) %>" >
+                  <input type="text" class="form-control" id="email" name="email" placeholder="some@one.com" value="<%= v.repopulate("email", customer.getEmail()) %>" >
                 </div>
 
                 <hr class="mb-4">
@@ -261,7 +261,7 @@
                     <div class="row">
                         <div class="col-md-3 mb-3">
                             <label for="cardExpiry">Expiration</label>
-                            <input type="text" class="form-control paymentField" id="cardExpiry" name="cardExpiry" placeholder="MMYY" value="<%= v.repopulate("cardExpiry") %>">
+                            <input type="text" class="form-control paymentField" id="cardExpiry" name="cardExpiry" placeholder="MMYY" value="<%= v.repopulate("cardExpiry", defaultPaymentMethod.getCardExpiry()) %>">
                         </div>
                         <div class="col-md-3 mb-3">
                             <label for="cardCVV">CVV</label>

@@ -32,7 +32,14 @@ public class Currency implements Serializable {
     private Date modifiedDate;
     private int modifiedBy;
     
-    public Currency() { }
+    public Currency() { 
+    
+        this.createdDate = new Date();
+        this.modifiedDate = new Date();
+        this.createdBy = 0;
+        this.modifiedBy = 0;
+        
+    }
     
     /**
      * This constructor takes an SQL ResultSet and grabs the values from the DB Record

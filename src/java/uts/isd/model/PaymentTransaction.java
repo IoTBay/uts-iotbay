@@ -34,7 +34,24 @@ public class PaymentTransaction implements Serializable {
     private Date modifiedDate;
     private int modifiedBy;
     
-    public PaymentTransaction() {}
+    public static final int PAYMENT_PENDING = 0;
+    public static final int PAYMENT_SUCCESSFUL = 1;
+    public static final int PAYMENT_FAILED = 2;
+    
+    public static final String[] PAYMENT_STATUS = {
+        "Pending",
+        "Successful",
+        "Failed"
+    };
+    
+    public PaymentTransaction() {
+    
+        this.createdDate = new Date();
+        this.modifiedDate = new Date();
+        this.createdBy = 0;
+        this.modifiedBy = 0;
+    
+    }
     
  /**
      * This constructor takes an SQL ResultSet and grabs the values from the DB Record
@@ -167,6 +184,32 @@ public class PaymentTransaction implements Serializable {
     public int getStatus() {
         return status;
     }
+
+    public void setCustomerId(int customerId) {
+        this.customerId = customerId;
+    }
+
+    public void setOrderId(int orderId) {
+        this.orderId = orderId;
+    }
+
+    public void setAmount(double amount) {
+        this.amount = amount;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public void setPaymentGatewayTransaction(String paymentGatewayTransaction) {
+        this.paymentGatewayTransaction = paymentGatewayTransaction;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
+    }
+    
+
 
     public Date getCreatedDate() {
         return createdDate;

@@ -30,6 +30,7 @@ public class PaymentMethod implements Serializable {
     private String cardName;
     private String cardNumber;
     private String cardCVV;
+    private String cardExpiry;
     
     private Date createdDate;
     private int createdBy;
@@ -42,6 +43,20 @@ public class PaymentMethod implements Serializable {
     public static final String[] PAYMENT_TYPES = { "None", "Credit Card" };
 
     public PaymentMethod() {
+        this.id = 0;
+        this.customerId = 0;
+        this.userId = 0;
+        this.defaultPayment = false;
+        this.paymentType = 1;
+        this.cardName = "";
+        this.cardNumber = "";
+        this.cardCVV = "";
+        this.cardExpiry = "";
+        
+        this.createdDate = new Date();
+        this.modifiedDate = new Date();
+        this.createdBy = 0;
+        this.modifiedBy = 0;
     }
     
  /**
@@ -61,6 +76,7 @@ public class PaymentMethod implements Serializable {
             this.cardName = rs.getString("CardName");
             this.cardNumber = rs.getString("CardNumber");
             this.cardCVV = rs.getString("CardCVV");
+            this.cardExpiry = rs.getString("CardExpiry");
             
             this.createdDate = rs.getTimestamp("CreatedDate");
             this.createdBy = rs.getInt("CreatedBy");
@@ -98,11 +114,7 @@ public class PaymentMethod implements Serializable {
         this.cardName = request.getParameter("cardName");
         this.cardNumber = request.getParameter("cardNumber");
         this.cardCVV = request.getParameter("cardCVV");
-
-        this.createdDate = new Date();
-        this.modifiedDate = new Date();
-        this.createdBy = 0;
-        this.modifiedBy = 0;        
+        this.cardExpiry = request.getParameter("cardExpiry");      
     }
     
     public boolean add(IPaymentMethod db, Customer customer)
@@ -225,6 +237,10 @@ public class PaymentMethod implements Serializable {
 
     public String getCardCVV() {
         return cardCVV;
+    }
+    
+    public String getCardExpiry() {
+        return cardExpiry;
     }
     
     public Date getCreatedDate() {

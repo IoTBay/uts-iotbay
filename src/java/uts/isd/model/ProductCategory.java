@@ -31,7 +31,14 @@ public class ProductCategory implements Serializable {
     private Date modifiedDate;
     private int modifiedBy;
 
-    public ProductCategory() { }
+    public ProductCategory() {
+    
+        this.createdDate = new Date();
+        this.modifiedDate = new Date();
+        this.createdBy = 0;
+        this.modifiedBy = 0;
+    
+    }
     
     /**
      * This constructor takes an SQL ResultSet and grabs the values from the DB Record
@@ -72,12 +79,6 @@ public class ProductCategory implements Serializable {
         this.name = request.getParameter("name");
         this.description = request.getParameter("description");
         this.image = request.getParameter("image");
-        
-        this.createdDate = new Date();
-        this.modifiedDate = new Date();
-        
-        this.createdBy = 0;
-        this.modifiedBy = 0;
     }
     
     public boolean add(ICategory db, Customer customer)

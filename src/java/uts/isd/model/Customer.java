@@ -38,6 +38,11 @@ public class Customer implements Serializable {
         this.firstName = "";
         this.lastName = "";
         this.phone = "";
+        
+        this.createdDate = new Date();
+        this.modifiedDate = new Date();
+        this.createdBy = 0;
+        this.modifiedBy = 0;
     }
     
     public Customer(ResultSet rs)
@@ -82,11 +87,6 @@ public class Customer implements Serializable {
         this.firstName = request.getParameter("firstName");
         this.lastName = request.getParameter("lastName");
         this.phone = request.getParameter("phone");
-
-        this.createdDate = new Date();
-        this.modifiedDate = new Date();
-        this.createdBy = 0;
-        this.modifiedBy = 0;
     }
     
     public boolean add(ICustomer db, Customer customer)

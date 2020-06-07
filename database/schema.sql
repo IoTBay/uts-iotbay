@@ -62,6 +62,7 @@ CREATE TABLE PaymentMethods (
    CardName VARCHAR(80) NOT NULL,
    CardNumber VARCHAR(19) NOT NULL,
    CardCVV VARCHAR(3) NOT NULL,
+   CardExpiry VARCHAR(4),
    CreatedDate TIMESTAMP NOT NULL,
    CreatedBy INTEGER NOT NULL,
    ModifiedDate TIMESTAMP,

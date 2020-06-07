@@ -42,6 +42,12 @@ public class Product implements Serializable {
     public static final int LOW_STOCK = 10;
 
     public Product() {
+        
+        this.createdDate = new Timestamp(System.currentTimeMillis());
+        this.modifiedDate = new Timestamp(System.currentTimeMillis());
+        this.createdBy = 0;
+        this.modifiedBy = 0;
+        
     }
     
     /*public Product(int id, int categoryId, String name, double price, String description) {
@@ -100,10 +106,6 @@ public class Product implements Serializable {
         this.description = request.getParameter("description");
         this.initialQuantity = Integer.parseInt(request.getParameter("initialQuantity"));
         this.currentQuantity = Integer.parseInt(request.getParameter("initialQuantity"));
-        this.createdDate = new Timestamp(System.currentTimeMillis());
-        this.modifiedDate = new Timestamp(System.currentTimeMillis());
-        this.createdBy = 0;
-        this.modifiedBy = 0;
     }
     
     public boolean add(IProduct pr, Customer customer)

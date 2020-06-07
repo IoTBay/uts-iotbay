@@ -90,7 +90,7 @@ public class DBPaymentMethod implements IPaymentMethod{
     public boolean addPaymentMethod(PaymentMethod a, Customer customer)
     {
         try {
-            PreparedStatement p = this.conn.prepareStatement("INSERT  INTO APP.PaymentMethods (CustomerID, UserID, DefaultPayment, PaymentType, CardName, CardNumber, CardCVV, CreatedDate, CreatedBy) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            PreparedStatement p = this.conn.prepareStatement("INSERT  INTO APP.PaymentMethods (CustomerID, UserID, DefaultPayment, PaymentType, CardName, CardNumber, CardCVV, CardExpiry, CreatedDate, CreatedBy) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
             p.setInt(1, a.getCustomerId());
             p.setInt(2, a.getUserId());
             p.setBoolean(3, a.getDefaultPayment());
@@ -98,9 +98,10 @@ public class DBPaymentMethod implements IPaymentMethod{
             p.setString(5, a.getCardName());
             p.setString(6, a.getCardNumber());
             p.setString(7, a.getCardCVV());
-
-            p.setTimestamp(8, new java.sql.Timestamp(new java.util.Date().getTime()));
-            p.setInt(9, customer.getId());
+            p.setString(8, a.getCardExpiry());
+            
+            p.setTimestamp(9, new java.sql.Timestamp(new java.util.Date().getTime()));
+            p.setInt(10, customer.getId());
             //Was insert successful?
             return (p.executeUpdate() > 0);
         }
@@ -115,7 +116,7 @@ public class DBPaymentMethod implements IPaymentMethod{
     @Override
     public boolean updatePaymentMethod(PaymentMethod a, Customer customer) {
         try {
-            PreparedStatement p = this.conn.prepareStatement("UPDATE APP.PaymentMethods SET CustomerID = ?, UserID = ?, DefaultPayment = ?, PaymentType = ?, CardName = ?, CardNumber = ?, CardCVV = ?, ModifiedDate = ?, ModifiedBy = ? WHERE ID = ?");
+            PreparedStatement p = this.conn.prepareStatement("UPDATE APP.PaymentMethods SET CustomerID = ?, UserID = ?, DefaultPayment = ?, PaymentType = ?, CardName = ?, CardNumber = ?, CardCVV = ?, CardExpiry = ?, ModifiedDate = ?, ModifiedBy = ? WHERE ID = ?");
             p.setInt(1, a.getCustomerId());
             p.setInt(2, a.getUserId());
             p.setBoolean(3, a.getDefaultPayment());
@@ -123,10 +124,11 @@ public class DBPaymentMethod implements IPaymentMethod{
             p.setString(5, a.getCardName());
             p.setString(6, a.getCardNumber());
             p.setString(7, a.getCardCVV());
+            p.setString(8, a.getCardExpiry());
 
-            p.setTimestamp(8, new java.sql.Timestamp(new java.util.Date().getTime()));
-            p.setInt(9, customer.getId());
-            p.setInt(10, a.getId());
+            p.setTimestamp(9, new java.sql.Timestamp(new java.util.Date().getTime()));
+            p.setInt(10, customer.getId());
+            p.setInt(11, a.getId());
             //Was update successful?
             int result = p.executeUpdate();
             return (result > 0);

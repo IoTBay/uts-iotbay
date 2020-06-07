@@ -27,6 +27,7 @@
               <th scope="col">Type</th>
               <th scope="col">Name</th>
               <th scope="col">Number</th>
+              <th scope="col">Expiry</th>
               <th scope="col">CVV</th>
             </tr>
           </thead>
@@ -42,6 +43,7 @@
               <td><%= PaymentMethod.PAYMENT_TYPES[method.getPaymentType()] %></td>
               <td><%= method.getCardName() %></td>
               <td><%= method.getCardNumber() %></td>
+              <td><%= method.getCardExpiry() %></td>
               <td><%= method.getCardCVV() %></td>
             </tr>
             <% } %>

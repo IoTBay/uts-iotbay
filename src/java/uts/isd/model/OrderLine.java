@@ -34,6 +34,12 @@ public class OrderLine implements Serializable {
     private int modifiedBy;
     
     public OrderLine() {
+        
+        this.createdDate = new Date();
+        this.modifiedDate = new Date();
+        this.createdBy = 0;
+        this.modifiedBy = 0;
+        
     }
 
     /**

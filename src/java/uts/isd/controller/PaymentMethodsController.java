@@ -306,8 +306,9 @@ public class PaymentMethodsController extends HttpServlet {
                  new ValidatorFieldRules("Default Payment", "defaultPayment", "trim"),
                  new ValidatorFieldRules("Payment Type", "paymentType", "required|integer"), 
                  new ValidatorFieldRules("Card Name", "cardName", "required"),
-                 new ValidatorFieldRules("Card Number", "cardNumber", "required|integer"),
-                 new ValidatorFieldRules("Card CVV", "cardCVV", "required|integer")
+                 new ValidatorFieldRules("Card Number", "cardNumber", "required|integer|longerthan[7]|shorterthan[20]"),
+                 new ValidatorFieldRules("Card CVV", "cardCVV", "required|integer|longerthan[2]|shorterthan[4]"),
+                 new ValidatorFieldRules("Card Expiry", "cardExpiry", "required|integer|shorterthan[5]|longerthan[3]")
             });
 
             if (!validator.validate(request))
@@ -372,8 +373,9 @@ public class PaymentMethodsController extends HttpServlet {
                  new ValidatorFieldRules("Default Payment", "defaultPayment", "trim"),
                  new ValidatorFieldRules("Payment Type", "paymentType", "required|integer"), 
                  new ValidatorFieldRules("Card Name", "cardName", "required"),
-                 new ValidatorFieldRules("Card Number", "cardNumber", "required|integer"),
-                 new ValidatorFieldRules("Card CVV", "cardCVV", "required|integer")
+                 new ValidatorFieldRules("Card Number", "cardNumber", "required|integer|longerthan[7]|shorterthan[20]"),
+                 new ValidatorFieldRules("Card CVV", "cardCVV", "required|integer|longerthan[2]|shorterthan[4]"),
+                 new ValidatorFieldRules("Card Expiry", "cardExpiry", "required|integer|shorterthan[5]|longerthan[3]")
             });
 
             if (!validator.validate(request))

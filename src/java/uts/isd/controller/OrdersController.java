@@ -21,6 +21,8 @@ import uts.isd.model.*;
 import uts.isd.model.dao.*;
 import uts.isd.util.Flash;
 import uts.isd.util.URL;
+import uts.isd.validation.Validator;
+import uts.isd.validation.ValidatorFieldRules;
 
 /**
  * Orders controller
@@ -121,7 +123,7 @@ public class OrdersController extends HttpServlet {
                 break;
                 
             case "checkout":
-                doCheckoutGet(request, response);
+                doCheckoutPost(request, response);
                 break;
         }
     }
@@ -136,20 +138,12 @@ public class OrdersController extends HttpServlet {
         try
         {   
             //Get order and pass it to request for JSP
-            IOrder dbOrder = new DBOrder();
-            IProduct dbProduct = new DBProduct();
-            ICurrency dbCurrency = new DBCurrency();
+            if (!this.initialiseCart(request, response))
+            {
+                Logging.logMessage("Failed to initialise cart");
+                return;
+            }
             
-            Customer customer = getCustomerForOrder(request.getSession());
-
-            Order o = dbOrder.getCartOrderByCustomer(customer);
-            o.setOrderLines(dbOrder.getOrderLines(o.getId()));
-            o.setCurrency(dbCurrency.getCurrencyById(o.getCurrencyId()));
-            
-            for (OrderLine line : o.getOrderLines())
-                line.setProduct(dbProduct.getProductById(line.getProductId()));
-
-            request.getSession().setAttribute("order", o);
             RequestDispatcher requestDispatcher; 
             requestDispatcher = request.getRequestDispatcher("/view/orders/view_cart.jsp");
             requestDispatcher.forward(request, response);
@@ -173,8 +167,12 @@ public class OrdersController extends HttpServlet {
             IOrder dbOrder = new DBOrder();
             IProduct dbProduct = new DBProduct();
             
-            this.customer = getCustomerForOrder(request.getSession());
-            this.cart = dbOrder.getCartOrderByCustomer(this.customer);
+            if (!this.initialiseCart(request, response))
+            {
+                Logging.logMessage("Failed to initialise cart");
+                return;
+            }
+            
             /**
              * Probably don't need this as order should already be set
             this.cart.setOrderLines(dbOrder.getOrderLines(this.cart.getId()));
@@ -244,7 +242,171 @@ public class OrdersController extends HttpServlet {
     protected void doCheckoutPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException 
     {
-        request.getRequestDispatcher("/view/orders/checkout.jsp").forward(request, response);
+        try
+        {
+            if (!this.initialiseCart(request, response))
+            {
+                Logging.logMessage("Failed to initialise cart");
+                return;
+            }
+            
+            //Validate
+            //if id = -1 Add fields as needed.
+            Validator validator = new Validator(new ValidatorFieldRules[] {
+                new ValidatorFieldRules("First Name", "firstName", "required"),
+                new ValidatorFieldRules("Last Name", "lastName", "required"),
+                new ValidatorFieldRules("Phone", "phone", "required|longerthan[9]|shorterthan[11]"),
+                new ValidatorFieldRules("Email", "email", "required|trim|email"), 
+            });
+
+            //Do we need to validate shipping address inputs.
+            if (request.getParameter("shippingAddress") == null || request.getParameter("shippingAddress").equals("-1"))
+            {
+                validator.addField(new ValidatorFieldRules("Shipping Address 2", "shipping_addressPrefix1", "trim"));
+                validator.addField(new ValidatorFieldRules("Shipping Street Number", "shipping_streetNumber", "required|integer|shorterthan[11]"));
+                validator.addField(new ValidatorFieldRules("Shipping Street Name", "shipping_streetName", "required|shorterthan[61]"));
+                validator.addField(new ValidatorFieldRules("Shipping Street Type", "shipping_streetType", "required|shorterthan[21]"));
+                validator.addField(new ValidatorFieldRules("Shipping Suburb", "shipping_suburb", "required|shorterthan[61]"));
+                validator.addField(new ValidatorFieldRules("Shipping State", "shipping_state", "required|shorterthan[31]"));
+                validator.addField(new ValidatorFieldRules("Shipping Post Code", "shipping_postcode", "required|shorterthan[5]"));
+                validator.addField(new ValidatorFieldRules("Shipping Country", "shipping_country", "required|shorterthan[31]"));
+            }
+
+            //Do we need to validate shipping address inputs.
+            if (request.getParameter("billingAddress") == null || request.getParameter("billingAddress").equals("-1"))
+            {
+                validator.addField(new ValidatorFieldRules("Billing Address 2", "billing_addressPrefix1", "trim"));
+                validator.addField(new ValidatorFieldRules("Billing Street Number", "billing_streetNumber", "required|integer|shorterthan[11]"));
+                validator.addField(new ValidatorFieldRules("Billing Street Name", "billing_streetName", "required|shorterthan[61]"));
+                validator.addField(new ValidatorFieldRules("Billing Street Type", "billing_streetType", "required|shorterthan[21]"));
+                validator.addField(new ValidatorFieldRules("Billing Suburb", "billing_suburb", "required|shorterthan[61]"));
+                validator.addField(new ValidatorFieldRules("Billing State", "billing_state", "required|shorterthan[31]"));
+                validator.addField(new ValidatorFieldRules("Billing Post Code", "billing_postcode", "required|shorterthan[5]"));
+                validator.addField(new ValidatorFieldRules("Billing Country", "billing_country", "required|shorterthan[31]"));
+            }
+
+            //Do we need to validate shipping address inputs.
+            if (request.getParameter("paymentMethod") == null || request.getParameter("paymentMethod").equals("-1"))
+            {
+                validator.addField(new ValidatorFieldRules("Payment Type", "paymentType", "required|integer"));
+                validator.addField(new ValidatorFieldRules("Card Name", "cardName", "required"));
+                validator.addField(new ValidatorFieldRules("Card Number", "cardNumber", "required|integer|longerthan[7]|shorterthan[20]"));
+                validator.addField(new ValidatorFieldRules("Card CVV", "cardCVV", "required|integer|longerthan[2]|shorterthan[4]"));
+                validator.addField(new ValidatorFieldRules("Card Expiry", "cardExpiry", "required|integer|shorterthan[5]|longerthan[3]"));
+            }
+
+            if (!validator.validate(request))
+            {
+                URL.GoBack(request, response);
+                return;
+            }
+            
+            IOrder dbOrder = new DBOrder();
+            IProduct dbProduct = new DBProduct();
+            IAddress dbAddress = new DBAddress();
+            IPaymentMethod dbPaymentMethod = new DBPaymentMethod();
+            IPaymentTransaction dbTransaction = new DBPaymentTransaction();
+            
+            Flash flash = Flash.getInstance(request.getSession());
+                        
+            //Before we go any further, check order stock
+            if (!this.updateOrderStock("remove"))
+            {
+                flash.add(Flash.MessageType.Error, "Unsufficient stock to submit this order");
+                URL.GoBack(request, response);
+                return;
+            }
+
+            //Load initial form data.
+            this.cart.loadRequest(request);
+
+            //If id = -1 add address or payment
+            if (request.getParameter("shippingAddress") == null || request.getParameter("shippingAddress").equals("-1"))
+            {
+                Address shippingAddress = new Address();
+                shippingAddress.loadRequest(request, "shipping_");
+                if (!dbAddress.addAddress(shippingAddress, this.customer))
+                {
+                    flash.add(Flash.MessageType.Error, "Unable to add new shipping address");
+                    URL.GoBack(request, response);
+                    return;
+                }
+                //Set ID on order
+                this.cart.setShippingAddressId(shippingAddress.getId());
+            }
+            
+            if (request.getParameter("billingAddress") == null || request.getParameter("billingAddress").equals("-1"))
+            {
+                Address billingAddress = new Address();
+                billingAddress.loadRequest(request, "billing_");
+                if (!dbAddress.addAddress(billingAddress, this.customer))
+                {
+                    flash.add(Flash.MessageType.Error, "Unable to add new billing address");
+                    URL.GoBack(request, response);
+                    return;
+                }
+                //Set ID on order
+                this.cart.setBillingAddressId(billingAddress.getId());
+            }
+            
+            if (request.getParameter("paymentMethod") == null || request.getParameter("paymentMethod").equals("-1"))
+            {
+                PaymentMethod paymentMethod = new PaymentMethod();
+                paymentMethod.loadRequest(request);
+                if (!dbPaymentMethod.addPaymentMethod(paymentMethod, this.customer))
+                {
+                    flash.add(Flash.MessageType.Error, "Unable to add new payment method");
+                    URL.GoBack(request, response);
+                    return;
+                }
+                //Set ID on order
+                this.cart.setPaymentMethodId(paymentMethod.getId());
+            }
+
+            //Update order with fields and update status to submitted
+            this.cart.setStatus(Order.STATUS_SUBMITTED);
+            
+            if (!dbOrder.updateOrder(this.cart, this.customer))
+            {
+                flash.add(Flash.MessageType.Error, "Unable to submit order");
+                URL.GoBack(request, response);
+                return;
+            }
+            else
+            {
+                flash.add(Flash.MessageType.Success, "Successfully submitted order. Order status is now submitted");
+            }
+            
+            //Insert payment transaction linked to order
+            //In reality this would be an API call to an external payment gateway.
+            PaymentTransaction tx = new PaymentTransaction();
+            tx.setCustomerId(this.customer.getId());
+            tx.setOrderId(this.cart.getId());
+            tx.setAmount(this.cart.getTotalCost());
+            tx.setDescription("Full payment for order #"+this.cart.getId());
+            tx.setStatus(PaymentTransaction.PAYMENT_SUCCESSFUL);
+            //Make up a payment transaction ID
+            tx.setPaymentGatewayTransaction(java.util.UUID.randomUUID().toString());
+            if (dbTransaction.addPaymentTransaction(tx, this.customer))
+            {
+                flash.add(Flash.MessageType.Success, "Payment for order was successful");
+                flash.add(Flash.MessageType.Success, "Payment Transaction: "+tx.getPaymentGatewayTransaction());
+                this.cart.setStatus(Order.STATUS_PAYMENT_SUCCESSFUL);
+                dbOrder.updateOrder(this.cart, this.customer);
+            }
+            
+            //Set new draft order as cart.
+            request.getSession().removeAttribute("order");
+            this.cart = dbOrder.getCartOrderByCustomer(this.customer);
+            request.getSession().setAttribute("order", cart);
+
+            //Go back to index page
+            response.sendRedirect(URL.Absolute("", request));
+        }
+        catch (Exception e)
+        {
+            Logging.logMessage("Unable to doCartCheckout to submit order", e);
+        }
     }
     
     /*
@@ -297,6 +459,8 @@ public class OrdersController extends HttpServlet {
             Flash flash = Flash.getInstance(session);
             this.customer = this.getCustomerForOrder(session);
             IOrder dbOrder = new DBOrder();
+            ICurrency dbCurrency = new DBCurrency();
+            IProduct dbProduct = new DBProduct();
             
             if (this.customer == null)
             {
@@ -309,8 +473,14 @@ public class OrdersController extends HttpServlet {
                     
             if (this.cart == null)
             {
-                this.cart = dbOrder.getCartOrderByCustomer(customer);
-                session.setAttribute("order", cart);
+                this.cart = dbOrder.getCartOrderByCustomer(this.customer);
+                this.cart.setOrderLines(dbOrder.getOrderLines(this.cart.getId()));
+                this.cart.setCurrency(dbCurrency.getCurrencyById(this.cart.getCurrencyId()));
+
+                for (OrderLine line : this.cart.getOrderLines())
+                    line.setProduct(dbProduct.getProductById(line.getProductId()));
+                
+                session.setAttribute("order", this.cart);
             }
             
             //If still null cart, then throw error.
@@ -352,6 +522,53 @@ public class OrdersController extends HttpServlet {
     protected boolean checkProductStock(Product product, int quantity)
     {
         return (product.getCurrentQuantity() >= quantity);
+    }
+    
+    protected boolean updateOrderStock(String action)
+    {
+        if (!action.equals("add") && !action.equals("remove"))
+        {
+            Logging.logMessage("Invalid action passed to updateOrderStock: "+action);
+            return false;
+        }
+        
+        //First go through and see if we have enough stock for every line in order
+        if (action.equals("remove"))
+        {
+            for (OrderLine line : this.cart.getOrderLines())
+            {
+                if (!this.checkProductStock(line.getProduct(), line.getQuantity()))
+                    return false;
+            }
+        }
+        //Now subtract or add this from available stock.
+        try
+        {
+            IProduct dbProduct = new DBProduct();
+
+            for (OrderLine line : this.cart.getOrderLines())
+            {
+                //Make sure we have the latest product info
+                Product p = dbProduct.getProductById(line.getProductId());
+                
+                if (action.equals("remove"))
+                    p.setCurrentQuantity(p.getCurrentQuantity() - line.getQuantity());
+                else if (action.equals("add"))
+                    p.setCurrentQuantity(p.getCurrentQuantity() + line.getQuantity());
+                
+                if (!dbProduct.updateProduct(p, this.customer))
+                {
+                    Logging.logMessage("Failed to update quantity of product ID:"+p.getId());
+                    return false;
+                }
+            }
+            return true;
+        }
+        catch (Exception e)
+        {
+            Logging.logMessage("Failed to run updateOrderStock", e);
+            return false;
+        }
     }
     
     protected void doAddLinePost(HttpServletRequest request, HttpServletResponse response, String productIdStr)

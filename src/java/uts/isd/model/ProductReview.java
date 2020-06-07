@@ -25,7 +25,14 @@ public class ProductReview implements Serializable {
     private Date modifiedDate;
     private int modifiedBy;
     
-    public ProductReview() { }
+    public ProductReview() {
+    
+        this.createdDate = new Date();
+        this.modifiedDate = new Date();
+        this.createdBy = 0;
+        this.modifiedBy = 0;
+        
+    }
     
     /**
      * This method populates this instance's properties based on form inputs.
