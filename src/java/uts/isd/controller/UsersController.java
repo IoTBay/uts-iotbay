@@ -247,8 +247,9 @@ public class UsersController extends HttpServlet {
                 new ValidatorFieldRules("First Name", "firstName", "required"),
                 new ValidatorFieldRules("Last Name", "lastName", "required"),
                 new ValidatorFieldRules("Phone", "phone", "required|longerthan[9]|shorterthan[11]"),
-                new ValidatorFieldRules("Email", "email", "required|trim|email"), 
+                new ValidatorFieldRules("Email", "email", "required|trim|email"),
                 new ValidatorFieldRules("Password", "password", "required|longerthan[2]"),
+                new ValidatorFieldRules("Birth Date", "birthDate", "required|date"),
             });
             
             if (!validator.validate(request))
@@ -303,7 +304,7 @@ public class UsersController extends HttpServlet {
                 user.setCustomerId(customer.getId()); //Link the new user to the customer we just created above.
                 //Add user to DB
                 user.loadRequest(request);
-                
+
                 if(request.getParameter("staffcode") != null && request.getParameter("staffcode").equals(User.STAFF_CODE))  
                 { 
                     user.setAccessLevel(10);
@@ -318,6 +319,7 @@ public class UsersController extends HttpServlet {
 
                 if (added)
                 {
+                    DBAuditLogs.addEntry(DBAuditLogs.Entity.Users, "Added", "Added user", customer.getId());
                     flash.add(Flash.MessageType.Success, "New user "+user.getEmail()+" added successfully!");
                 }
                 else
@@ -405,7 +407,7 @@ public class UsersController extends HttpServlet {
                 new ValidatorFieldRules("First Name", "firstName", "required"),
                 new ValidatorFieldRules("Last Name", "lastName", "required"),
                 new ValidatorFieldRules("Phone", "phone", "required|longerthan[9]|shorterthan[11]"),
-                new ValidatorFieldRules("Email", "email", "required|trim|email") 
+                new ValidatorFieldRules("Email", "email", "required|trim|email")
             });
             
         if (!validator.validate(request))
@@ -448,6 +450,7 @@ public class UsersController extends HttpServlet {
                 Logging.logMessage("Updated profile");
 
                 if (updated){
+                    DBAuditLogs.addEntry(DBAuditLogs.Entity.Users, "Updated", "Updated user", customer.getId());
                     flash.add(Flash.MessageType.Success, "Your profile was updated successfully!");}
                 else{
                     flash.add(Flash.MessageType.Error, "Failed to update your profile");}
@@ -539,6 +542,7 @@ public class UsersController extends HttpServlet {
                 Logging.logMessage("Updated profile");
 
                 if (updated){
+                    DBAuditLogs.addEntry(DBAuditLogs.Entity.Users, "Canceled", "Cancelled user", customer.getId());
                     flash.add(Flash.MessageType.Success, "Your profile was cancelled successfully!");
                     session.setAttribute("userCancelled" , true);
                     }

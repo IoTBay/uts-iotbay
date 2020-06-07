@@ -39,28 +39,28 @@
             <div class="row">
               <div class="col-md-6 mb-3">
                 <label for="firstName">First name</label>
-                <input type="text" class="form-control" id="firstName" name="firstName" placeholder="" value="" required>
+                <input type="text" class="form-control" id="firstName" name="firstName" placeholder="" value="<%= v.repopulate("firstName") %>" required>
                 <div class="invalid-feedback">
                   Valid first name is required.
                 </div>
               </div>
               <div class="col-md-6 mb-3">
                 <label for="lastName">Last name</label>
-                <input type="text" class="form-control" id="lastName" name="lastName" placeholder="" value="" required>
+                <input type="text" class="form-control" id="lastName" name="lastName" placeholder="" value="<%= v.repopulate("lastName") %>" required>
                 <div class="invalid-feedback">
                   Valid last name is required.
                 </div>
               </div>
               <div class="col-md-6 mb-3">
                 <label for="phone">Phone</label>
-                <input type="text" class="form-control" id="phone" name="phone" placeholder="" value="" required>
+                <input type="text" class="form-control" id="phone" name="phone" placeholder="" value="<%= v.repopulate("phone") %>" required>
               </div>
             </div>
 
             <row class="row">
                 <div class="col-md-6 mb-3">
                   <label for="email">Email</label>
-                  <input type="email" class="form-control" id="email" name="email" placeholder="you@example.com" required>
+                  <input type="email" class="form-control" id="email" name="email" placeholder="you@example.com" value="<%= v.repopulate("email") %>" required>
                   <div class="invalid-feedback">
                     Please enter a valid email address for your account.
                   </div>
@@ -68,7 +68,7 @@
 
                 <div class="col-md-6 mb-3">
                   <label for="password">Password</label>
-                  <input type="password" class="form-control" id="password" name="password" required>
+                  <input type="password" class="form-control" id="password" name="password" value="<%= v.repopulate("password") %>" required>
                   <div class="invalid-feedback">
                     Please enter a strong password for your account.
                   </div>
@@ -86,7 +86,7 @@
                 <div class="col-md-6 mb-3">
                   <label for="dob_dd">Birth Date</label>
                   <div class="input-group">
-                    <input type="text" class="form-control col-md-2" id="dob_dd" name="dob_dd" placeholder="DD" required>
+                    <input type="text" class="form-control col-md-2" id="dob_dd" name="dob_dd" placeholder="DD" value="" required>
                     <div class="input-group-append">
                       <div class="input-group-text">/</div>
                       <input type="text" class="form-control col-md-2" id="dob_mm" name="dob_mm" placeholder="MM" required>
