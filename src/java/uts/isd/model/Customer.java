@@ -31,7 +31,19 @@ public class Customer implements Serializable {
     private Date modifiedDate;
     private int modifiedBy;
     
-    public Customer() { }
+    public Customer()
+    { 
+        this.id = 0;
+        this.email = "";
+        this.firstName = "";
+        this.lastName = "";
+        this.phone = "";
+        
+        this.createdDate = new Date();
+        this.modifiedDate = new Date();
+        this.createdBy = 0;
+        this.modifiedBy = 0;
+    }
     
     public Customer(ResultSet rs)
     {
@@ -43,9 +55,9 @@ public class Customer implements Serializable {
             this.lastName = rs.getString("LastName");
             this.phone = rs.getString("Phone");
 
-            this.createdDate = rs.getDate("CreatedDate");
+            this.createdDate = rs.getTimestamp("CreatedDate");
             this.createdBy = rs.getInt("CreatedBy");
-            this.modifiedDate = rs.getDate("ModifiedDate");
+            this.modifiedDate = rs.getTimestamp("ModifiedDate");
             this.modifiedBy = rs.getInt("ModifiedBy");
         }
         catch (Exception e)
@@ -75,11 +87,6 @@ public class Customer implements Serializable {
         this.firstName = request.getParameter("firstName");
         this.lastName = request.getParameter("lastName");
         this.phone = request.getParameter("phone");
-
-        this.createdDate = new Date();
-        this.modifiedDate = new Date();
-        this.createdBy = 0;
-        this.modifiedBy = 0;
     }
     
     public boolean add(ICustomer db, Customer customer)

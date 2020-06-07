@@ -22,6 +22,8 @@
                 <th>ID</th>
                 <th>Name</th>
                 <th>Description</th>
+                <th>Price</th>
+                <th>Current Quantity</th>
             </tr>
         </thead>
         <tbody>
@@ -30,6 +32,8 @@
                     <td><%= p.getId() %></td>
                     <td><%= p.getName() %></td>
                     <td><%= p.getDescription() %></td>
+                    <td><%= p.getPriceFormatted() %></td>
+                    <td><%= p.getCurrentQuantity() %></td>
                     <td>
                         <a href="<%= URL.Absolute("product/update/" +p.getId(), request) %>">Edit</a>
                         <a href="<%= URL.Absolute("product/delete/" +p.getId(), request) %>">Delete</a>
@@ -39,8 +43,8 @@
             </tbody>
         </table>
     </form>
-</body>
-<div style='padding-top: 100px'>
-<jsp:include page="footer.jsp" />
+<div class="form-row" style='padding-left: 870px'>
+        <a href="<%= URL.Absolute("product/add", request) %>" class="btn btn-primary"> Add a new product </a>
 </div>
+<jsp:include page="footer.jsp" />
 </html>

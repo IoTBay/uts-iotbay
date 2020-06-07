@@ -43,6 +43,11 @@ public class Validator {
             this.validatorFields.add(field);
     }
     
+    public void addField(ValidatorFieldRules field)
+    {
+        this.validatorFields.add(field);
+    }
+    
     /**
      * Load the validation fields values
      * into array from the previous page request.
@@ -126,15 +131,22 @@ public class Validator {
         //then return that value, otherwise return dbValue if it exists,
         //otherwise return an empty string
         
-        if (this.validatorFields == null)
+        if (this.validatorFields == null && existingValue != null)
             return existingValue.toString();
+        
+        if (this.validatorFields == null && existingValue == null)
+            return ""; //No rules, but no existing value, so return before checking any rules.
         
         for (ValidatorFieldRules field : this.validatorFields)
         {
             if (field.getField().equals(fieldName))
                 return field.getValue();
         }
-        return existingValue.toString();
+        
+        if (existingValue != null)
+            return existingValue.toString();
+        
+        return ""; //Nothing left to return.
     }
     
     public String repopulate(String fieldName)

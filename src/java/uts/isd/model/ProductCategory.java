@@ -5,6 +5,7 @@
  */
 package uts.isd.model;
 
+import java.io.Serializable;
 import java.sql.ResultSet;
 import java.util.Date;
 import javax.servlet.ServletRequest;
@@ -19,7 +20,7 @@ import uts.isd.util.Logging;
  * @author Rhys Hanrahan 11000801
  * @since 2020-06-04
  */
-public class ProductCategory {
+public class ProductCategory implements Serializable {
     
     private int id;
     private String name;
@@ -30,7 +31,14 @@ public class ProductCategory {
     private Date modifiedDate;
     private int modifiedBy;
 
-    public ProductCategory() { }
+    public ProductCategory() {
+    
+        this.createdDate = new Date();
+        this.modifiedDate = new Date();
+        this.createdBy = 0;
+        this.modifiedBy = 0;
+    
+    }
     
     /**
      * This constructor takes an SQL ResultSet and grabs the values from the DB Record
@@ -46,9 +54,9 @@ public class ProductCategory {
             this.description = rs.getString("Description");
             this.image = rs.getString("Image");
             
-            this.createdDate = rs.getDate("CreatedDate");
+            this.createdDate = rs.getTimestamp("CreatedDate");
             this.createdBy = rs.getInt("CreatedBy");
-            this.modifiedDate = rs.getDate("ModifiedDate");
+            this.modifiedDate = rs.getTimestamp("ModifiedDate");
             this.modifiedBy = rs.getInt("ModifiedBy");            
         }
         catch (Exception e)
@@ -71,12 +79,6 @@ public class ProductCategory {
         this.name = request.getParameter("name");
         this.description = request.getParameter("description");
         this.image = request.getParameter("image");
-        
-        this.createdDate = new Date();
-        this.modifiedDate = new Date();
-        
-        this.createdBy = 0;
-        this.modifiedBy = 0;
     }
     
     public boolean add(ICategory db, Customer customer)

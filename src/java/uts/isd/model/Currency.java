@@ -5,6 +5,7 @@
  */
 package uts.isd.model;
 
+import java.io.Serializable;
 import java.sql.ResultSet;
 import java.util.Date;
 import javax.servlet.ServletRequest;
@@ -18,7 +19,7 @@ import uts.isd.util.Logging;
  * @author Rhys Hanrahan 11000801
  * @since 2020-06-02
  */
-public class Currency {
+public class Currency implements Serializable {
     
     private int id;
     private String name;
@@ -31,7 +32,14 @@ public class Currency {
     private Date modifiedDate;
     private int modifiedBy;
     
-    public Currency() { }
+    public Currency() { 
+    
+        this.createdDate = new Date();
+        this.modifiedDate = new Date();
+        this.createdBy = 0;
+        this.modifiedBy = 0;
+        
+    }
     
     /**
      * This constructor takes an SQL ResultSet and grabs the values from the DB Record
@@ -48,9 +56,9 @@ public class Currency {
             this.costConversionRate = rs.getDouble("CostConversionRate");
             this.retailConversionRate = rs.getDouble("RetailConversionRate");
             
-            this.createdDate = rs.getDate("CreatedDate");
+            this.createdDate = rs.getTimestamp("CreatedDate");
             this.createdBy = rs.getInt("CreatedBy");
-            this.modifiedDate = rs.getDate("ModifiedDate");
+            this.modifiedDate = rs.getTimestamp("ModifiedDate");
             this.modifiedBy = rs.getInt("ModifiedBy");      
         }
         catch (Exception e)

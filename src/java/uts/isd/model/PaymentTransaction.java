@@ -5,6 +5,7 @@
  */
 package uts.isd.model;
 
+import java.io.Serializable;
 import java.sql.ResultSet;
 import java.util.Date;
 import javax.servlet.ServletRequest;
@@ -19,7 +20,7 @@ import uts.isd.util.Logging;
  * @author Rhys Hanrahan 11000801
  * @since 2020-05-16
  */
-public class PaymentTransaction {
+public class PaymentTransaction implements Serializable {
     private int id;
     private int customerId;
     private int orderId;
@@ -33,7 +34,24 @@ public class PaymentTransaction {
     private Date modifiedDate;
     private int modifiedBy;
     
-    public PaymentTransaction() {}
+    public static final int PAYMENT_PENDING = 0;
+    public static final int PAYMENT_SUCCESSFUL = 1;
+    public static final int PAYMENT_FAILED = 2;
+    
+    public static final String[] PAYMENT_STATUS = {
+        "Pending",
+        "Successful",
+        "Failed"
+    };
+    
+    public PaymentTransaction() {
+    
+        this.createdDate = new Date();
+        this.modifiedDate = new Date();
+        this.createdBy = 0;
+        this.modifiedBy = 0;
+    
+    }
     
  /**
      * This constructor takes an SQL ResultSet and grabs the values from the DB Record
@@ -52,9 +70,9 @@ public class PaymentTransaction {
             this.paymentGatewayTransaction = rs.getString("PaymentGatewayTransaction");
             this.status = rs.getInt("Status");
             
-            this.createdDate = rs.getDate("CreatedDate");
+            this.createdDate = rs.getTimestamp("CreatedDate");
             this.createdBy = rs.getInt("CreatedBy");
-            this.modifiedDate = rs.getDate("ModifiedDate");
+            this.modifiedDate = rs.getTimestamp("ModifiedDate");
             this.modifiedBy = rs.getInt("ModifiedBy");            
         }
         catch (Exception e)
@@ -166,6 +184,32 @@ public class PaymentTransaction {
     public int getStatus() {
         return status;
     }
+
+    public void setCustomerId(int customerId) {
+        this.customerId = customerId;
+    }
+
+    public void setOrderId(int orderId) {
+        this.orderId = orderId;
+    }
+
+    public void setAmount(double amount) {
+        this.amount = amount;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public void setPaymentGatewayTransaction(String paymentGatewayTransaction) {
+        this.paymentGatewayTransaction = paymentGatewayTransaction;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
+    }
+    
+
 
     public Date getCreatedDate() {
         return createdDate;

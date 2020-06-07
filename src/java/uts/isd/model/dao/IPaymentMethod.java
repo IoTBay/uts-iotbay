@@ -23,6 +23,14 @@ public interface IPaymentMethod {
     public PaymentMethod getPaymentMethodById(int id);
     
     /**
+     * Gets the default payment method for a user.
+     * 
+     * @param userId User ID to get paymethod for
+     * @return PaymentMethod object, or NULL if no paymethod found.
+     */
+    public PaymentMethod getDefaultPaymentMethodByUserId(int userId);
+    
+    /**
      * Returns all payment methods in the payment methods table
      * 
      * @return List of all payment methods
