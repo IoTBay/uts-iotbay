@@ -5,6 +5,7 @@
  */
 package uts.isd.model;
 
+import java.io.Serializable;
 import java.sql.ResultSet;
 import java.util.Date;
 import javax.servlet.ServletRequest;
@@ -19,7 +20,7 @@ import uts.isd.util.Logging;
  * @author Rhys Hanrahan 11000801
  * @since 2020-05-16
  */
-public class PaymentMethod {
+public class PaymentMethod implements Serializable {
     
     private int id;
     private int customerId;
@@ -29,6 +30,7 @@ public class PaymentMethod {
     private String cardName;
     private String cardNumber;
     private String cardCVV;
+    private String cardExpiry;
     
     private Date createdDate;
     private int createdBy;
@@ -41,6 +43,20 @@ public class PaymentMethod {
     public static final String[] PAYMENT_TYPES = { "None", "Credit Card" };
 
     public PaymentMethod() {
+        this.id = 0;
+        this.customerId = 0;
+        this.userId = 0;
+        this.defaultPayment = false;
+        this.paymentType = 1;
+        this.cardName = "";
+        this.cardNumber = "";
+        this.cardCVV = "";
+        this.cardExpiry = "";
+        
+        this.createdDate = new Date();
+        this.modifiedDate = new Date();
+        this.createdBy = 0;
+        this.modifiedBy = 0;
     }
     
  /**
@@ -60,6 +76,7 @@ public class PaymentMethod {
             this.cardName = rs.getString("CardName");
             this.cardNumber = rs.getString("CardNumber");
             this.cardCVV = rs.getString("CardCVV");
+            this.cardExpiry = rs.getString("CardExpiry");
             
             this.createdDate = rs.getTimestamp("CreatedDate");
             this.createdBy = rs.getInt("CreatedBy");
@@ -88,16 +105,16 @@ public class PaymentMethod {
         if (request.getParameter("customerId") != null)
             this.customerId = Integer.parseInt(request.getParameter("customerId"));
         
-        this.defaultPayment = Boolean.parseBoolean(request.getParameter("productId"));
+        if (request.getParameter("defaultPayment") != null)
+            this.defaultPayment = true;
+        else
+            this.defaultPayment = false;
+        
         this.paymentType = Integer.parseInt(request.getParameter("paymentType"));
         this.cardName = request.getParameter("cardName");
         this.cardNumber = request.getParameter("cardNumber");
         this.cardCVV = request.getParameter("cardCVV");
-
-        this.createdDate = new Date();
-        this.modifiedDate = new Date();
-        this.createdBy = 0;
-        this.modifiedBy = 0;        
+        this.cardExpiry = request.getParameter("cardExpiry");      
     }
     
     public boolean add(IPaymentMethod db, Customer customer)
@@ -150,6 +167,37 @@ public class PaymentMethod {
             return false;
         }        
     }
+    
+    /**
+     * Using method from here to obfuscate card details:
+     * https://stackoverflow.com/questions/8544234/replacing-last-4-characters-with-a
+     * 
+     * @param s String to obfuscate
+     * @param count Number of characters to replace
+     * @return Obfuscated string
+     */
+    public static String replaceCharacters(String s, int count) {
+        int length = s.length();
+        //Check whether or not the string contains at least four characters; if not, this method is useless
+        if (length < count) return "Error: The provided string is not greater than four characters long.";
+        String replaced = s.substring(0, length - count);
+        
+        for (int i = 0; i < count; i++)
+            replaced += "X";
+        
+        return replaced;
+    }
+    
+    /**
+     * This method returns the description of a saved payment method
+     * 
+     * @return String with description of card
+     */
+    public String getDescription()
+    {
+        return PaymentMethod.replaceCharacters(this.cardNumber, 4)+" "+
+               PaymentMethod.replaceCharacters(this.cardCVV, 2);
+    }
 
     public int getId() {
         return id;
@@ -189,6 +237,10 @@ public class PaymentMethod {
 
     public String getCardCVV() {
         return cardCVV;
+    }
+    
+    public String getCardExpiry() {
+        return cardExpiry;
     }
     
     public Date getCreatedDate() {

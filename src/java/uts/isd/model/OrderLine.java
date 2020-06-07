@@ -5,6 +5,7 @@
  */
 package uts.isd.model;
 
+import java.io.Serializable;
 import java.sql.ResultSet;
 import java.util.Date;
 import javax.servlet.ServletRequest;
@@ -18,7 +19,7 @@ import uts.isd.util.Logging;
  * @author Rhys Hanrahan 11000801
  * @since 2020-05-16
  */
-public class OrderLine {
+public class OrderLine implements Serializable {
     
     private int id;
     private int orderId;
@@ -33,6 +34,12 @@ public class OrderLine {
     private int modifiedBy;
     
     public OrderLine() {
+        
+        this.createdDate = new Date();
+        this.modifiedDate = new Date();
+        this.createdBy = 0;
+        this.modifiedBy = 0;
+        
     }
 
     /**

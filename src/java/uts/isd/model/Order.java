@@ -5,6 +5,7 @@
  */
 package uts.isd.model;
 
+import java.io.Serializable;
 import java.sql.ResultSet;
 import java.util.List;
 import java.util.ArrayList;
@@ -21,7 +22,7 @@ import uts.isd.util.Logging;
  * @author Rhys Hanrahan 11000801
  * @since 2020-05-16
  */
-public class Order {
+public class Order implements Serializable {
     
     private int id;
     private int customerId;
@@ -42,26 +43,45 @@ public class Order {
     
     List<OrderLine> orderLines;
     
-    public enum Status {
-        Draft,
-        Submitted,
-        PaymentProcessing,
-        PaymentSuccessful,
-        PickingOrder,
-        AwaitingPickup,
-        Delivering,
-        Completed,
+    public static final int STATUS_DRAFT = 0;
+    public static final int STATUS_SUBMITTED = 1;
+    public static final int STATUS_PAYMENT_PROCESSING = 2;
+    public static final int STATUS_PAYMENT_SUCCESSFUL = 3;
+    public static final int STATUS_PICKING_ORDER = 4;
+    public static final int STATUS_AWAITING_COURIER = 5;
+    public static final int STATUS_DELIVERING = 6;
+    public static final int STATUS_COMPLETED = 7;
+    
+    public static final int STATUS_OUT_OF_STOCK = 8;
+    public static final int STATUS_PAYMENT_FAILED = 9;
+    public static final int STATUS_ON_HOLD = 10;
+    public static final int STATUS_CANCELLED = 11;
+    
+    public static final  String[] ORDER_STATUS = {
+        "Draft",
+        "Submitted",
+        "PaymentProcessing",
+        "PaymentSuccessful",
+        "PickingOrder",
+        "AwaitingPickup",
+        "Delivering",
+        "Completed",
         
         //Failed statuses
-        OutOfStock,
-        PaymentFailed,
-        OnHold,
-        Cancelled
-    }
+        "OutOfStock",
+        "PaymentFailed",
+        "OnHold",
+        "Cancelled"
+    };
 
     public Order() {
         this.orderLines = new ArrayList<>();
         this.currencyId = 1; //Hard set to ID 1 because we only have 1 currency right now.
+        
+        this.createdDate = new Date();
+        this.modifiedDate = new Date();
+        this.createdBy = 0;
+        this.modifiedBy = 0;
     }
     
     /**
@@ -113,7 +133,8 @@ public class Order {
         if (request.getParameter("id") != null)
             this.id = Integer.parseInt(request.getParameter("id"));
         
-        this.customerId = Integer.parseInt(request.getParameter("customerId"));
+        if (request.getParameter("customerId") != null)
+            this.customerId = Integer.parseInt(request.getParameter("customerId"));
         
         if (request.getParameter("userId") != null)
             this.userId = Integer.parseInt(request.getParameter("userId"));
@@ -121,18 +142,15 @@ public class Order {
         if (request.getParameter("currencyId") != null)
             this.currencyId = Integer.parseInt("currencyId");
         
-        this.shippingAddressId = Integer.parseInt(request.getParameter("shippingAddressId"));
-        this.billingAddressId = Integer.parseInt(request.getParameter("billingAddressId"));
-        this.paymentMethodId = Integer.parseInt(request.getParameter("paymentMethodId"));
-        this.totalCost = Integer.parseInt(request.getParameter("totalCost"));
-        this.status = Integer.parseInt(request.getParameter("status"));
-
-        this.createdDate = new Date();
-        this.modifiedDate = new Date();        
-        this.createdBy = 0;
-        this.modifiedBy = 0;
+        this.shippingAddressId = Integer.parseInt(request.getParameter("shippingAddress"));
+        this.billingAddressId = Integer.parseInt(request.getParameter("billingAddress"));
+        this.paymentMethodId = Integer.parseInt(request.getParameter("paymentMethod"));
         
-        this.orderLines = new ArrayList<>();        
+        if (request.getParameter("totalCost") != null)
+            this.totalCost = Double.parseDouble(request.getParameter("totalCost"));
+        
+        if (request.getParameter("status") != null)
+            this.status = Integer.parseInt(request.getParameter("status"));        
     }
     
     public boolean add(IOrder db, Customer customer)

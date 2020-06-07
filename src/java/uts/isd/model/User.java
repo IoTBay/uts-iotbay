@@ -44,7 +44,14 @@ public class User implements Serializable {
     //Use this code to allow users to register as a staff member.
     public static final String STAFF_CODE = "Escalate";
     
-    public User() {  }
+    public User() { 
+    
+        this.createdDate = new Date();
+        this.modifiedDate = new Date();
+        this.createdBy = 0;
+        this.modifiedBy = 0;
+    
+    }
     
     /**
      * This constructor takes an SQL ResultSet and grabs the values from the DB Record
@@ -112,11 +119,6 @@ public class User implements Serializable {
         }
         
         this.sex = Integer.parseInt(request.getParameter("sex"));
-
-        this.createdDate = new Date();
-        this.modifiedDate = new Date();
-        this.createdBy = 0;
-        this.modifiedBy = 0;
     }
 
     public boolean add(IUser db, Customer customer)

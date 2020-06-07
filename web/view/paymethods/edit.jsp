@@ -38,12 +38,17 @@
             </div>
         </div>
         <div class="row">
+            <div class="col-md-2 mb-3">
+              <label for="cardExpiry">Expiry</label>
+              <input type="text" class="form-control" id="cardExpiry" name="cardExpiry" placeholder="MMYY" value="<%= v.repopulate("cardExpiry", paymethod.getCardExpiry()) %>">
+            </div>
+            
            <div class="col-md-4 mb-3">
             <label for="paymentType">Type</label>
-            <select class="custom-select d-block w-100" id="paymentType" name="paymentType" value="<%= v.repopulate("paymentType") %>">
+            <select class="custom-select d-block w-100" id="paymentType" name="paymentType" value="<%= v.repopulate("paymentType", paymethod.getPaymentType()) %>">
               <option value="">Choose...</option>
               <% for (int i = 1; i < PaymentMethod.PAYMENT_TYPES.length; i++) { %>
-              <option value="<%= i %>"><%= PaymentMethod.PAYMENT_TYPES[i] %></option>
+              <option value="<%= i %>" <%= (Integer.parseInt(v.repopulate("paymentType", paymethod.getPaymentType())) == i ? "selected=\"selected\"" : "") %>><%= PaymentMethod.PAYMENT_TYPES[i] %></option>
               <% } %>
             </select>
           </div>
@@ -51,11 +56,11 @@
           
         <hr class="mb-4">
         <div class="custom-control custom-checkbox">
-          <input type="checkbox" class="custom-control-input" id="defaultPayment" name="defaultPayment" value="<%= v.repopulate("defaultPayment", paymethod.getDefaultPayment()) %>">
+          <input type="checkbox" class="custom-control-input" id="defaultPayment" name="defaultPayment" value="1" <%= (v.repopulate("defaultPayment", paymethod.getDefaultPayment()).equals("true") ? "checked=\"checked\"" : "") %>>
           <label class="custom-control-label" for="defaultPayment">Use this as my default payment method</label>
         </div>
         <hr class="mb-4">
-        <input class="btn btn-primary" type="submit" name="doAdd" value="Add">
+        <input class="btn btn-primary" type="submit" name="doUpdate" value="Update">
     </form>
         <hr class="mb-4">
   </div> <!-- /container -->

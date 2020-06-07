@@ -5,6 +5,7 @@
  */
 package uts.isd.model;
 
+import java.io.Serializable;
 import java.sql.ResultSet;
 import java.util.Date;
 import javax.servlet.ServletRequest;
@@ -19,7 +20,7 @@ import uts.isd.util.Logging;
  * @author Rhys Hanrahan 11000801
  * @since 2020-05-16
  */
-public class Address {
+public class Address implements Serializable {
     
     private int id;
     private int customerId;
@@ -39,7 +40,14 @@ public class Address {
     private Date modifiedDate;
     private int modifiedBy;
 
-    public Address() { }
+    public Address() { 
+    
+        this.createdDate = new Date();
+        this.modifiedDate = new Date();
+        this.createdBy = 0;
+        this.modifiedBy = 0;
+    
+    }
     
     /**
      * This constructor takes an SQL ResultSet and grabs the values from the DB Record
@@ -75,46 +83,47 @@ public class Address {
         }
     }
     
+    public void loadRequest(ServletRequest request)
+    {
+        this.loadRequest(request, "");
+    }
+    
     /**
      * This method populates this instance's properties based on form inputs.
      * 
      * @param request The controller's HTTPServlet POST request properties.
+     * @param prefix A string prefix applied to all address form fields. Useful if billing and shipping addresses are on the same form.
      * 
      */
-    public void loadRequest(ServletRequest request)
+    public void loadRequest(ServletRequest request, String prefix)
     {
-        if (request.getParameter("id") != null)
-            this.id = Integer.parseInt(request.getParameter("id"));
+        if (request.getParameter(prefix+"id") != null)
+            this.id = Integer.parseInt(request.getParameter(prefix+"id"));
         
-        if (request.getParameter("customerId") != null)
-            this.customerId = Integer.parseInt(request.getParameter("customerId"));
+        if (request.getParameter(prefix+"customerId") != null)
+            this.customerId = Integer.parseInt(request.getParameter(prefix+"customerId"));
         
-        if (request.getParameter("userId") != null)
-            this.userId = Integer.parseInt(request.getParameter("userId"));
+        if (request.getParameter(prefix+"userId") != null)
+            this.userId = Integer.parseInt(request.getParameter(prefix+"userId"));
         
-        if (request.getParameter("defaultShippingAddress") != null)
+        if (request.getParameter(prefix+"defaultShippingAddress") != null)
             this.defaultShippingAddress = 1;
         else
             this.defaultShippingAddress = 0;
         
-        if (request.getParameter("defaultBillingAddress") != null)
+        if (request.getParameter(prefix+"defaultBillingAddress") != null)
             this.defaultBillingAddress = 1;
         else
             this.defaultBillingAddress = 0;
         
-        this.addressPrefix1 = request.getParameter("addressPrefix1");
-        this.streetNumber = Integer.parseInt(request.getParameter("streetNumber"));
-        this.streetName = request.getParameter("streetName");
-        this.streetType = request.getParameter("streetType");
-        this.suburb = request.getParameter("suburb");
-        this.state = request.getParameter("state");
-        this.postcode = request.getParameter("postcode");
-        this.country = request.getParameter("country");
-        
-        this.createdDate = new Date();
-        this.modifiedDate = new Date();
-        this.createdBy = 0;
-        this.modifiedBy = 0;
+        this.addressPrefix1 = request.getParameter(prefix+"addressPrefix1");
+        this.streetNumber = Integer.parseInt(request.getParameter(prefix+"streetNumber"));
+        this.streetName = request.getParameter(prefix+"streetName");
+        this.streetType = request.getParameter(prefix+"streetType");
+        this.suburb = request.getParameter(prefix+"suburb");
+        this.state = request.getParameter(prefix+"state");
+        this.postcode = request.getParameter(prefix+"postcode");
+        this.country = request.getParameter(prefix+"country");
     }
     
     public boolean add(IAddress db, Customer customer)
