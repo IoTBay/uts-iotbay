@@ -30,8 +30,11 @@ public class Order implements Serializable {
     private Currency currency;
     private int userId;
     private int billingAddressId;
+    private Address billingAddress;
     private int shippingAddressId;
+    private Address shippingAddress;
     private int paymentMethodId;
+    private PaymentMethod paymentMethod;
     private double totalCost;
     private int status;
     
@@ -251,6 +254,14 @@ public class Order implements Serializable {
     public void setBillingAddressId(int billingAddressId) {
         this.billingAddressId = billingAddressId;
     }
+    
+    public Address getBillingAddress() {
+        return billingAddress;
+    }
+
+    public void setBillingAddress(Address billingAddress) {
+        this.billingAddress = billingAddress;
+    }
 
     public int getShippingAddressId() {
         return shippingAddressId;
@@ -260,12 +271,28 @@ public class Order implements Serializable {
         this.shippingAddressId = shippingAddressId;
     }
 
+    public Address getShippingAddress() {
+        return shippingAddress;
+    }
+
+    public void setShippingAddress(Address shippingAddress) {
+        this.shippingAddress = shippingAddress;
+    }
+    
     public int getPaymentMethodId() {
         return paymentMethodId;
     }
 
     public void setPaymentMethodId(int paymentMethodId) {
         this.paymentMethodId = paymentMethodId;
+    }
+    
+    public PaymentMethod getPaymentMethod() {
+        return paymentMethod;
+    }
+
+    public void setPaymentMethod(PaymentMethod paymentMethod) {
+        this.paymentMethod = paymentMethod;
     }
 
     public double getTotalCost() {

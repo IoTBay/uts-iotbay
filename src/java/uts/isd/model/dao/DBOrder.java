@@ -9,6 +9,7 @@ import uts.isd.model.Order;
 
 import java.util.*;
 import java.sql.*;
+import java.text.DateFormat;
 import uts.isd.model.Customer;
 import uts.isd.model.Currency;
 import uts.isd.model.OrderLine;
@@ -158,6 +159,95 @@ public class DBOrder implements IOrder {
         catch (Exception e)
         {
             Logging.logMessage("Unable to getOrdersByCustomerId", e);
+            return null;
+        }
+    }
+    
+     @Override
+    public List<Order> searchOrdersByDateForCustomerId(String start, String end, int customerId)
+    {
+        try {
+            java.util.Date startDate;
+            java.util.Date endDate;
+            try
+            {
+                startDate = DateFormat.getInstance().parse(start);
+                endDate = DateFormat.getInstance().parse(end);
+            }
+            catch (Exception e)
+            {
+                startDate = new java.util.Date();
+                endDate = new java.util.Date();
+            }
+            
+            //Using SQL prepared statements: https://stackoverflow.com/questions/3451269/parameterized-oracle-sql-query-in-java
+            //this protects against SQL Injection attacks. Each parameter must have a ? in the query, and a corresponding parameter
+            //set.
+            PreparedStatement p = this.conn.prepareStatement("SELECT * FROM APP.Orders WHERE ((CreatedDate >= ? AND CreatedDate <= ?) OR (ModifiedDate >= ? AND ModifiedDate <= ?)) AND CustomerID = ?");
+            p.setDate(1, new java.sql.Date(startDate.getTime()));
+            p.setDate(2, new java.sql.Date(endDate.getTime()));
+            p.setDate(3, new java.sql.Date(startDate.getTime()));
+            p.setDate(4, new java.sql.Date(endDate.getTime()));
+            p.setInt(5, customerId);
+            
+            ResultSet rs = p.executeQuery();
+            
+            //Build list of user objects to return
+            List<Order> orders = new ArrayList<Order>();
+            
+            while (rs.next())
+            {
+                orders.add(new Order(rs));
+            }
+            return orders;
+        }
+        catch (Exception e)
+        {
+            Logging.logMessage("Unable to searchOrdersByDateForCustomerId", e);
+            return null;
+        }
+    }
+    
+   @Override
+    public List<Order> searchOrdersByDate(String start, String end)
+    {
+        try {
+            java.util.Date startDate;
+            java.util.Date endDate;
+            try
+            {
+                startDate = DateFormat.getInstance().parse(start);
+                endDate = DateFormat.getInstance().parse(end);
+            }
+            catch (Exception e)
+            {
+                startDate = new java.util.Date();
+                endDate = new java.util.Date();
+            }
+            
+            //Using SQL prepared statements: https://stackoverflow.com/questions/3451269/parameterized-oracle-sql-query-in-java
+            //this protects against SQL Injection attacks. Each parameter must have a ? in the query, and a corresponding parameter
+            //set.
+            PreparedStatement p = this.conn.prepareStatement("SELECT * FROM APP.Orders WHERE ((CreatedDate >= ? AND CreatedDate <= ?) OR (ModifiedDate >= ? AND ModifiedDate <= ?))");
+            p.setDate(1, new java.sql.Date(startDate.getTime()));
+            p.setDate(2, new java.sql.Date(endDate.getTime()));
+            p.setDate(3, new java.sql.Date(startDate.getTime()));
+            p.setDate(4, new java.sql.Date(endDate.getTime()));
+            
+            ResultSet rs = p.executeQuery();
+            
+            //Build list of user objects to return
+            List<Order> orders = new ArrayList<Order>();
+            
+            while (rs.next())
+            {
+                orders.add(new Order(rs));
+            }
+            return orders;
+        }
+        catch (Exception e)
+        {
+            Logging.logMessage("Unable to searchOrdersByDate", e);
             return null;
         }
     }

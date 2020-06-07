@@ -66,6 +66,25 @@ public interface IOrder {
     public Iterable<Order> getAllOrders();
     
     /**
+     * Returns all orders that matches the date range.
+     * 
+     * @param start The start date
+     * @param end The end date
+     * @param customerId The customer primary key ID
+     * @return List of order objects
+     */
+    public List<Order> searchOrdersByDateForCustomerId(String start, String end, int customerId);
+    
+    /**
+     * Returns all orders that matches the date range.
+     * 
+     * @param start The start date
+     * @param end The end date
+     * @return List of order objects
+     */
+    public List<Order> searchOrdersByDate(String start, String end);
+    
+    /**
      * Returns a list of order lines based for the order
      * 
      * @param orderId The order's ID
