@@ -40,6 +40,23 @@ public interface IAddress {
      */
     public List<Address> getAllAddressesByCustomerId(int id);
     
+    /**
+     * Gets the default billing address for a user.
+     * 
+     * @param userId User ID to get address for
+     * @return Address object, or NULL if no address found.
+     */
+    public Address getDefaultBillingAddressByUserId(int userId);
+    
+    /**
+     * Gets the default shipping address for a user.
+     * 
+     * @param userId User ID to get address for
+     * @return Address object, or NULL if no address found.
+     */
+    public Address getDefaultShippingAddressByUserId(int userId);
+
+    
     /* Update queries */
     
     /**

@@ -129,6 +129,9 @@ public class Validator {
         if (this.validatorFields == null && existingValue != null)
             return existingValue.toString();
         
+        if (this.validatorFields == null && existingValue == null)
+            return ""; //No rules, but no existing value, so return before checking any rules.
+        
         for (ValidatorFieldRules field : this.validatorFields)
         {
             if (field.getField().equals(fieldName))

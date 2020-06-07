@@ -8,6 +8,8 @@ package uts.isd.controller;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -164,7 +166,61 @@ public class OrdersController extends HttpServlet {
     protected void doCheckoutGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException 
     {
-        request.getRequestDispatcher("/view/orders/checkout.jsp").forward(request, response);
+        try
+        {   
+            //Get order and pass it to request for JSP
+            IOrder dbOrder = new DBOrder();
+            IProduct dbProduct = new DBProduct();
+            
+            this.customer = getCustomerForOrder(request.getSession());
+            this.cart = dbOrder.getCartOrderByCustomer(this.customer);
+            /**
+             * Probably don't need this as order should already be set
+            this.cart.setOrderLines(dbOrder.getOrderLines(this.cart.getId()));
+            //o.setCurrency(dbCurrency.getCurrencyById(o.getCurrencyId()));
+            
+            for (OrderLine line : this.cart.getOrderLines())
+                line.setProduct(dbProduct.getProductById(line.getProductId()));
+
+            request.getSession().setAttribute("order", this.cart);
+            */
+            
+            //Load default addresses for the form
+            User user = (User)request.getSession().getAttribute("user");
+            Address defaultShippingAddress = new Address();
+            Address defaultBillingAddress = new Address();
+            List<Address> savedAddresses = new ArrayList<Address>();
+            
+            //Check if user is logged in
+            if (user != null)
+            {
+                IAddress dbAddress = new DBAddress();
+                defaultShippingAddress = dbAddress.getDefaultShippingAddressByUserId(user.getId());
+                defaultBillingAddress = dbAddress.getDefaultBillingAddressByUserId(user.getId());
+                savedAddresses = dbAddress.getAllAddressesByCustomerId(this.customer.getId());
+                
+                if (defaultShippingAddress == null)
+                    defaultShippingAddress = new Address();
+                
+                if (defaultBillingAddress == null)
+                    defaultBillingAddress = new Address();
+                
+                if (savedAddresses == null)
+                    savedAddresses = new ArrayList<Address>();
+            }
+            
+            request.setAttribute("defaultShippingAddress", defaultShippingAddress);
+            request.setAttribute("defaultBillingAddress", defaultBillingAddress);
+            request.setAttribute("savedAddresses", savedAddresses);
+            
+            RequestDispatcher requestDispatcher; 
+            requestDispatcher = request.getRequestDispatcher("/view/orders/checkout.jsp");
+            requestDispatcher.forward(request, response);
+        } 
+        catch (Exception e)
+        {
+            Logging.logMessage("Unable to doCheckoutGet", e);
+        }
     }
     
     protected void doCheckoutPost(HttpServletRequest request, HttpServletResponse response)

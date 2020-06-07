@@ -107,8 +107,9 @@
                 <%
                 for (int i = 0; i < order.getLineCount(); i++) {
                     OrderLine line = order.getOrderLines().get(i);
+                    String productName = (line.getProduct() == null ? "" : line.getProduct().getName());
                 %>
-                <a class="dropdown-item" href="#"><%= line.getQuantity() %>x <%= line.getProduct().getName() %>: <%= line.getPriceFormatted() %></a>
+                <a class="dropdown-item" href="#"><%= line.getQuantity() %>x <%= productName %>: <%= line.getPriceFormatted() %></a>
                 <% } //End of for %>
                 <hr>
                 <div class="dropdown-item">

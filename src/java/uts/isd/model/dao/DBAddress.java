@@ -85,7 +85,46 @@ public class DBAddress implements IAddress{
         }
     }
     
-    //Adding a new address to the database 
+    public Address getDefaultBillingAddressByUserId(int userId)
+    {
+        try {
+            PreparedStatement p = this.conn.prepareStatement("SELECT * FROM APP.Addresses WHERE UserID = ? AND DefaultBillingAddress = 1");
+            p.setInt(1, userId);
+            ResultSet rs = p.executeQuery();
+            if (!rs.next())
+            {
+                System.out.println("getDefaultBillingAddressByUserId returned no records for UserID: "+userId);
+                return null; //No records returned
+            }
+            return new Address(rs);
+        }
+        catch (Exception e)
+        {
+            Logging.logMessage("Unable to getDefaultBillingAddressByUserId", e);
+            return null;
+        }
+    }
+    
+    public Address getDefaultShippingAddressByUserId(int userId)
+    {
+        try {
+            PreparedStatement p = this.conn.prepareStatement("SELECT * FROM APP.Addresses WHERE UserID = ? AND DefaultShippingAddress = 1");
+            p.setInt(1, userId);
+            ResultSet rs = p.executeQuery();
+            if (!rs.next())
+            {
+                System.out.println("getDefaultShippingAddressByUserId returned no records for UserID: "+userId);
+                return null; //No records returned
+            }
+            return new Address(rs);
+        }
+        catch (Exception e)
+        {
+            Logging.logMessage("Unable to getDefaultShippingAddressByUserId", e);
+            return null;
+        }
+    }
+    
     @Override
     public boolean addAddress(Address a, Customer customer)
     {
@@ -148,7 +187,6 @@ public class DBAddress implements IAddress{
         }
     }
     
-    //Search the database for addresses with ID that == the search ID - Search by ID used in findAddresses and Update
     @Override
     public Address getAddressById(int id) 
     {

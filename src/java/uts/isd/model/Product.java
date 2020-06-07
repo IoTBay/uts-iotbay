@@ -5,6 +5,7 @@
  */
 package uts.isd.model;
 
+import java.io.Serializable;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
 import java.util.Date;
@@ -18,7 +19,7 @@ import uts.isd.util.Logging;
  *
  * @author rhys
  */
-public class Product {
+public class Product implements Serializable {
     
     private int id;
     private int categoryId;
