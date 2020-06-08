@@ -647,7 +647,7 @@ public class UsersController extends HttpServlet {
                     IOrder dbOrder = new DBOrder();
                     //Get orders for customer where status is less than PAYMENT PROCESING as anything else, the user has paid for
                     //and can't be cancelled.
-                    List<Order> orders = dbOrder.getOrdersByCustomerIdForStatusLessThan(customer.getId(), Order.STATUS_PAYMENT_PROCESSING);
+                    List<Order> orders = dbOrder.getOrdersByCustomerIdForStatusLessThan(customer.getId(), Order.STATUS_PAYMENT_SUCCESSFUL);
                     
                     for (Order o : orders)
                     {
