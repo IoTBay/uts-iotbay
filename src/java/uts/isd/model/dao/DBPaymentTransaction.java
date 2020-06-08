@@ -85,6 +85,32 @@ public class DBPaymentTransaction implements IPaymentTransaction{
         }
     }
     
+    @Override
+    public List<PaymentTransaction> getAllPaymentTransactionsByOrderId(int id)
+    {
+        try {
+            PreparedStatement p = this.conn.prepareStatement("SELECT * FROM APP.PaymentTransactions WHERE OrderID = ?");
+            p.setInt(1, id);
+            ResultSet rs = p.executeQuery();
+            
+            //Build list of payment transaction objects to return
+            List<PaymentTransaction> paytransactions = new ArrayList<PaymentTransaction>();
+            
+            while (rs.next())
+            {
+                paytransactions.add(new PaymentTransaction(rs));
+            }
+            return paytransactions;
+        }
+        catch (Exception e)
+        {
+            Logging.logMessage("Unable to getAllPaymentTransactionsByOrderId", e);
+            return null;
+        }
+    }
+    
+    
+    
     //Adding a new payment transaction to the database 
     @Override
     public boolean addPaymentTransaction(PaymentTransaction t, Customer customer)

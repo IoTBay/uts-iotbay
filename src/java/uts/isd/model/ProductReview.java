@@ -27,6 +27,8 @@ public class ProductReview implements Serializable {
     
     public ProductReview() {
     
+        this.text = "";
+        
         this.createdDate = new Date();
         this.modifiedDate = new Date();
         this.createdBy = 0;

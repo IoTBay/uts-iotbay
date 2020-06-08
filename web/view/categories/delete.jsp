@@ -7,7 +7,7 @@
 <%
   Flash flash = Flash.getInstance(session);
   Validator v = new Validator(session);
-  Category category = (Category)request.getAttribute("category");
+  ProductCategory category = (ProductCategory)request.getAttribute("category");
 
 %>
 <main role="main">

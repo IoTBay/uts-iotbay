@@ -37,6 +37,7 @@
     <a href="<%= URL.Absolute("user/edit", request) %>" class="btn btn-primary">Edit Profile</a>
     <a href="<%= URL.Absolute("user/cancel", request) %>" class="btn btn-primary">Cancel Account</a>
     <span style="margin-left: 100px;"></span>
+    <a href="<%= URL.Absolute("order/list", request) %>" class="btn btn-primary">View Orders</a>
     <a href="<%= URL.Absolute("addresses/list", request) %>" class="btn btn-primary">View Addresses</a>
     <a href="<%= URL.Absolute("paymethods/list", request) %>" class="btn btn-primary">View Payment Methods</a>
   <% } %>

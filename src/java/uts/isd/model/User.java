@@ -46,6 +46,12 @@ public class User implements Serializable {
     
     public User() { 
     
+        this.email = "";
+        this.password = "";
+        this.birthDate = new Date();
+        this.biography = "";
+        this.passwordResetHash = "";
+        
         this.createdDate = new Date();
         this.modifiedDate = new Date();
         this.createdBy = 0;

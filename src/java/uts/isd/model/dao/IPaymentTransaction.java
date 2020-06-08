@@ -38,6 +38,15 @@ public interface IPaymentTransaction {
      */
     public List<PaymentTransaction> getAllPaymentTransactionsByCustomerId(int id);
     
+    /**
+     * Returns all payment transactions in the payment transactions table for a particular order
+     * 
+     * @param id The order ID to get payment transactions for
+     * 
+     * @return List of payment transactions
+     */
+    public List<PaymentTransaction> getAllPaymentTransactionsByOrderId(int id);
+    
     /* Update queries */
     
     /**
