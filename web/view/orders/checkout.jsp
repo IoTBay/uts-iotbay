@@ -103,7 +103,7 @@
                 <div class="row">
                     <div class="col-md-4 mb-3">
                       <label for="shipping_streetNumber">Number</label>
-                      <input type="text" class="form-control shippingField" id="shipping_streetNumber" name="shipping_streetNumber" placeholder="1234" value="<%= (defaultShippingAddress == null || defaultShippingAddress.getStreetNumber() == 0 ? "" : v.repopulate("shipping_streetNumber", defaultShippingAddress.getStreetNumber())) %>" >
+                      <input type="text" class="form-control shippingField" id="shipping_streetNumber" name="shipping_streetNumber" placeholder="1234" value="<%= (v.repopulate("shipping_streetNumber", defaultShippingAddress.getStreetNumber()).equals("0") ? "" : v.repopulate("shipping_streetNumber", defaultShippingAddress.getStreetNumber())) %>" >
                     </div>
 
                     <div class="col-md-4 mb-3">
@@ -172,7 +172,7 @@
                 <div class="row">
                     <div class="col-md-4 mb-3">
                       <label for="billing_streetNumber">Number</label>
-                      <input type="text" class="form-control billingField" id="billing_streetNumber" name="billing_streetNumber" placeholder="1234" value="<%= (defaultBillingAddress == null || defaultBillingAddress.getStreetNumber() == 0 ? "" : v.repopulate("billing_streetNumber", defaultBillingAddress.getStreetNumber())) %>" >
+                      <input type="text" class="form-control billingField" id="billing_streetNumber" name="billing_streetNumber" placeholder="1234" value="<%= (v.repopulate("billing_streetNumber", defaultBillingAddress.getStreetNumber()).equals("0") ? "" : v.repopulate("billing_streetNumber", defaultBillingAddress.getStreetNumber())) %>" >
                     </div>
 
                     <div class="col-md-4 mb-3">
@@ -322,6 +322,7 @@ $(document).ready(function() {
         if (selectedShippingValue === "-1")
         {
             $('.shippingField').prop("disabled", false);
+            /*
             $('#shipping_streetNumber').val('');
             $('#shipping_streetName').val('');
             $('#shipping_streetType').val('');
@@ -330,6 +331,7 @@ $(document).ready(function() {
             $('#shipping_state').val('');
             $('#shipping_postcode').val('');
             $('#billing_country').val('');
+            */
         }
         else
         {
@@ -341,6 +343,7 @@ $(document).ready(function() {
         if (selectedBillingValue === "-1")
         {
             $('.billingField').prop("disabled", false);
+            /*
             $('#billing_streetNumber').val('');
             $('#billing_streetName').val('');
             $('#billing_streetType').val('');
@@ -349,6 +352,7 @@ $(document).ready(function() {
             $('#billing_state').val('');
             $('#billing_postcode').val('');
             $('#billing_country').val('');
+            */
         }
         else
         {
@@ -360,10 +364,12 @@ $(document).ready(function() {
         if (selectedPaymentValue === "-1")
         {
             $('.paymentField').prop("disabled", false);
+            /*
             $('#cardName').val('');
             $('#cardNumber').val('');
             $('#cardCVV').val('');
             $('#cardExpiry').val('');
+            */
         }
         else
         {
