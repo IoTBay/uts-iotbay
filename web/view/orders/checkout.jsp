@@ -57,7 +57,7 @@
             
             <div class="col-md-8 order-md-1">
                 <div class="col-md-8 order-md-1">
-                  <form method="post" action="<%= URL.Absolute("order/checkout", request) %>">
+                  <form method="post" id="orderform" action="<%= URL.Absolute("order/checkout", request) %>">
                   <h4 class="mb-3">User Details</h4>
                 <!-- User details form -->
                 <div class="row">
@@ -269,7 +269,7 @@
                         </div>
                     </div>
                     <hr class="mb-4">
-                    <button class="btn btn-primary btn-lg btn-block" type="submit">Continue to checkout</button>
+                    <input class="btn btn-primary btn-lg btn-block" id="submitOrder" type="submit" value="Submit order">
                     <hr class="mb-4">
                 </form>
             </div>
@@ -308,6 +308,14 @@ $(document).ready(function() {
     $('#paymentMethodSelect').on('change', function () {
         paymentMethod.val(paymentMethodSelect.val());
         setPaymentFields(paymentMethodSelect.val());
+    });
+    
+    //When order is submitted, disable the button to prevent double submission
+    $('#submitOrder').click(function (e) {
+        $(this).prop('disabled', true);
+        $(this).prop('value', 'Submitting...');
+        $('#orderform').submit();
+        return true;
     });
     
     function setShippingAddressFields(selectedShippingValue) {

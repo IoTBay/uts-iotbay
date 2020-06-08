@@ -92,6 +92,10 @@ public class PaymentMethodsController extends HttpServlet {
                 doDeletePaymentMethodGet(request, response, (segments.length == 3 ? segments[2] : ""));
                 break;
                 
+            case "view":
+                doViewPaymentMethodGet(request, response, (segments.length == 3 ? segments[2] : ""));
+                break;
+                
         }
     }
 
@@ -248,6 +252,52 @@ public class PaymentMethodsController extends HttpServlet {
             return;
         }
     }
+    
+    
+    protected void doViewPaymentMethodGet(HttpServletRequest request, HttpServletResponse response, String paymethodStr)
+            throws ServletException, IOException 
+    {
+        Flash flash = Flash.getInstance(request.getSession());
+        try
+        {
+            User user = (User)request.getSession().getAttribute("user");
+            if (user == null)
+            {
+                flash.add(Flash.MessageType.Error, "You are not logged in");
+                URL.GoBack(request, response);
+                return;
+            }
+            
+            int paymethodId = Integer.parseInt(paymethodStr);
+            
+            IPaymentMethod dbPaymentMethod = new DBPaymentMethod();
+            //Get the existing paymethod from the DB so we can pass it to the view to pre-load values.
+            PaymentMethod paymethod = dbPaymentMethod.getPaymentMethodById(paymethodId);
+            
+            if (paymethod == null)
+            {
+                flash.add(Flash.MessageType.Error, "Unable to find paymethod to view");
+                URL.GoBack(request, response);
+                return;
+            }
+            
+            //Set the paymethod object on the request so it can be used by the view for this request only.
+            //i.e. Don't use the session because this is for a single page request.
+            request.setAttribute("paymethod", paymethod);
+            
+            RequestDispatcher requestDispatcher; 
+            requestDispatcher = request.getRequestDispatcher("/view/paymethods/view.jsp");
+            requestDispatcher.forward(request, response); 
+        } 
+        catch (Exception e) 
+        {
+            flash.add(Flash.MessageType.Error, "Unable to view payment method");
+            Logging.logMessage("Unable to view paymethod");
+            URL.GoBack(request, response);
+            return;
+        }
+    }
+    
     
     /**
      * Handles the HTTP <code>POST</code> method.

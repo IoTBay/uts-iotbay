@@ -10,6 +10,8 @@ import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -57,6 +59,14 @@ public class OrdersController extends HttpServlet {
         request.setAttribute("user", (User)request.getSession().getAttribute("user"));
         
         
+        //If no action is specified in the URI - e.g. /addresses then assume we're listing.
+        if (request.getPathInfo() == null || request.getPathInfo().equals("/"))
+        {
+            doOrdersListGet(request, response);
+            return;
+        }
+        
+        
         /* Use getPathInfo to figure out what URL suffix is being used in the request.
          * i.e. the bit after the controller mapping.
          * https://stackoverflow.com/questions/4278083/how-to-get-request-uri-without-context-path
@@ -78,6 +88,18 @@ public class OrdersController extends HttpServlet {
                 
             case "checkout":
                 doCheckoutGet(request, response);
+                break;
+                
+            case "list":
+                doOrdersListGet(request, response);
+                break;
+                
+            case "view":
+                doOrderViewGet(request, response, (segments.length == 3 ? segments[2] : ""));
+                break;
+                
+            case "cancel":
+                doCancelOrderGet(request, response, (segments.length == 3 ? segments[2] : ""));
                 break;
                 
         }
@@ -125,6 +147,308 @@ public class OrdersController extends HttpServlet {
             case "checkout":
                 doCheckoutPost(request, response);
                 break;
+                
+            case "search":
+                doOrdersSearchPost(request, response);
+                break;
+                
+           case "cancel":
+                doCancelOrderPost(request, response, (segments.length == 3 ? segments[2] : ""));
+                break;
+        }
+    }
+    
+    /*
+     * View order
+     */
+    
+    protected void doOrderViewGet(HttpServletRequest request, HttpServletResponse response, String orderIdStr)
+            throws ServletException, IOException 
+    {
+        try
+        {  
+            HttpSession session = request.getSession();
+            Flash flash = Flash.getInstance(session);
+            Customer customer = (Customer)session.getAttribute("customer");
+            User user = (User)session.getAttribute("user");
+
+            if (customer == null || user == null)
+            {
+                flash.add(Flash.MessageType.Error, "You are not logged in");
+                URL.GoBack(request, response);
+                return;
+            }
+
+            int orderId = Integer.parseInt(orderIdStr);
+            IOrder dbOrder = new DBOrder();
+            Order o = dbOrder.getOrderById(orderId);
+            
+            if (o == null)
+            {
+                flash.add(Flash.MessageType.Error, "Could not find this order");
+                URL.GoBack(request, response);
+                return;
+            }
+            
+            this.getFullOrder(o);
+            request.setAttribute("order", o);
+            
+            IPaymentTransaction dbTransaction = new DBPaymentTransaction();
+            List<PaymentTransaction> transactions = dbTransaction.getAllPaymentTransactionsByOrderId(o.getId());
+            request.setAttribute("transactions", transactions);
+            
+            RequestDispatcher requestDispatcher; 
+            requestDispatcher = request.getRequestDispatcher("/view/orders/view.jsp");
+            requestDispatcher.forward(request, response);
+        }
+        catch (Exception e)
+        {
+            Logging.logMessage("Failed to run doOrderViewGet", e);
+        }
+    }
+    
+    /*
+     * List orders
+     */
+    
+    protected void doOrdersListGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException 
+    {
+        try
+        {   
+            HttpSession session = request.getSession();
+            Flash flash = Flash.getInstance(session);
+            Customer customer = (Customer)session.getAttribute("customer");
+            User user = (User)session.getAttribute("user");
+
+            if (customer == null || user == null)
+            {
+                flash.add(Flash.MessageType.Error, "You are not logged in");
+                URL.GoBack(request, response);
+                return;
+            }
+
+            IOrder dbOrder = new DBOrder();
+            List<Order> orders = dbOrder.getOrdersByCustomerId(customer.getId());
+            for (Order o : orders)
+            {
+                getFullOrder(o);
+            }
+
+            request.setAttribute("orders", orders);
+
+            RequestDispatcher requestDispatcher; 
+            requestDispatcher = request.getRequestDispatcher("/view/orders/list.jsp");
+            requestDispatcher.forward(request, response);
+        }
+        catch (Exception e)
+        {
+            Logging.logMessage("Failed to run doOrdersList", e);
+        }
+    }
+    
+    
+     protected void doOrdersSearchPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException 
+    {
+        try
+        {   
+            HttpSession session = request.getSession();
+            Flash flash = Flash.getInstance(session);
+            Customer customer = (Customer)session.getAttribute("customer");
+            User user = (User)session.getAttribute("user");
+
+            if (customer == null || user == null)
+            {
+                flash.add(Flash.MessageType.Error, "You are not logged in");
+                URL.GoBack(request, response);
+                return;
+            }
+            
+            Validator validator = new Validator(new ValidatorFieldRules[] {
+                new ValidatorFieldRules("Search term", "search", "required")
+            });
+          
+            if (!validator.validate(request))
+            {
+                URL.GoBack(request, response);
+                return;
+            }
+            
+            IOrder dbOrder = new DBOrder();
+            
+            //First try and do a lookup of the order ID
+            int orderId = 0;
+            try
+            {
+                orderId = Integer.parseInt(request.getParameter("search"));
+            }
+            catch (Exception e)
+            {
+                orderId = 0;
+            }
+            
+            if (orderId > 0)
+            {
+                response.sendRedirect(URL.Absolute("order/view/"+orderId, request));
+                return;
+            }
+            else
+            {
+                //Extract dates:
+                //Matches from:YYYY-MM-DD to:YYYY-MM-DD in either oreintation
+                //NOTE: For some reason java won't match without throwing in .* around the pattern.
+                final String fromPattern = ".*?(?:from\\:(\\d{4}\\-\\d{2}\\-\\d{2})).*?";
+                final String toPattern = ".*?(?:to\\:(\\d{4}\\-\\d{2}\\-\\d{2})).*?";
+                Pattern fromP = Pattern.compile(fromPattern);
+                Pattern toP = Pattern.compile(toPattern);
+                
+                //Java regex is weirdly not working with my pattern properly.
+                //Easiest way to get it to work is to add .*? everywhere and split into two separate patterns.
+                //This simplifies the logic anyway.
+                Matcher matchesFrom = fromP.matcher(request.getParameter("search"));
+                Matcher matchesTo = toP.matcher(request.getParameter("search"));
+                
+                if (!matchesFrom.matches() || !matchesTo.matches())
+                {
+                    flash.add(Flash.MessageType.Error, "Use dates format from:YYYY-MM-DD to:YYYY-MM-DD");
+                    URL.GoBack(request, response);
+                    return;
+                }
+                
+                Logging.logMessage("From full match is: "+matchesFrom.group(0));
+                Logging.logMessage("From Match 1: "+matchesFrom.group(1));
+                Logging.logMessage("To full match is: "+matchesTo.group(0));
+                Logging.logMessage("To Match 1: "+matchesTo.group(1));
+                
+                String start = matchesFrom.group(1);
+                String end = matchesTo.group(1);
+                
+                List<Order> orders = dbOrder.searchOrdersByDateForCustomerId(start, end, customer.getId());
+                for (Order o : orders)
+                {
+                    getFullOrder(o);
+                }
+                flash.add(Flash.MessageType.Success, "You search returned "+orders.size()+" results");
+                request.setAttribute("orders", orders);
+
+                RequestDispatcher requestDispatcher; 
+                requestDispatcher = request.getRequestDispatcher("/view/orders/list.jsp");
+                requestDispatcher.forward(request, response);
+            }
+        }
+        catch (Exception e)
+        {
+            Logging.logMessage("Failed to run doOrdersList", e);
+        }
+    }
+     
+    /*
+     * Cancel order
+     */
+  protected void doCancelOrderGet(HttpServletRequest request, HttpServletResponse response, String orderIdStr)
+            throws ServletException, IOException 
+    {
+        HttpSession session = request.getSession();
+        Flash flash = Flash.getInstance(session);
+        
+        try
+        {
+            int orderId = Integer.parseInt(orderIdStr);
+            IOrder dbOrder = new DBOrder();
+            Customer customer = (Customer)session.getAttribute("customer");
+            User user = (User)session.getAttribute("user");
+
+            if (customer == null)
+            {
+                flash.add(Flash.MessageType.Error, "You are not a customer yet! Login or place an order");
+                URL.GoBack(request, response);
+                return;
+            }
+            
+            Order order = dbOrder.getOrderById(orderId);
+            
+            if (order == null)
+            {
+                flash.add(Flash.MessageType.Error, "Could not find this order");
+                URL.GoBack(request, response);
+                return;
+            }
+            
+            if (order.getStatus() >= Order.STATUS_DELIVERING)
+            {
+                flash.add(Flash.MessageType.Error, "You can't cancel orders with this status.");
+                URL.GoBack(request, response);
+                return;
+            }
+            
+            request.setAttribute("order", order);
+            RequestDispatcher requestDispatcher; 
+            requestDispatcher = request.getRequestDispatcher("/view/orders/cancel.jsp");
+            requestDispatcher.forward(request, response);
+        }
+        catch (Exception e)
+        {
+            Logging.logMessage("Unable to doViewCartGet", e);
+        }
+    }
+  
+   protected void doCancelOrderPost(HttpServletRequest request, HttpServletResponse response, String orderIdStr)
+            throws ServletException, IOException 
+    {
+        HttpSession session = request.getSession();
+        Flash flash = Flash.getInstance(session);
+
+        try
+        {  
+            int orderId = Integer.parseInt(orderIdStr);
+            IOrder dbOrder = new DBOrder();
+            Customer customer = (Customer)session.getAttribute("customer");
+            User user = (User)session.getAttribute("user");
+
+            if (customer == null)
+            {
+                flash.add(Flash.MessageType.Error, "You are not a customer yet! Login or place an order");
+                URL.GoBack(request, response);
+                return;
+            }
+            
+            Order order = dbOrder.getOrderById(orderId);
+            
+            if (order == null)
+            {
+                flash.add(Flash.MessageType.Error, "Could not find this order");
+                URL.GoBack(request, response);
+                return;
+            }
+            
+            if (order.getStatus() >= Order.STATUS_DELIVERING)
+            {
+                flash.add(Flash.MessageType.Error, "You can't cancel orders with this status.");
+                URL.GoBack(request, response);
+                return;
+            }
+            
+            this.getFullOrder(order); //Load all related properties to get product info
+            
+            //Don't actually delete, just set status to cancel and then take stock back.
+            order.setStatus(Order.STATUS_CANCELLED);
+            if (updateOrderStock(order, customer, "add") && dbOrder.updateOrder(order, customer))
+            {
+                flash.add(Flash.MessageType.Success, "Successfully cancelled your order! Stock has been returned");
+            }
+            else
+            {
+                flash.add(Flash.MessageType.Error, "Failed to cancel order");
+            }
+            
+            response.sendRedirect(URL.Absolute("order/list", request));
+        }
+        catch (Exception e)
+        {
+            flash.add(Flash.MessageType.Error, "Could not load cancel page");
+            URL.GoBack(request, response);
+            Logging.logMessage("Unable to doViewCartGet", e);
         }
     }
     
@@ -307,10 +631,13 @@ public class OrdersController extends HttpServlet {
             IPaymentMethod dbPaymentMethod = new DBPaymentMethod();
             IPaymentTransaction dbTransaction = new DBPaymentTransaction();
             
+            User user = (User)request.getSession().getAttribute("user");
+            
+            
             Flash flash = Flash.getInstance(request.getSession());
                         
             //Before we go any further, check order stock
-            if (!this.updateOrderStock("remove"))
+            if (!this.updateOrderStock(this.cart, this.customer, "remove"))
             {
                 flash.add(Flash.MessageType.Error, "Unsufficient stock to submit this order");
                 URL.GoBack(request, response);
@@ -325,6 +652,10 @@ public class OrdersController extends HttpServlet {
             {
                 Address shippingAddress = new Address();
                 shippingAddress.loadRequest(request, "shipping_");
+                shippingAddress.setCustomerId(this.customer.getId());
+                if (user != null)
+                    shippingAddress.setUserId(user.getId());
+                
                 if (!dbAddress.addAddress(shippingAddress, this.customer))
                 {
                     flash.add(Flash.MessageType.Error, "Unable to add new shipping address");
@@ -338,6 +669,10 @@ public class OrdersController extends HttpServlet {
             if (request.getParameter("billingAddress") == null || request.getParameter("billingAddress").equals("-1"))
             {
                 Address billingAddress = new Address();
+                billingAddress.setCustomerId(this.customer.getId());
+                if (user != null)
+                    billingAddress.setUserId(user.getId());
+                
                 billingAddress.loadRequest(request, "billing_");
                 if (!dbAddress.addAddress(billingAddress, this.customer))
                 {
@@ -352,6 +687,10 @@ public class OrdersController extends HttpServlet {
             if (request.getParameter("paymentMethod") == null || request.getParameter("paymentMethod").equals("-1"))
             {
                 PaymentMethod paymentMethod = new PaymentMethod();
+                paymentMethod.setCustomerId(this.customer.getId());
+                if (user != null)
+                    paymentMethod.setUserId(user.getId());
+                
                 paymentMethod.loadRequest(request);
                 if (!dbPaymentMethod.addPaymentMethod(paymentMethod, this.customer))
                 {
@@ -524,7 +863,7 @@ public class OrdersController extends HttpServlet {
         return (product.getCurrentQuantity() >= quantity);
     }
     
-    protected boolean updateOrderStock(String action)
+    protected boolean updateOrderStock(Order order, Customer customer, String action)
     {
         if (!action.equals("add") && !action.equals("remove"))
         {
@@ -535,7 +874,7 @@ public class OrdersController extends HttpServlet {
         //First go through and see if we have enough stock for every line in order
         if (action.equals("remove"))
         {
-            for (OrderLine line : this.cart.getOrderLines())
+            for (OrderLine line : order.getOrderLines())
             {
                 if (!this.checkProductStock(line.getProduct(), line.getQuantity()))
                     return false;
@@ -546,7 +885,7 @@ public class OrdersController extends HttpServlet {
         {
             IProduct dbProduct = new DBProduct();
 
-            for (OrderLine line : this.cart.getOrderLines())
+            for (OrderLine line : order.getOrderLines())
             {
                 //Make sure we have the latest product info
                 Product p = dbProduct.getProductById(line.getProductId());
@@ -556,7 +895,7 @@ public class OrdersController extends HttpServlet {
                 else if (action.equals("add"))
                     p.setCurrentQuantity(p.getCurrentQuantity() + line.getQuantity());
                 
-                if (!dbProduct.updateProduct(p, this.customer))
+                if (!dbProduct.updateProduct(p, customer))
                 {
                     Logging.logMessage("Failed to update quantity of product ID:"+p.getId());
                     return false;
@@ -568,6 +907,48 @@ public class OrdersController extends HttpServlet {
         {
             Logging.logMessage("Failed to run updateOrderStock", e);
             return false;
+        }
+    }
+    
+    private void getFullOrder(Order o)
+    {
+        try
+        {
+            IOrder dbOrder = new DBOrder();
+            IProduct dbProduct = new DBProduct();
+            IAddress dbAddress = new DBAddress();
+            IPaymentMethod dbPaymethod = new DBPaymentMethod();
+            ICurrency dbCurrency = new DBCurrency();
+
+            o.setCurrency(dbCurrency.getCurrencyById(o.getCurrencyId()));
+            o.setBillingAddress(dbAddress.getAddressById(o.getBillingAddressId()));
+            o.setShippingAddress(dbAddress.getAddressById(o.getShippingAddressId()));
+            o.setPaymentMethod(dbPaymethod.getPaymentMethodById(o.getPaymentMethodId()));
+            o.setOrderLines(dbOrder.getOrderLines(o.getId()));
+
+            for (OrderLine line : o.getOrderLines())
+            {
+                line.setProduct(dbProduct.getProductById(line.getProductId()));
+                if (line.getProduct() == null)
+                    line.setProduct(new Product());
+            }
+
+
+            if (o.getShippingAddress() == null)
+                o.setBillingAddress(new Address());
+
+            if (o.getBillingAddress() == null)
+                o.setBillingAddress(new Address());
+            
+            if (o.getCurrency() == null)
+                o.setCurrency(new Currency());
+            
+            if (o.getPaymentMethod() == null)
+                o.setPaymentMethod(new PaymentMethod());
+        }
+        catch (Exception e)
+        {
+            Logging.logMessage("Failed to run getFullOrder", e);
         }
     }
     

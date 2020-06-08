@@ -46,6 +46,9 @@ public class PaymentTransaction implements Serializable {
     
     public PaymentTransaction() {
     
+        this.description = "";
+        this.paymentGatewayTransaction = "";
+        
         this.createdDate = new Date();
         this.modifiedDate = new Date();
         this.createdBy = 0;

@@ -42,6 +42,14 @@ public class Address implements Serializable {
 
     public Address() { 
     
+        this.addressPrefix1 = "";
+        this.streetName = "";
+        this.streetType = "";
+        this.suburb = "";
+        this.state = "";
+        this.postcode = "";
+        this.country = "";
+        
         this.createdDate = new Date();
         this.modifiedDate = new Date();
         this.createdBy = 0;
@@ -179,6 +187,9 @@ public class Address implements Serializable {
     
     public String getFullAddress()
     {
+        if (this.streetName.isEmpty() && this.streetNumber == 0)
+            return "";
+        
         return (this.getAddressPrefix1().isEmpty() ? "" : this.getAddressPrefix1()+", ") +
                 this.getStreetNumber()+" "+this.getStreetName() +" "+this.getStreetType() + ", "+
                 this.getSuburb()+", "+this.getState()+" "+this.getPostcode()+", "+this.getCountry();
