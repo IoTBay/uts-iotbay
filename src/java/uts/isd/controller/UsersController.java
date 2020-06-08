@@ -7,8 +7,11 @@ package uts.isd.controller;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -72,6 +75,11 @@ public class UsersController extends HttpServlet {
             case "/cancel":
                 doCancelGet(request, response);
                 break;
+                
+            case "/accesslog":
+                doAccessLogGet(request, response);
+                break;
+                
         }
     }
 
@@ -116,6 +124,11 @@ public class UsersController extends HttpServlet {
             case "/cancel":
                 doCancelPost(request, response);
                 break;
+                
+            case "/accesslog":
+                doAccessLogPost(request, response);
+                break;
+                
         }
     }
     
@@ -474,6 +487,114 @@ public class UsersController extends HttpServlet {
              
     }
     
+    protected void doAccessLogGet(HttpServletRequest request, HttpServletResponse response)
+        throws ServletException, IOException {
+        try
+        {   
+            HttpSession session = request.getSession();
+            Flash flash = Flash.getInstance(session);
+            Customer customer = (Customer)session.getAttribute("customer");
+            User user = (User)session.getAttribute("user");
+
+            if (customer == null || user == null)
+            {
+                flash.add(Flash.MessageType.Error, "You are not logged in");
+                URL.GoBack(request, response);
+                return;
+            }
+
+            IAuditLogs dbAuditLog = new DBAuditLogs();
+            List<AuditLog> auditLogs = dbAuditLog.getAuditLogsByCustomerId(customer.getId());
+            request.setAttribute("auditlogs", auditLogs);
+
+            RequestDispatcher requestDispatcher; 
+            requestDispatcher = request.getRequestDispatcher("/view_userlog.jsp");
+            requestDispatcher.forward(request, response);
+        }
+        catch (Exception e)
+        {
+            Logging.logMessage("Failed to run doAccessLogGet", e);
+        }
+    }
+    
+    protected void doAccessLogPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        try
+        {   
+            HttpSession session = request.getSession();
+            Flash flash = Flash.getInstance(session);
+            Customer customer = (Customer)session.getAttribute("customer");
+            User user = (User)session.getAttribute("user");
+
+            if (customer == null || user == null)
+            {
+                flash.add(Flash.MessageType.Error, "You are not logged in");
+                URL.GoBack(request, response);
+                return;
+            }
+            
+            Validator validator = new Validator(new ValidatorFieldRules[] {
+                new ValidatorFieldRules("Search term", "search", "required")
+            });
+          
+            if (!validator.validate(request))
+            {
+                URL.GoBack(request, response);
+                return;
+            }
+            
+            IAuditLogs dbAuditLog = new DBAuditLogs();                        
+                //Extract dates:
+                //Matches from:YYYY-MM-DD to:YYYY-MM-DD in either oreintation
+                //NOTE: For some reason java won't match without throwing in .* around the pattern.
+                final String fromPattern = ".*?(?:from\\:(\\d{4}\\-\\d{2}\\-\\d{2})).*?";
+                final String toPattern = ".*?(?:to\\:(\\d{4}\\-\\d{2}\\-\\d{2})).*?";
+                Pattern fromP = Pattern.compile(fromPattern);
+                Pattern toP = Pattern.compile(toPattern);
+                
+                //Java regex is weirdly not working with my pattern properly.
+                //Easiest way to get it to work is to add .*? everywhere and split into two separate patterns.
+                //This simplifies the logic anyway.
+                Matcher matchesFrom = fromP.matcher(request.getParameter("search"));
+                Matcher matchesTo = toP.matcher(request.getParameter("search"));
+                
+                if (!matchesFrom.matches() || !matchesTo.matches())
+                {
+                    flash.add(Flash.MessageType.Error, "Use dates format from:YYYY-MM-DD to:YYYY-MM-DD");
+                    URL.GoBack(request, response);
+                    return;
+                }
+                
+                Logging.logMessage("From full match is: "+matchesFrom.group(0));
+                Logging.logMessage("From Match 1: "+matchesFrom.group(1));
+                Logging.logMessage("To full match is: "+matchesTo.group(0));
+                Logging.logMessage("To Match 1: "+matchesTo.group(1));
+                
+                String start = matchesFrom.group(1);
+                String end = matchesTo.group(1);
+                
+                List<AuditLog> auditLogs = dbAuditLog.searchAuditLogsByDateForCustomerId(start, end, customer.getId());
+                
+                if (auditLogs == null)
+                {
+                    flash.add(Flash.MessageType.Error, "No search results were returned");
+                    URL.GoBack(request, response);
+                    return;
+                }
+
+                flash.add(Flash.MessageType.Success, "You search returned "+auditLogs.size()+" results");
+                request.setAttribute("auditlogs", auditLogs);
+
+                RequestDispatcher requestDispatcher; 
+                requestDispatcher = request.getRequestDispatcher("/view_userlog.jsp");
+                requestDispatcher.forward(request, response);
+            }
+        catch (Exception e)
+        {
+            Logging.logMessage("Failed to run doAccessLogPost", e);
+        }
+}
+    
     protected void doCancelGet(HttpServletRequest request, HttpServletResponse response)
         throws ServletException, IOException {
         RequestDispatcher requestDispatcher; 
@@ -517,11 +638,25 @@ public class UsersController extends HttpServlet {
                 boolean updated = (user.update(dbUser, customer));
                 Logging.logMessage("Updated profile");
 
-                if (updated){
+                if (updated)
+                {
                     DBAuditLogs.addEntry(DBAuditLogs.Entity.Users, "Canceled", "Cancelled user", customer.getId());
                     flash.add(Flash.MessageType.Success, "Your profile was cancelled successfully!");
                     session.setAttribute("userCancelled" , true);
+                    
+                    IOrder dbOrder = new DBOrder();
+                    //Get orders for customer where status is less than PAYMENT PROCESING as anything else, the user has paid for
+                    //and can't be cancelled.
+                    List<Order> orders = dbOrder.getOrdersByCustomerIdForStatusLessThan(customer.getId(), Order.STATUS_PAYMENT_SUCCESSFUL);
+                    
+                    for (Order o : orders)
+                    {
+                        o.setStatus(Order.STATUS_CANCELLED);
+                        dbOrder.updateOrder(o, customer);
                     }
+                    
+                    
+                }
                 else{
                     flash.add(Flash.MessageType.Error, "Failed to cancel your profile");
                 }
