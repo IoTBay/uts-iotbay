@@ -188,7 +188,7 @@ CREATE TABLE AuditLogs (
 -- AuditLogs
 
 ALTER TABLE Addresses
-ADD FOREIGN KEY (EventCustomerID)
+ADD FOREIGN KEY (CustomerID)
 REFERENCES Customers (ID);
 
 -- Addresses

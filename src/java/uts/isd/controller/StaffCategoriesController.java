@@ -422,7 +422,7 @@ public class StaffCategoriesController extends HttpServlet {
             {
                 DBAuditLogs.addEntry(DBAuditLogs.Entity.ProductCategories, "Updated", "Updated category "+category.getName(), customer.getId());
                 flash.add(Flash.MessageType.Success, "Existing category updated successfully");
-                response.sendRedirect(URL.Absolute("categories/list", request));
+                response.sendRedirect(URL.Absolute("staff/categories/list", request));
                 return;
             }
             else
@@ -478,13 +478,13 @@ public class StaffCategoriesController extends HttpServlet {
             {
                 DBAuditLogs.addEntry(DBAuditLogs.Entity.ProductCategories, "Deleted", "Deleted category "+categoryStr, customer.getId());
                 flash.add(Flash.MessageType.Success, "Category deleted successfully");
-                response.sendRedirect(URL.Absolute("categories/list", request));
+                response.sendRedirect(URL.Absolute("staff/categories/list", request));
                 return;
             }
             else
             {
                 flash.add(Flash.MessageType.Error, "Failed to delete category");
-                response.sendRedirect(URL.Absolute("categories/list", request));
+                response.sendRedirect(URL.Absolute("staff/categories/list", request));
             }
         }
         catch (Exception e)

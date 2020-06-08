@@ -11,9 +11,18 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Date;
 import javax.servlet.ServletRequest;
+import uts.isd.model.dao.DBAddress;
+import uts.isd.model.dao.DBCurrency;
 import uts.isd.model.dao.DBCustomer;
+import uts.isd.model.dao.DBOrder;
+import uts.isd.model.dao.DBPaymentMethod;
+import uts.isd.model.dao.DBProduct;
+import uts.isd.model.dao.IAddress;
+import uts.isd.model.dao.ICurrency;
 import uts.isd.model.dao.ICustomer;
 import uts.isd.model.dao.IOrder;
+import uts.isd.model.dao.IPaymentMethod;
+import uts.isd.model.dao.IProduct;
 import uts.isd.util.Logging;
 
 /**
@@ -387,6 +396,54 @@ public class Order implements Serializable {
         catch (Exception e)
         {
             return new Customer();
+        }
+    }
+    
+    /**
+     * For a given order object this will lookup all the relations in the 
+     * database and set them as relations on this object for easy access.
+     * 
+     * @param o The order object to update
+     */
+    public static void getFullOrder(Order o)
+    {
+        try
+        {
+            IOrder dbOrder = new DBOrder();
+            IProduct dbProduct = new DBProduct();
+            IAddress dbAddress = new DBAddress();
+            IPaymentMethod dbPaymethod = new DBPaymentMethod();
+            ICurrency dbCurrency = new DBCurrency();
+
+            o.setCurrency(dbCurrency.getCurrencyById(o.getCurrencyId()));
+            o.setBillingAddress(dbAddress.getAddressById(o.getBillingAddressId()));
+            o.setShippingAddress(dbAddress.getAddressById(o.getShippingAddressId()));
+            o.setPaymentMethod(dbPaymethod.getPaymentMethodById(o.getPaymentMethodId()));
+            o.setOrderLines(dbOrder.getOrderLines(o.getId()));
+
+            for (OrderLine line : o.getOrderLines())
+            {
+                line.setProduct(dbProduct.getProductById(line.getProductId()));
+                if (line.getProduct() == null)
+                    line.setProduct(new Product());
+            }
+
+
+            if (o.getShippingAddress() == null)
+                o.setBillingAddress(new Address());
+
+            if (o.getBillingAddress() == null)
+                o.setBillingAddress(new Address());
+            
+            if (o.getCurrency() == null)
+                o.setCurrency(new Currency());
+            
+            if (o.getPaymentMethod() == null)
+                o.setPaymentMethod(new PaymentMethod());
+        }
+        catch (Exception e)
+        {
+            Logging.logMessage("Failed to run getFullOrder", e);
         }
     }
 }

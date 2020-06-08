@@ -41,7 +41,7 @@
   <div class="collapse navbar-collapse" id="navbarsExampleDefault">
     <ul class="navbar-nav mr-auto">
       <li class="nav-item">
-        <a class="nav-link" href="index.jsp">Home</a>
+        <a class="nav-link" href="<%= URL.Absolute("", request) %>">Home</a>
       </li>
       <li class="nav-item">
           <a class="nav-link" href="<%= URL.Absolute("categories", request) %>">Categories</a>

@@ -43,7 +43,6 @@
             <tr>
               <th>
                   <a href="<%= URL.Absolute("order/view/"+o.getId(), request) %>" class="btn btn-primary">View</a>
-                  <a href="<%= URL.Absolute("order/edit/"+o.getId(), request) %>" class="btn btn-primary">Edit</a>
                   <a href="<%= URL.Absolute("order/cancel/"+o.getId(), request) %>" class="btn btn-danger">Cancel</a>
               </th>
               <td><%= o.getId() %></td>
