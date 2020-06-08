@@ -7,7 +7,12 @@ package uts.isd.model.dao;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
+import uts.isd.model.*;
 import uts.isd.util.Logging;
 
 /**
@@ -20,7 +25,7 @@ import uts.isd.util.Logging;
  * @author Rhys Hanrahan 11000801
  * @since 2020-06-03
  */
-public class DBAuditLogs {
+public class DBAuditLogs implements IAuditLogs {
     
     private static Connection conn;
     
@@ -101,5 +106,74 @@ public class DBAuditLogs {
         }
     }
     
+    @Override
+    public List<AuditLog> getAuditLogsByCustomerId(int customerId) {
+        try {
+            //Using SQL prepared statements: https://stackoverflow.com/questions/3451269/parameterized-oracle-sql-query-in-java
+            //this protects against SQL Injection attacks. Each parameter must have a ? in the query, and a corresponding parameter
+            //set.
+            PreparedStatement p = this.conn.prepareStatement("SELECT * FROM APP.AuditLogs WHERE CustomerID = ?");
+            p.setInt(1, customerId);
+            ResultSet rs = p.executeQuery();
+            
+            //Build list of user objects to return
+            List<AuditLog> accesslogs = new ArrayList<AuditLog>();
+            
+            while (rs.next())
+            {
+                accesslogs.add(new AuditLog(rs));
+            }
+            return accesslogs;
+        }
+        catch (Exception e)
+        {
+            Logging.logMessage("Unable to getAccessLogsByCustomerID", e);
+            return null;
+        }
+    }
     
+    public List<AuditLog> searchAuditLogsByDateForCustomerId(String start, String end, int customerId)
+    {
+        try {
+            java.util.Date startDate;
+            java.util.Date endDate;
+            //https://stackoverflow.com/questions/18873014/parse-string-date-in-yyyy-mm-dd-format
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            
+            try
+            {
+                startDate = sdf.parse(start);
+                endDate = sdf.parse(end);
+            }
+            catch (Exception e)
+            {
+                startDate = new java.util.Date();
+                endDate = new java.util.Date();
+            }
+            
+            //Using SQL prepared statements: https://stackoverflow.com/questions/3451269/parameterized-oracle-sql-query-in-java
+            //this protects against SQL Injection attacks. Each parameter must have a ? in the query, and a corresponding parameter
+            //set.
+            PreparedStatement p = this.conn.prepareStatement("SELECT * FROM APP.AuditLogs WHERE EventDate >= ? AND EventDate <= ? AND CustomerID = ? ORDER BY ID DESC");
+            p.setDate(1, new java.sql.Date(startDate.getTime()));
+            p.setDate(2, new java.sql.Date(endDate.getTime()));
+            p.setInt(3, customerId);
+            
+            ResultSet rs = p.executeQuery();
+            
+            //Build list of user objects to return
+            List<AuditLog> auditLogs = new ArrayList<AuditLog>();
+            
+            while (rs.next())
+            {
+                auditLogs.add(new AuditLog(rs));
+            }
+            return auditLogs;
+        }
+        catch (Exception e)
+        {
+            Logging.logMessage("Unable to searchAuditLogsByDateForCustomerId", e);
+            return null;
+        }
+    }
 }
