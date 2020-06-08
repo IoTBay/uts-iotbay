@@ -504,7 +504,7 @@ public class UsersController extends HttpServlet {
             }
 
             IAuditLogs dbAuditLog = new DBAuditLogs();
-            List<AuditLog> auditLogs = dbAuditLog.getAccessLogsByCustomerID(customer.getId());
+            List<AuditLog> auditLogs = dbAuditLog.getAuditLogsByCustomerId(customer.getId());
             request.setAttribute("auditlogs", auditLogs);
 
             RequestDispatcher requestDispatcher; 
@@ -524,9 +524,9 @@ public class UsersController extends HttpServlet {
             HttpSession session = request.getSession();
             Flash flash = Flash.getInstance(session);
             Customer customer = (Customer)session.getAttribute("customer");
-            AuditLog auditLog = (AuditLog)session.getAttribute("auditLog");
+            User user = (User)session.getAttribute("user");
 
-            if (customer == null || auditLog == null)
+            if (customer == null || user == null)
             {
                 flash.add(Flash.MessageType.Error, "You are not logged in");
                 URL.GoBack(request, response);
@@ -573,10 +573,17 @@ public class UsersController extends HttpServlet {
                 String start = matchesFrom.group(1);
                 String end = matchesTo.group(1);
                 
-                List<AuditLog> auditLogs = dbAuditLog.searchAccessLogsByDateForCustomerId(start, end, customer.getId());
+                List<AuditLog> auditLogs = dbAuditLog.searchAuditLogsByDateForCustomerId(start, end, customer.getId());
+                
+                if (auditLogs == null)
+                {
+                    flash.add(Flash.MessageType.Error, "No search results were returned");
+                    URL.GoBack(request, response);
+                    return;
+                }
 
                 flash.add(Flash.MessageType.Success, "You search returned "+auditLogs.size()+" results");
-                request.setAttribute("auditLogs", auditLogs);
+                request.setAttribute("auditlogs", auditLogs);
 
                 RequestDispatcher requestDispatcher; 
                 requestDispatcher = request.getRequestDispatcher("/view_userlog.jsp");

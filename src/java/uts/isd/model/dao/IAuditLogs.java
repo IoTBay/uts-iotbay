@@ -18,8 +18,8 @@ public interface IAuditLogs {
     /* Select queries */
 
     
-    public List<AuditLog> getAccessLogsByCustomerID(int customerId);
+    public List<AuditLog> getAuditLogsByCustomerId(int customerId);
 
-    public List<AuditLog> searchAccessLogsByDateForCustomerId(String start, String end, int customerId);
+    public List<AuditLog> searchAuditLogsByDateForCustomerId(String start, String end, int customerId);
     
 }

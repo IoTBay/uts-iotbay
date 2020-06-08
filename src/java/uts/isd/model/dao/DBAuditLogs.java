@@ -28,11 +28,6 @@ import uts.isd.util.Logging;
 public class DBAuditLogs implements IAuditLogs {
     
     private static Connection conn;
-
-    @Override
-    public List<AuditLog> searchAccessLogsByDateForCustomerId(String start, String end, int customerId) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
     
     /**
      * The entity basically represents what data table
@@ -112,7 +107,7 @@ public class DBAuditLogs implements IAuditLogs {
     }
     
     @Override
-    public List<AuditLog> getAccessLogsByCustomerID(int customerId) {
+    public List<AuditLog> getAuditLogsByCustomerId(int customerId) {
         try {
             //Using SQL prepared statements: https://stackoverflow.com/questions/3451269/parameterized-oracle-sql-query-in-java
             //this protects against SQL Injection attacks. Each parameter must have a ? in the query, and a corresponding parameter
@@ -159,7 +154,7 @@ public class DBAuditLogs implements IAuditLogs {
             //Using SQL prepared statements: https://stackoverflow.com/questions/3451269/parameterized-oracle-sql-query-in-java
             //this protects against SQL Injection attacks. Each parameter must have a ? in the query, and a corresponding parameter
             //set.
-            PreparedStatement p = this.conn.prepareStatement("SELECT * FROM APP.Orders WHERE EventDate >= ? AND EventDate <= ? AND CustomerID = ? ORDER BY ID DESC");
+            PreparedStatement p = this.conn.prepareStatement("SELECT * FROM APP.AuditLogs WHERE EventDate >= ? AND EventDate <= ? AND CustomerID = ? ORDER BY ID DESC");
             p.setDate(1, new java.sql.Date(startDate.getTime()));
             p.setDate(2, new java.sql.Date(endDate.getTime()));
             p.setInt(3, customerId);
