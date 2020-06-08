@@ -164,6 +164,34 @@ public class DBOrder implements IOrder {
         }
     }
     
+    @Override
+    public List<Order> getOrdersByCustomerIdForStatusLessThan(int customerId, int status)
+    {
+        try {
+            //Using SQL prepared statements: https://stackoverflow.com/questions/3451269/parameterized-oracle-sql-query-in-java
+            //this protects against SQL Injection attacks. Each parameter must have a ? in the query, and a corresponding parameter
+            //set.
+            PreparedStatement p = this.conn.prepareStatement("SELECT * FROM APP.Orders WHERE CustomerID = ? AND Status < ? ORDER BY ID DESC");
+            p.setInt(1, customerId);
+            p.setInt(2, status);
+            ResultSet rs = p.executeQuery();
+            
+            //Build list of user objects to return
+            List<Order> orders = new ArrayList<Order>();
+            
+            while (rs.next())
+            {
+                orders.add(new Order(rs));
+            }
+            return orders;
+        }
+        catch (Exception e)
+        {
+            Logging.logMessage("Unable to getOrdersByCustomerIdForStatusLessThan", e);
+            return null;
+        }
+    }
+    
      @Override
     public List<Order> searchOrdersByDateForCustomerId(String start, String end, int customerId)
     {

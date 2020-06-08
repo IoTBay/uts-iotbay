@@ -638,13 +638,25 @@ public class UsersController extends HttpServlet {
                 boolean updated = (user.update(dbUser, customer));
                 Logging.logMessage("Updated profile");
 
-                if (updated){
+                if (updated)
+                {
                     DBAuditLogs.addEntry(DBAuditLogs.Entity.Users, "Canceled", "Cancelled user", customer.getId());
                     flash.add(Flash.MessageType.Success, "Your profile was cancelled successfully!");
                     session.setAttribute("userCancelled" , true);
                     
+                    IOrder dbOrder = new DBOrder();
+                    //Get orders for customer where status is less than PAYMENT PROCESING as anything else, the user has paid for
+                    //and can't be cancelled.
+                    List<Order> orders = dbOrder.getOrdersByCustomerIdForStatusLessThan(customer.getId(), Order.STATUS_PAYMENT_PROCESSING);
                     
+                    for (Order o : orders)
+                    {
+                        o.setStatus(Order.STATUS_CANCELLED);
+                        dbOrder.updateOrder(o, customer);
                     }
+                    
+                    
+                }
                 else{
                     flash.add(Flash.MessageType.Error, "Failed to cancel your profile");
                 }
