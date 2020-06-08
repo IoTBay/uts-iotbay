@@ -86,6 +86,10 @@ public class OrdersController extends HttpServlet {
                 doOrdersListGet(request, response);
                 break;
                 
+            case "view":
+                doOrderViewGet(request, response, (segments.length == 3 ? segments[2] : ""));
+                break;
+                
         }
     }
     
@@ -135,6 +139,54 @@ public class OrdersController extends HttpServlet {
             case "search":
                 doOrdersSearchPost(request, response);
                 break;
+        }
+    }
+    
+    /*
+     * View order
+     */
+    
+    protected void doOrderViewGet(HttpServletRequest request, HttpServletResponse response, String orderIdStr)
+            throws ServletException, IOException 
+    {
+        try
+        {  
+            HttpSession session = request.getSession();
+            Flash flash = Flash.getInstance(session);
+            Customer customer = (Customer)session.getAttribute("customer");
+            User user = (User)session.getAttribute("user");
+
+            if (customer == null || user == null)
+            {
+                flash.add(Flash.MessageType.Error, "You are not logged in");
+                URL.GoBack(request, response);
+                return;
+            }
+
+            int orderId = Integer.parseInt(orderIdStr);
+            IOrder dbOrder = new DBOrder();
+            Order o = dbOrder.getOrderById(orderId);
+            
+            if (o == null)
+            {
+                flash.add(Flash.MessageType.Error, "Could not find this order");
+                URL.GoBack(request, response);
+                return;
+            }
+            
+            this.getFullOrder(o);
+            request.setAttribute("order", o);
+            
+            IPaymentTransaction dbTransaction = new DBPaymentTransaction();
+            List<PaymentTransaction> transactions = dbTransaction.getAllPaymentTransactionsByOrderId(o.getId());
+            
+            RequestDispatcher requestDispatcher; 
+            requestDispatcher = request.getRequestDispatcher("/view/orders/view.jsp");
+            requestDispatcher.forward(request, response);
+        }
+        catch (Exception e)
+        {
+            Logging.logMessage("Failed to run doOrderViewGet", e);
         }
     }
     
