@@ -28,6 +28,10 @@
         <servlet-name>PaymentMethodsController</servlet-name>
         <servlet-class>uts.isd.controller.PaymentMethodsController</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>StaffOrdersController</servlet-name>
+        <servlet-class>uts.isd.controller.StaffOrdersController</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>UsersController</servlet-name>
         <url-pattern>/user/*</url-pattern>
@@ -55,6 +59,10 @@
     <servlet-mapping>
         <servlet-name>PaymentMethodsController</servlet-name>
         <url-pattern>/paymethods/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>StaffOrdersController</servlet-name>
+        <url-pattern>/staff/orders/*</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>
