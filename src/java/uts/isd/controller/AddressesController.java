@@ -91,6 +91,10 @@ public class AddressesController extends HttpServlet {
                 doDeleteAddressGet(request, response, (segments.length == 3 ? segments[2] : ""));
                 break;
                 
+            case "view":
+                doViewAddressGet(request, response, (segments.length == 3 ? segments[2] : ""));
+                break;
+                
         }
     }
 
@@ -243,6 +247,50 @@ public class AddressesController extends HttpServlet {
         {
             flash.add(Flash.MessageType.Error, "Unable to delete address");
             Logging.logMessage("Unable to delete address");
+            URL.GoBack(request, response);
+            return;
+        }
+    }
+    
+    protected void doViewAddressGet(HttpServletRequest request, HttpServletResponse response, String addressStr)
+            throws ServletException, IOException 
+    {
+        Flash flash = Flash.getInstance(request.getSession());
+        try
+        {
+            User user = (User)request.getSession().getAttribute("user");
+            if (user == null)
+            {
+                flash.add(Flash.MessageType.Error, "You are not logged in");
+                URL.GoBack(request, response);
+                return;
+            }
+            
+            int addressId = Integer.parseInt(addressStr);
+            
+            IAddress dbAddress = new DBAddress();
+            //Get the existing address from the DB so we can pass it to the view to pre-load values.
+            Address address = dbAddress.getAddressById(addressId);
+            
+            if (address == null)
+            {
+                flash.add(Flash.MessageType.Error, "Unable to find address to view");
+                URL.GoBack(request, response);
+                return;
+            }
+            
+            //Set the address object on the request so it can be used by the view for this request only.
+            //i.e. Don't use the session because this is for a single page request.
+            request.setAttribute("address", address);
+            
+            RequestDispatcher requestDispatcher; 
+            requestDispatcher = request.getRequestDispatcher("/view/addresses/view.jsp");
+            requestDispatcher.forward(request, response); 
+        } 
+        catch (Exception e) 
+        {
+            flash.add(Flash.MessageType.Error, "Unable to view address");
+            Logging.logMessage("Unable to view address");
             URL.GoBack(request, response);
             return;
         }

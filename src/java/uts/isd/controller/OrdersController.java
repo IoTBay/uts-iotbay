@@ -59,6 +59,14 @@ public class OrdersController extends HttpServlet {
         request.setAttribute("user", (User)request.getSession().getAttribute("user"));
         
         
+        //If no action is specified in the URI - e.g. /addresses then assume we're listing.
+        if (request.getPathInfo() == null || request.getPathInfo().equals("/"))
+        {
+            doOrdersListGet(request, response);
+            return;
+        }
+        
+        
         /* Use getPathInfo to figure out what URL suffix is being used in the request.
          * i.e. the bit after the controller mapping.
          * https://stackoverflow.com/questions/4278083/how-to-get-request-uri-without-context-path
