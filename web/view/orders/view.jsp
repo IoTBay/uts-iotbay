@@ -70,6 +70,8 @@
     </table>
     <br>
     <br>
+    <h3>Order Lines</h3>
+    <hr>
     <% if (order.getLineCount() == 0) { %>
     <h5>This order is empty.</h5>
     <% } else { %>
@@ -98,8 +100,8 @@
     <% } %>
     <br>
     <br>
-    
-    
+    <h3>Payment Transactions</h3>
+    <hr>
     <% if (transactions == null || transactions.size() == 0) { %>
     <h5>This order has no payment transactions.</h5>
     <% } else { %>

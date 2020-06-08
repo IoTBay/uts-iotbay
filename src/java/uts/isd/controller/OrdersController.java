@@ -179,6 +179,7 @@ public class OrdersController extends HttpServlet {
             
             IPaymentTransaction dbTransaction = new DBPaymentTransaction();
             List<PaymentTransaction> transactions = dbTransaction.getAllPaymentTransactionsByOrderId(o.getId());
+            request.setAttribute("transactions", transactions);
             
             RequestDispatcher requestDispatcher; 
             requestDispatcher = request.getRequestDispatcher("/view/orders/view.jsp");
