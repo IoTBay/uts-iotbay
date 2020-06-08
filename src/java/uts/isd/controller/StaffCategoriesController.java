@@ -350,7 +350,7 @@ public class StaffCategoriesController extends HttpServlet {
             {
                 DBAuditLogs.addEntry(DBAuditLogs.Entity.ProductCategories, "Added", "Added category "+category.getName(), customer.getId());
                 flash.add(Flash.MessageType.Success, "New category added successfully");
-                response.sendRedirect(URL.Absolute("categories/list", request));
+                response.sendRedirect(URL.Absolute("staff/categories/list", request));
                 return;
             }
             else
