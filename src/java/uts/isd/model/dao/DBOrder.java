@@ -137,7 +137,7 @@ public class DBOrder implements IOrder {
     }
 
     @Override
-    public Iterable<Order> getOrdersByCustomerId(int customerId) 
+    public List<Order> getOrdersByCustomerId(int customerId) 
     {
         try {
             //Using SQL prepared statements: https://stackoverflow.com/questions/3451269/parameterized-oracle-sql-query-in-java
@@ -253,7 +253,7 @@ public class DBOrder implements IOrder {
     }
 
     @Override
-    public Iterable<Order> getAllOrders() 
+    public List<Order> getAllOrders() 
     {
         try {
             //Using SQL prepared statements: https://stackoverflow.com/questions/3451269/parameterized-oracle-sql-query-in-java

@@ -80,6 +80,10 @@ public class OrdersController extends HttpServlet {
                 doCheckoutGet(request, response);
                 break;
                 
+            case "list":
+                doOrdersList(request, response);
+                break;
+                
         }
     }
     
@@ -125,6 +129,61 @@ public class OrdersController extends HttpServlet {
             case "checkout":
                 doCheckoutPost(request, response);
                 break;
+        }
+    }
+    
+    /*
+     * List orders
+     */
+    
+    protected void doOrdersList(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException 
+    {
+        try
+        {   
+            HttpSession session = request.getSession();
+            Flash flash = Flash.getInstance(session);
+            Customer customer = (Customer)session.getAttribute("customer");
+            User user = (User)session.getAttribute("user");
+
+            if (customer == null || user == null)
+            {
+                flash.add(Flash.MessageType.Error, "You are not logged in");
+                URL.GoBack(request, response);
+                return;
+            }
+
+            IOrder dbOrder = new DBOrder();
+            IAddress dbAddress = new DBAddress();
+            IPaymentMethod dbPaymethod = new DBPaymentMethod();
+            ICurrency dbCurrency = new DBCurrency();
+
+            List<Order> orders = dbOrder.getOrdersByCustomerId(customer.getId());
+            for (Order o : orders)
+            {
+                o.setCurrency(dbCurrency.getCurrencyById(o.getCurrencyId()));
+                o.setBillingAddress(dbAddress.getAddressById(o.getBillingAddressId()));
+                o.setShippingAddress(dbAddress.getAddressById(o.getShippingAddressId()));
+                o.setBillingAddress(dbAddress.getAddressById(o.getBillingAddressId()));
+                o.setPaymentMethod(dbPaymethod.getPaymentMethodById(o.getPaymentMethodId()));
+                o.setOrderLines(dbOrder.getOrderLines(o.getId()));
+                
+                if (o.getShippingAddress() == null)
+                    o.setBillingAddress(new Address());
+                
+                if (o.getBillingAddress() == null)
+                    o.setBillingAddress(new Address());
+            }
+
+            request.setAttribute("orders", orders);
+
+            RequestDispatcher requestDispatcher; 
+            requestDispatcher = request.getRequestDispatcher("/view/orders/list.jsp");
+            requestDispatcher.forward(request, response);
+        }
+        catch (Exception e)
+        {
+            Logging.logMessage("Failed to run doOrdersList", e);
         }
     }
     
@@ -307,6 +366,9 @@ public class OrdersController extends HttpServlet {
             IPaymentMethod dbPaymentMethod = new DBPaymentMethod();
             IPaymentTransaction dbTransaction = new DBPaymentTransaction();
             
+            User user = (User)request.getSession().getAttribute("user");
+            
+            
             Flash flash = Flash.getInstance(request.getSession());
                         
             //Before we go any further, check order stock
@@ -325,6 +387,10 @@ public class OrdersController extends HttpServlet {
             {
                 Address shippingAddress = new Address();
                 shippingAddress.loadRequest(request, "shipping_");
+                shippingAddress.setCustomerId(this.customer.getId());
+                if (user != null)
+                    shippingAddress.setUserId(user.getId());
+                
                 if (!dbAddress.addAddress(shippingAddress, this.customer))
                 {
                     flash.add(Flash.MessageType.Error, "Unable to add new shipping address");
@@ -338,6 +404,10 @@ public class OrdersController extends HttpServlet {
             if (request.getParameter("billingAddress") == null || request.getParameter("billingAddress").equals("-1"))
             {
                 Address billingAddress = new Address();
+                billingAddress.setCustomerId(this.customer.getId());
+                if (user != null)
+                    billingAddress.setUserId(user.getId());
+                
                 billingAddress.loadRequest(request, "billing_");
                 if (!dbAddress.addAddress(billingAddress, this.customer))
                 {
@@ -352,6 +422,10 @@ public class OrdersController extends HttpServlet {
             if (request.getParameter("paymentMethod") == null || request.getParameter("paymentMethod").equals("-1"))
             {
                 PaymentMethod paymentMethod = new PaymentMethod();
+                paymentMethod.setCustomerId(this.customer.getId());
+                if (user != null)
+                    paymentMethod.setUserId(user.getId());
+                
                 paymentMethod.loadRequest(request);
                 if (!dbPaymentMethod.addPaymentMethod(paymentMethod, this.customer))
                 {

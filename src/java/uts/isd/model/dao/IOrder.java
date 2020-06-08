@@ -55,7 +55,7 @@ public interface IOrder {
      * @param customerId The order's related customer ID
      * @return  List of orders related to the customer.
      */
-    public Iterable<Order> getOrdersByCustomerId(int customerId);
+    public List<Order> getOrdersByCustomerId(int customerId);
     
     
     /**
@@ -63,7 +63,7 @@ public interface IOrder {
      * 
      * @return List of all orders
      */
-    public Iterable<Order> getAllOrders();
+    public List<Order> getAllOrders();
     
     /**
      * Returns all orders that matches the date range.
