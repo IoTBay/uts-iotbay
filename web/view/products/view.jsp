@@ -19,8 +19,11 @@
       <!--Grid column-->
       <div class="col-md-6 mb-4">
 
-        <img src="https://mdbootstrap.com/img/Photos/Horizontal/E-commerce/Products/14.jpg" class="img-fluid" alt="Product Image">
-
+            <% if (product.getImage() == null || product.getImage().isEmpty()) { %>
+            <svg class="bd-placeholder-img card-img-top" width="100%" height="300" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice" focusable="false" role="img" aria-label="Placeholder: Default Image"><title>Placeholder</title><rect width="100%" height="100%" fill="#868e96" /><text x="50%" y="50%" fill="#dee2e6" dy=".3em">Default Image</text></svg>
+          <% } else { %>
+            <img src="<%= URL.Image("products/"+product.getImage(), request) %>" height="300" class="img-responsive img-rounded" alt="<%= product.getName() %>">
+          <% } %>
       </div>
       <!--Grid column-->
 
