@@ -144,7 +144,7 @@ public class DBOrder implements IOrder {
             //Using SQL prepared statements: https://stackoverflow.com/questions/3451269/parameterized-oracle-sql-query-in-java
             //this protects against SQL Injection attacks. Each parameter must have a ? in the query, and a corresponding parameter
             //set.
-            PreparedStatement p = this.conn.prepareStatement("SELECT * FROM APP.Orders WHERE CustomerID = ?");
+            PreparedStatement p = this.conn.prepareStatement("SELECT * FROM APP.Orders WHERE CustomerID = ? ORDER BY ID DESC");
             p.setInt(1, customerId);
             ResultSet rs = p.executeQuery();
             
@@ -187,7 +187,7 @@ public class DBOrder implements IOrder {
             //Using SQL prepared statements: https://stackoverflow.com/questions/3451269/parameterized-oracle-sql-query-in-java
             //this protects against SQL Injection attacks. Each parameter must have a ? in the query, and a corresponding parameter
             //set.
-            PreparedStatement p = this.conn.prepareStatement("SELECT * FROM APP.Orders WHERE ((CreatedDate >= ? AND CreatedDate <= ?) OR (ModifiedDate >= ? AND ModifiedDate <= ?)) AND CustomerID = ?");
+            PreparedStatement p = this.conn.prepareStatement("SELECT * FROM APP.Orders WHERE ((CreatedDate >= ? AND CreatedDate <= ?) OR (ModifiedDate >= ? AND ModifiedDate <= ?)) AND CustomerID = ? ORDER BY ID DESC");
             p.setDate(1, new java.sql.Date(startDate.getTime()));
             p.setDate(2, new java.sql.Date(endDate.getTime()));
             p.setDate(3, new java.sql.Date(startDate.getTime()));
@@ -232,7 +232,7 @@ public class DBOrder implements IOrder {
             //Using SQL prepared statements: https://stackoverflow.com/questions/3451269/parameterized-oracle-sql-query-in-java
             //this protects against SQL Injection attacks. Each parameter must have a ? in the query, and a corresponding parameter
             //set.
-            PreparedStatement p = this.conn.prepareStatement("SELECT * FROM APP.Orders WHERE ((CreatedDate >= ? AND CreatedDate <= ?) OR (ModifiedDate >= ? AND ModifiedDate <= ?))");
+            PreparedStatement p = this.conn.prepareStatement("SELECT * FROM APP.Orders WHERE ((CreatedDate >= ? AND CreatedDate <= ?) OR (ModifiedDate >= ? AND ModifiedDate <= ?)) ORDER BY ID DESC");
             p.setDate(1, new java.sql.Date(startDate.getTime()));
             p.setDate(2, new java.sql.Date(endDate.getTime()));
             p.setDate(3, new java.sql.Date(startDate.getTime()));
@@ -263,7 +263,7 @@ public class DBOrder implements IOrder {
             //Using SQL prepared statements: https://stackoverflow.com/questions/3451269/parameterized-oracle-sql-query-in-java
             //this protects against SQL Injection attacks. Each parameter must have a ? in the query, and a corresponding parameter
             //set.
-            PreparedStatement p = this.conn.prepareStatement("SELECT * FROM APP.Orders");
+            PreparedStatement p = this.conn.prepareStatement("SELECT * FROM APP.Orders  ORDER BY ID DESC");
             ResultSet rs = p.executeQuery();
             
             //Build list of user objects to return
@@ -289,7 +289,7 @@ public class DBOrder implements IOrder {
             //Using SQL prepared statements: https://stackoverflow.com/questions/3451269/parameterized-oracle-sql-query-in-java
             //this protects against SQL Injection attacks. Each parameter must have a ? in the query, and a corresponding parameter
             //set.
-            PreparedStatement p = this.conn.prepareStatement("SELECT * FROM APP.OrderLines WHERE OrderID = ?");
+            PreparedStatement p = this.conn.prepareStatement("SELECT * FROM APP.OrderLines WHERE OrderID = ?  ORDER BY ID DESC");
             p.setInt(1, orderId);
             ResultSet rs = p.executeQuery();
             
