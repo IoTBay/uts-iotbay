@@ -584,7 +584,7 @@ public class OrdersController extends HttpServlet {
             });
 
             //Do we need to validate shipping address inputs.
-            if (request.getParameter("shippingAddress") == null || request.getParameter("shippingAddress").equals("-1"))
+            if (request.getParameter("shippingAddress") == null || request.getParameter("shippingAddress").equals("-1") || request.getParameter("shippingAddress").equals("0"))
             {
                 validator.addField(new ValidatorFieldRules("Shipping Address 2", "shipping_addressPrefix1", "trim"));
                 validator.addField(new ValidatorFieldRules("Shipping Street Number", "shipping_streetNumber", "required|integer|shorterthan[11]"));
@@ -597,7 +597,7 @@ public class OrdersController extends HttpServlet {
             }
 
             //Do we need to validate shipping address inputs.
-            if (request.getParameter("billingAddress") == null || request.getParameter("billingAddress").equals("-1"))
+            if (request.getParameter("billingAddress") == null || request.getParameter("billingAddress").equals("-1") || request.getParameter("shippingAddress").equals("0"))
             {
                 validator.addField(new ValidatorFieldRules("Billing Address 2", "billing_addressPrefix1", "trim"));
                 validator.addField(new ValidatorFieldRules("Billing Street Number", "billing_streetNumber", "required|integer|shorterthan[11]"));
@@ -610,7 +610,7 @@ public class OrdersController extends HttpServlet {
             }
 
             //Do we need to validate shipping address inputs.
-            if (request.getParameter("paymentMethod") == null || request.getParameter("paymentMethod").equals("-1"))
+            if (request.getParameter("paymentMethod") == null || request.getParameter("paymentMethod").equals("-1") || request.getParameter("shippingAddress").equals("0"))
             {
                 validator.addField(new ValidatorFieldRules("Payment Type", "paymentType", "required|integer"));
                 validator.addField(new ValidatorFieldRules("Card Name", "cardName", "required"));
