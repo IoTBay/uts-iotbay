@@ -494,9 +494,9 @@ public class UsersController extends HttpServlet {
             HttpSession session = request.getSession();
             Flash flash = Flash.getInstance(session);
             Customer customer = (Customer)session.getAttribute("customer");
-            AuditLog auditLog = (AuditLog)session.getAttribute("auditLog");
+            User user = (User)session.getAttribute("user");
 
-            if (customer == null || auditLog == null)
+            if (customer == null || user == null)
             {
                 flash.add(Flash.MessageType.Error, "You are not logged in");
                 URL.GoBack(request, response);
@@ -505,7 +505,7 @@ public class UsersController extends HttpServlet {
 
             IAuditLogs dbAuditLog = new DBAuditLogs();
             List<AuditLog> auditLogs = dbAuditLog.getAccessLogsByCustomerID(customer.getId());
-            request.setAttribute("auditLog", auditLogs);
+            request.setAttribute("auditlogs", auditLogs);
 
             RequestDispatcher requestDispatcher; 
             requestDispatcher = request.getRequestDispatcher("/view_userlog.jsp");

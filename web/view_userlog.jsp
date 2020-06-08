@@ -10,7 +10,7 @@
 <%@page import="uts.isd.util.Flash"%>
 <%@page import="uts.isd.util.URL"%>
 <%@page import="uts.isd.model.*"%> 
-<jsp:include page="../../header.jsp" />
+<jsp:include page="header.jsp" />
 <%
   Flash flash = Flash.getInstance(session);
   List<AuditLog> auditLogs = (List<AuditLog>)request.getAttribute("auditlogs");
@@ -29,7 +29,7 @@
     </form>
 
     <% if (auditLogs == null || auditLogs.size() == 0) { %>
-    <h5>You have no orders</h5>
+    <h5>You have no access logs</h5>
     <% } else { %>
         <table class="table table-striped">
           <thead>
@@ -49,7 +49,7 @@
               <td><%= auditlog.getEntity() %></td>
               <td><%= auditlog.getEvent() %></td>
               <td><%= auditlog.getMessage() %></td>
-              <td><%= (auditlog.getCustomerId() %></td>
+              <td><%= auditlog.getCustomerId() %></td>
               <td><%= auditlog.getEventDate() %></td>
             </tr>
             <% } %>
@@ -59,5 +59,5 @@
     <hr>
   </div> <!-- /container -->
 </main>
-<jsp:include page="../../footer.jsp" />
+<jsp:include page="footer.jsp" />
 </html>

@@ -29,6 +29,11 @@ public class AuditLog implements Serializable {
     private Date eventDate;
 
     public AuditLog() { 
+        
+        this.entity = "";
+        this.event = "";
+        this.message = "";
+        this.eventDate = new Date();
     
     }
     
