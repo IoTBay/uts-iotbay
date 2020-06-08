@@ -13,12 +13,12 @@
   <div class="container">  
     <%= flash.displayMessages() %>
     
-    <form method="post" action="<%= URL.Absolute("order/search", request) %>" class="form-inline">
+    <form method="post" action="<%= URL.Absolute("staff/orders/search", request) %>" class="form-inline">
         <label class="my-1 mr-2" for="search">Search</label>
         <input type="text" class="form-control mb-6 mr-sm-2 col-md-6" id="search" name="search" placeholder="Order # or from:YYYY-MM-DD to:YYYY-MM-DD">
         <input type="submit" class="btn btn-primary" value="Search">
         <span style="margin: 50px;"></span>
-        <a class="btn btn-secondary" href="<%= URL.Absolute("order/list", request) %>">Back to full list</a>
+        <a class="btn btn-secondary" href="<%= URL.Absolute("staff/orders/list", request) %>">Back to full list</a>
     </form>
 
     <% if (orders == null || orders.size() == 0) { %>

@@ -190,7 +190,7 @@ public class OrdersController extends HttpServlet {
                 return;
             }
             
-            this.getFullOrder(o);
+            Order.getFullOrder(o);
             request.setAttribute("order", o);
             
             IPaymentTransaction dbTransaction = new DBPaymentTransaction();
@@ -232,7 +232,7 @@ public class OrdersController extends HttpServlet {
             List<Order> orders = dbOrder.getOrdersByCustomerId(customer.getId());
             for (Order o : orders)
             {
-                getFullOrder(o);
+                Order.getFullOrder(o);
             }
 
             request.setAttribute("orders", orders);
@@ -327,7 +327,7 @@ public class OrdersController extends HttpServlet {
                 List<Order> orders = dbOrder.searchOrdersByDateForCustomerId(start, end, customer.getId());
                 for (Order o : orders)
                 {
-                    getFullOrder(o);
+                    Order.getFullOrder(o);
                 }
                 flash.add(Flash.MessageType.Success, "You search returned "+orders.size()+" results");
                 request.setAttribute("orders", orders);
@@ -429,7 +429,7 @@ public class OrdersController extends HttpServlet {
                 return;
             }
             
-            this.getFullOrder(order); //Load all related properties to get product info
+            Order.getFullOrder(order); //Load all related properties to get product info
             
             //Don't actually delete, just set status to cancel and then take stock back.
             order.setStatus(Order.STATUS_CANCELLED);
@@ -907,48 +907,6 @@ public class OrdersController extends HttpServlet {
         {
             Logging.logMessage("Failed to run updateOrderStock", e);
             return false;
-        }
-    }
-    
-    private void getFullOrder(Order o)
-    {
-        try
-        {
-            IOrder dbOrder = new DBOrder();
-            IProduct dbProduct = new DBProduct();
-            IAddress dbAddress = new DBAddress();
-            IPaymentMethod dbPaymethod = new DBPaymentMethod();
-            ICurrency dbCurrency = new DBCurrency();
-
-            o.setCurrency(dbCurrency.getCurrencyById(o.getCurrencyId()));
-            o.setBillingAddress(dbAddress.getAddressById(o.getBillingAddressId()));
-            o.setShippingAddress(dbAddress.getAddressById(o.getShippingAddressId()));
-            o.setPaymentMethod(dbPaymethod.getPaymentMethodById(o.getPaymentMethodId()));
-            o.setOrderLines(dbOrder.getOrderLines(o.getId()));
-
-            for (OrderLine line : o.getOrderLines())
-            {
-                line.setProduct(dbProduct.getProductById(line.getProductId()));
-                if (line.getProduct() == null)
-                    line.setProduct(new Product());
-            }
-
-
-            if (o.getShippingAddress() == null)
-                o.setBillingAddress(new Address());
-
-            if (o.getBillingAddress() == null)
-                o.setBillingAddress(new Address());
-            
-            if (o.getCurrency() == null)
-                o.setCurrency(new Currency());
-            
-            if (o.getPaymentMethod() == null)
-                o.setPaymentMethod(new PaymentMethod());
-        }
-        catch (Exception e)
-        {
-            Logging.logMessage("Failed to run getFullOrder", e);
         }
     }
     
