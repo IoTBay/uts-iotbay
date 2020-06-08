@@ -90,6 +90,10 @@ public class OrdersController extends HttpServlet {
                 doOrderViewGet(request, response, (segments.length == 3 ? segments[2] : ""));
                 break;
                 
+            case "cancel":
+                doCancelOrderGet(request, response, (segments.length == 3 ? segments[2] : ""));
+                break;
+                
         }
     }
     
@@ -138,6 +142,10 @@ public class OrdersController extends HttpServlet {
                 
             case "search":
                 doOrdersSearchPost(request, response);
+                break;
+                
+           case "cancel":
+                doCancelOrderPost(request, response, (segments.length == 3 ? segments[2] : ""));
                 break;
         }
     }
@@ -231,6 +239,7 @@ public class OrdersController extends HttpServlet {
         }
     }
     
+    
      protected void doOrdersSearchPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException 
     {
@@ -323,6 +332,115 @@ public class OrdersController extends HttpServlet {
         catch (Exception e)
         {
             Logging.logMessage("Failed to run doOrdersList", e);
+        }
+    }
+     
+    /*
+     * Cancel order
+     */
+  protected void doCancelOrderGet(HttpServletRequest request, HttpServletResponse response, String orderIdStr)
+            throws ServletException, IOException 
+    {
+        HttpSession session = request.getSession();
+        Flash flash = Flash.getInstance(session);
+        
+        try
+        {
+            int orderId = Integer.parseInt(orderIdStr);
+            IOrder dbOrder = new DBOrder();
+            Customer customer = (Customer)session.getAttribute("customer");
+            User user = (User)session.getAttribute("user");
+
+            if (customer == null)
+            {
+                flash.add(Flash.MessageType.Error, "You are not a customer yet! Login or place an order");
+                URL.GoBack(request, response);
+                return;
+            }
+            
+            Order order = dbOrder.getOrderById(orderId);
+            
+            if (order == null)
+            {
+                flash.add(Flash.MessageType.Error, "Could not find this order");
+                URL.GoBack(request, response);
+                return;
+            }
+            
+            if (order.getStatus() >= Order.STATUS_DELIVERING)
+            {
+                flash.add(Flash.MessageType.Error, "You can't cancel orders with this status.");
+                URL.GoBack(request, response);
+                return;
+            }
+            
+            request.setAttribute("order", order);
+            RequestDispatcher requestDispatcher; 
+            requestDispatcher = request.getRequestDispatcher("/view/orders/cancel.jsp");
+            requestDispatcher.forward(request, response);
+        }
+        catch (Exception e)
+        {
+            Logging.logMessage("Unable to doViewCartGet", e);
+        }
+    }
+  
+   protected void doCancelOrderPost(HttpServletRequest request, HttpServletResponse response, String orderIdStr)
+            throws ServletException, IOException 
+    {
+        HttpSession session = request.getSession();
+        Flash flash = Flash.getInstance(session);
+
+        try
+        {  
+            int orderId = Integer.parseInt(orderIdStr);
+            IOrder dbOrder = new DBOrder();
+            Customer customer = (Customer)session.getAttribute("customer");
+            User user = (User)session.getAttribute("user");
+
+            if (customer == null)
+            {
+                flash.add(Flash.MessageType.Error, "You are not a customer yet! Login or place an order");
+                URL.GoBack(request, response);
+                return;
+            }
+            
+            Order order = dbOrder.getOrderById(orderId);
+            
+            if (order == null)
+            {
+                flash.add(Flash.MessageType.Error, "Could not find this order");
+                URL.GoBack(request, response);
+                return;
+            }
+            
+            if (order.getStatus() >= Order.STATUS_DELIVERING)
+            {
+                flash.add(Flash.MessageType.Error, "You can't cancel orders with this status.");
+                URL.GoBack(request, response);
+                return;
+            }
+            
+            this.getFullOrder(order); //Load all related properties to get product info
+            
+            //Don't actually delete, just set status to cancel and then take stock back.
+            order.setStatus(Order.STATUS_CANCELLED);
+            if (updateOrderStock(order, customer, "add") && dbOrder.updateOrder(order, customer))
+            {
+                flash.add(Flash.MessageType.Success, "Successfully cancelled your order! Stock has been returned");
+            }
+            else
+            {
+                flash.add(Flash.MessageType.Error, "Failed to cancel order");
+            }
+            
+            response.sendRedirect(URL.Absolute("order/list", request));
+        }
+        catch (Exception e)
+        {
+            flash.add(Flash.MessageType.Error, "Could not load cancel page");
+            URL.GoBack(request, response);
+            Logging.logMessage("Unable to doViewCartGet", e);
         }
     }
     
@@ -511,7 +629,7 @@ public class OrdersController extends HttpServlet {
             Flash flash = Flash.getInstance(request.getSession());
                         
             //Before we go any further, check order stock
-            if (!this.updateOrderStock("remove"))
+            if (!this.updateOrderStock(this.cart, this.customer, "remove"))
             {
                 flash.add(Flash.MessageType.Error, "Unsufficient stock to submit this order");
                 URL.GoBack(request, response);
@@ -737,7 +855,7 @@ public class OrdersController extends HttpServlet {
         return (product.getCurrentQuantity() >= quantity);
     }
     
-    protected boolean updateOrderStock(String action)
+    protected boolean updateOrderStock(Order order, Customer customer, String action)
     {
         if (!action.equals("add") && !action.equals("remove"))
         {
@@ -748,7 +866,7 @@ public class OrdersController extends HttpServlet {
         //First go through and see if we have enough stock for every line in order
         if (action.equals("remove"))
         {
-            for (OrderLine line : this.cart.getOrderLines())
+            for (OrderLine line : order.getOrderLines())
             {
                 if (!this.checkProductStock(line.getProduct(), line.getQuantity()))
                     return false;
@@ -759,7 +877,7 @@ public class OrdersController extends HttpServlet {
         {
             IProduct dbProduct = new DBProduct();
 
-            for (OrderLine line : this.cart.getOrderLines())
+            for (OrderLine line : order.getOrderLines())
             {
                 //Make sure we have the latest product info
                 Product p = dbProduct.getProductById(line.getProductId());
@@ -769,7 +887,7 @@ public class OrdersController extends HttpServlet {
                 else if (action.equals("add"))
                     p.setCurrentQuantity(p.getCurrentQuantity() + line.getQuantity());
                 
-                if (!dbProduct.updateProduct(p, this.customer))
+                if (!dbProduct.updateProduct(p, customer))
                 {
                     Logging.logMessage("Failed to update quantity of product ID:"+p.getId());
                     return false;

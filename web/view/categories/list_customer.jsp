@@ -1,3 +1,4 @@
+<%@page import="uts.isd.util.Flash"%>
 <%@page import="uts.isd.util.URL"%>
 <%@page import="uts.isd.model.*"%>
 <%@page import="java.util.List"%>
@@ -8,6 +9,8 @@
   User user = (User)session.getAttribute("user");
   Customer customer = (Customer)session.getAttribute("customer");
   List<ProductCategory> categories = (List<ProductCategory>)request.getAttribute("categories");
+  Flash flash = Flash.getInstance(session);
+
 %>
 
 <jsp:include page="../../header.jsp" />
@@ -15,6 +18,8 @@
 <main role="main">
     <div style="margin-top: 50px;"></div>
     <div class="container">
+        <%= flash.displayMessages()%>
+
         <h1>Categories</h1>
         <% if (categories == null || categories.size() == 0) { %>
         <p>There are no categories yet.</p>

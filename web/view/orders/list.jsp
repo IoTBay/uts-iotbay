@@ -44,10 +44,10 @@
               <th>
                   <a href="<%= URL.Absolute("order/view/"+o.getId(), request) %>" class="btn btn-primary">View</a>
                   <a href="<%= URL.Absolute("order/edit/"+o.getId(), request) %>" class="btn btn-primary">Edit</a>
-                  <a href="<%= URL.Absolute("order/delete/"+o.getId(), request) %>" class="btn btn-danger">Delete</a>
+                  <a href="<%= URL.Absolute("order/cancel/"+o.getId(), request) %>" class="btn btn-danger">Cancel</a>
               </th>
               <td><%= o.getId() %></td>
-              <td><%= Order.ORDER_STATUS[o.getStatus()] %></td>
+              <td><span class="badge badge-pill badge-success"><%= Order.ORDER_STATUS[o.getStatus()] %></span></td>
               <td><%= o.getOrderLines().size() %></td>
               <td><%= o.getTotalCostFormatted() %></td>
               <td><%= o.getCurrency().getAbbreviation() %></td>
