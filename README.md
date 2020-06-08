@@ -17,6 +17,10 @@ The project contains:
 - An admin user: rhys@nexusone.com.au with password 123
 - A customer user: some@guy2.com with password 123
 
+If you re-create the database using data.sql then only the rhys@nexusone.com.au user will be present.
+
+To resiger a staff user, enter the passcode "Escalate" during registration.
+
 ### Running the database
 
 This release contains all database related materials in the "database" sub-folder of the project.

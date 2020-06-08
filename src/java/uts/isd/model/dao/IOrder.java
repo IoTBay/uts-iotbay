@@ -59,6 +59,14 @@ public interface IOrder {
     
     
     /**
+     * Returns a list of orders based on their customer and status
+     * 
+     * @param customerId The order's related customer ID
+     * @return  List of orders related to the customer.
+     */
+    public List<Order> getOrdersByCustomerIdForStatusLessThan(int customerId, int status);
+    
+    /**
      * Returns all orders in the orders table
      * 
      * @return List of all orders
