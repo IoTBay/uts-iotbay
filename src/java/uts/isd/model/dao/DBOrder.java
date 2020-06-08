@@ -108,7 +108,7 @@ public class DBOrder implements IOrder {
                 //No order was returned, instead create a new draft order.
                 Order o = new Order();
                 o.setCustomerId(customer.getId());
-                o.setCurrencyId(1); //Just use currency ID 1 for now
+                o.setCurrencyId(Currency.DEFAULT_CURRENCY_ID); //Just use currency ID 1 for now
                 
                 if (!this.addOrder(o, customer))
                     return null; //Failed to add order

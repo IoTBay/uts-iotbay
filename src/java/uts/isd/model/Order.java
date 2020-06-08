@@ -79,7 +79,7 @@ public class Order implements Serializable {
 
     public Order() {
         this.orderLines = new ArrayList<>();
-        this.currencyId = 1; //Hard set to ID 1 because we only have 1 currency right now.
+        this.currencyId = Currency.DEFAULT_CURRENCY_ID; //Hard set to ID 1 because we only have 1 currency right now.
         
         this.createdDate = new Date();
         this.modifiedDate = new Date();

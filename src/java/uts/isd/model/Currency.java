@@ -32,6 +32,8 @@ public class Currency implements Serializable {
     private Date modifiedDate;
     private int modifiedBy;
     
+    public static int DEFAULT_CURRENCY_ID = 5; //Change this to your first currency ID
+    
     public Currency() { 
         
         this.name = "";
