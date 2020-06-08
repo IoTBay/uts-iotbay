@@ -796,12 +796,15 @@ public class OrdersController extends HttpServlet {
             o.setCurrency(dbCurrency.getCurrencyById(o.getCurrencyId()));
             o.setBillingAddress(dbAddress.getAddressById(o.getBillingAddressId()));
             o.setShippingAddress(dbAddress.getAddressById(o.getShippingAddressId()));
-            o.setBillingAddress(dbAddress.getAddressById(o.getBillingAddressId()));
             o.setPaymentMethod(dbPaymethod.getPaymentMethodById(o.getPaymentMethodId()));
             o.setOrderLines(dbOrder.getOrderLines(o.getId()));
 
             for (OrderLine line : o.getOrderLines())
+            {
                 line.setProduct(dbProduct.getProductById(line.getProductId()));
+                if (line.getProduct() == null)
+                    line.setProduct(new Product());
+            }
 
 
             if (o.getShippingAddress() == null)
@@ -809,6 +812,12 @@ public class OrdersController extends HttpServlet {
 
             if (o.getBillingAddress() == null)
                 o.setBillingAddress(new Address());
+            
+            if (o.getCurrency() == null)
+                o.setCurrency(new Currency());
+            
+            if (o.getPaymentMethod() == null)
+                o.setPaymentMethod(new PaymentMethod());
         }
         catch (Exception e)
         {

@@ -33,6 +33,9 @@ public class Currency implements Serializable {
     private int modifiedBy;
     
     public Currency() { 
+        
+        this.name = "";
+        this.abbreviation = "";
     
         this.createdDate = new Date();
         this.modifiedDate = new Date();

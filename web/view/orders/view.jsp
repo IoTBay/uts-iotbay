@@ -28,7 +28,7 @@
           </tr>
           <tr>
             <td>Status</td>
-            <td><%= Order.ORDER_STATUS[order.getStatus()] %></td>
+            <td><span class="badge badge-pill badge-success"><%= Order.ORDER_STATUS[order.getStatus()] %></span></td>
           </tr>
           <tr>
             <td>Total Cost</td>

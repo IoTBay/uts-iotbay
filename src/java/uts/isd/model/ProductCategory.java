@@ -33,6 +33,10 @@ public class ProductCategory implements Serializable {
 
     public ProductCategory() {
     
+        this.name = "";
+        this.description = "";
+        this.image = "";
+        
         this.createdDate = new Date();
         this.modifiedDate = new Date();
         this.createdBy = 0;

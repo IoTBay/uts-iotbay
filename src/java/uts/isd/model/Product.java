@@ -43,6 +43,11 @@ public class Product implements Serializable {
 
     public Product() {
         
+        this.name = "";
+        this.description = "";
+        this.image = "";
+        this.lastReorderDate = "";
+        
         this.createdDate = new Timestamp(System.currentTimeMillis());
         this.modifiedDate = new Timestamp(System.currentTimeMillis());
         this.createdBy = 0;

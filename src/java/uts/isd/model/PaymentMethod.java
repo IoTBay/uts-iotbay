@@ -177,6 +177,8 @@ public class PaymentMethod implements Serializable {
      * @return Obfuscated string
      */
     public static String replaceCharacters(String s, int count) {
+        if (s.isEmpty()) return "";
+        
         int length = s.length();
         //Check whether or not the string contains at least four characters; if not, this method is useless
         if (length < count) return "Error: The provided string is not greater than four characters long.";
