@@ -1,152 +1,45 @@
-# uts-iotbay
+## IOT Bay Web store
+## UTS Introduction to Software Development - Assignment 2
 
-## Development Setup
-### Setting up your development environment in Windows
-* Install Netbeans
-* Install Git Bash
-* This guide gives an overview: http://www.sintesisdigital.com.mx/dashboard/docs/configure-use-tomcat.html
-* Install Java JRE and JDK: https://www.oracle.com/java/technologies/javase-downloads.html
-* Install XAMPP: https://www.apachefriends.org/index.html
-    * Make sure you install Tomcat!
-* (Possible step) Define JAVA_HOME and JRE_HOME as mentioned here: https://crunchify.com/how-to-setup-configure-java-home-and-jre-home-environment-variables-on-windows/
-    * In this case the JAVA_HOME should point to the path of your JDK version on your PC.
-    * And the JRE_HOME should point to the path of your JRE version on your PC
-    * DONT JUST COPY THE VALUES IN THE ARTICLE!
-* In my case I had to edit `catalina_start.bat` to use the full path to the "find" command. E.g. `find` becomes `%windir%\System32\find.exe`
-* In XAMPP Control, make sure you can start Tomcat now. (NOTE: In my case right now, I had to run tomcat using only the C:\xampp\tomcat\catalina_start.bat script)
-* You should now be able to visit: http://localhost:8080/
-* Edit the tomcat users to add an admin user. So edit: `C:\xampp\tomcat\conf\tomcat-users.xml` as follows:
-```
-    <user username="admin" password="admin" roles="manager-gui,admin-gui" />
-</tomcat-users>
-```
-* Now restart tomcat.
-* You should now be able to login to http://localhost:8080/manager/html with the user/pass of admin/admin.
+Author: Rhys Hanrahan (11000801)
 
-### Setup Git
+This is a readme for the Assignment 2 software release 1.
 
-* Open Git Bash
-* cd to your chosen folder to store the project
-* Clone the repo into the folder: `git clone https://github.com/IoTBay/uts-iotbay.git`
+The steps to use this software follow a standard JSP Web Application.
 
-```
-rhys@NULLBOX MINGW64 ~
-$ cd /c/Development/
+* Open Netbeans 8.0 or greater.
+* The assignment1 folder is the root of the project. So in netbeans go to File -> Open project and browse to uts-iotbay folder.
+* An existing Netbeans project will be detected to open, named iotbay.
+* Click "Run Project" (F6) to build and run the website.
+* Browser will pop up on your local glassfish server with the new project's URL.
 
-rhys@NULLBOX MINGW64 /c/Development
-$ git clone https://github.com/IoTBay/uts-iotbay.git
-Cloning into 'uts-iotbay'...
-remote: Enumerating objects: 10, done.
-remote: Counting objects: 100% (10/10), done.
-remote: Compressing objects: 100% (9/9), done.
-remote: Total 10 (delta 1), reused 0 (delta 0), pack-reused 0
-Unpacking objects: 100% (10/10), done.
-```
+The project contains:
+- An admin user: rhys@nexusone.com.au with password 123
+- A customer user: some@guy2.com with password 123
 
-### Setup Netbeans
+### Running the database
 
-* Open Netbeans. File -> Open Project -> Browse to the `uts-iotbay` folder containing the Git repository.
+This release contains all database related materials in the "database" sub-folder of the project.
 
-### FAQ
-#### When starting Tomcat in XAMPP I get "Make sure you have Java JDK or JRE installed and the required ports are free"
-* First try starting Tomcat via windows CMD. Run CMD as administrator and run the startup script:
-```
-C:\Windows\system32>cd C:\xampp-7.4\tomcat
-C:\xampp-7.4\tomcat>catalina_start.bat
-...
-Neither the JAVA_HOME nor the JRE_HOME environment variable is defined
-At least one of these environment variable is needed to run this program
-```
-* If you get the error above this can mean either JRE or JDK are not installed. I am using Java 8.
-* Download JRE and JDK from here: https://www.oracle.com/java/technologies/javase-downloads.html#javasejdk
-#### Tomcat can't start because port 8080 is already in use?
-* First, see what process ID is using the port: Open CMD and run as Administrator: `netstat -ano | find "LISTEN" | find ":8080"`
-```
- TCP    [::]:8080              [::]:0                 LISTENING       4
-```
-* If the last digit is NOT 4 then open task manager, look in the PID column to find what app is taking that process.
-* If the process IS 4 then this is because of HTTP Sys port sharing. We can use "netsh" to find the HTTP listener using this port.
-* Again in CMD run this command: `netsh http show servicestate`
-```
-netsh http>show servicestate
+The recommended way to setup the database is to create the database from our existing iotdb as this has all the records and test data in it.
 
-Snapshot of HTTP service state (Server Session View):
------------------------------------------------------
+See here for how to create a new database from a backup copy: 
+- https://db.apache.org/derby//docs/10.2/adminguide/tadmincrtdbbkup.html
+- https://db.apache.org/derby//docs/10.2/adminguide/tadminhubbkup44.html
+- https://stackoverflow.com/questions/20933116/does-copy-pasting-apache-derby-db-files-into-another-system-make-it-work-fine
 
-Server session ID: FF00000420000001
-    Version: 2.0
-    State: Active
-    Properties:
-        Max bandwidth: 4294967295
-        Timeouts:
-            Entity body timeout (secs): 120
-            Drain entity body timeout (secs): 120
-            Request queue timeout (secs): 120
-            Idle connection timeout (secs): 120
-            Header wait timeout (secs): 120
-            Minimum send rate (bytes/sec): 150
-    URL groups:
-    URL group ID: FE00000440000001
-        State: Active
-        Request queue name: Request queue is unnamed.
-        Properties:
-            Max bandwidth: inherited
-            Max connections: inherited
-            Timeouts:
-                Timeout values inherited
-            Number of registered URLs: 1
-            Registered URLs:
-                HTTP://*:5357/4C2CDC17-BEFE-4441-899A-CC530F03F2DF/
+For example you could use the connection string: `jdbc:derby:sample;restoreFrom=c:\projects\uts-iotbay\database\iotdb`
 
-Server session ID: FF00000620000011
-    Version: 2.0
-    State: Active
-    Properties:
-        Max bandwidth: 4294967295
-        Timeouts:
-            Entity body timeout (secs): 120
-            Drain entity body timeout (secs): 120
-            Request queue timeout (secs): 120
-            Idle connection timeout (secs): 120
-            Header wait timeout (secs): 120
-            Minimum send rate (bytes/sec): 150
-    URL groups:
-    URL group ID: FD00000440001314
-        State: Active
-        Request queue name: Request queue is unnamed.
-        Properties:
-            Max bandwidth: inherited
-            Max connections: inherited
-            Timeouts:
-                Timeout values inherited
-            Number of registered URLs: 1
-            Registered URLs:
-                HTTP://LOCALHOST:8080/ **<-- See here that localhost:8080 is registered!**
+And this should re-create the database called iotdb in your Netbeans JavaDB instance.
 
-Request queues:
-    Request queue name: Request queue is unnamed.
-        Version: 2.0
-        State: Active
-        Request queue 503 verbosity level: Basic
-        Max requests: 1000
-        Number of active processes attached: 1
-        Process IDs:
-            5492
+To start with an empty database you can create the following:
+* Name: iotdb
+* User: iotdb
+* Password: iotdb
 
-    Request queue name: Request queue is unnamed.
-        Version: 2.0
-        State: Active
-        Request queue 503 verbosity level: Basic
-        Max requests: 1000
-        Number of active processes attached: 1
-        Process IDs:
-            37584 **Then see this process ID associated with the second registered server session -- this is the process ID!**
+Then run:
 
-netsh http>quit
-```
-* After this I found Process ID 37584 using task manager and found it was an MYOB API Addon running in the background.
-* Use `telnet localhost 8080` to verify nothing is listening now.
-```
-C:\Windows\system32>telnet localhost 8080
-Connecting To localhost...Could not open connection to the host, on port 8080: Connect failed
-```
+* schema.sql to build the table structure and all relationships
+* data.sql to insert some sample data with user "rhys@nexusone.com.au" and password "123"
+
+NOTE: data.sql is incomplete. 
