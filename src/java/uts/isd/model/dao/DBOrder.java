@@ -10,6 +10,7 @@ import uts.isd.model.Order;
 import java.util.*;
 import java.sql.*;
 import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import uts.isd.model.Customer;
 import uts.isd.model.Currency;
 import uts.isd.model.OrderLine;
@@ -169,10 +170,13 @@ public class DBOrder implements IOrder {
         try {
             java.util.Date startDate;
             java.util.Date endDate;
+            //https://stackoverflow.com/questions/18873014/parse-string-date-in-yyyy-mm-dd-format
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            
             try
             {
-                startDate = DateFormat.getInstance().parse(start);
-                endDate = DateFormat.getInstance().parse(end);
+                startDate = sdf.parse(start);
+                endDate = sdf.parse(end);
             }
             catch (Exception e)
             {

@@ -10,6 +10,8 @@ import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -81,7 +83,7 @@ public class OrdersController extends HttpServlet {
                 break;
                 
             case "list":
-                doOrdersList(request, response);
+                doOrdersListGet(request, response);
                 break;
                 
         }
@@ -129,6 +131,10 @@ public class OrdersController extends HttpServlet {
             case "checkout":
                 doCheckoutPost(request, response);
                 break;
+                
+            case "search":
+                doOrdersSearchPost(request, response);
+                break;
         }
     }
     
@@ -136,7 +142,7 @@ public class OrdersController extends HttpServlet {
      * List orders
      */
     
-    protected void doOrdersList(HttpServletRequest request, HttpServletResponse response)
+    protected void doOrdersListGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException 
     {
         try
@@ -154,25 +160,10 @@ public class OrdersController extends HttpServlet {
             }
 
             IOrder dbOrder = new DBOrder();
-            IAddress dbAddress = new DBAddress();
-            IPaymentMethod dbPaymethod = new DBPaymentMethod();
-            ICurrency dbCurrency = new DBCurrency();
-
             List<Order> orders = dbOrder.getOrdersByCustomerId(customer.getId());
             for (Order o : orders)
             {
-                o.setCurrency(dbCurrency.getCurrencyById(o.getCurrencyId()));
-                o.setBillingAddress(dbAddress.getAddressById(o.getBillingAddressId()));
-                o.setShippingAddress(dbAddress.getAddressById(o.getShippingAddressId()));
-                o.setBillingAddress(dbAddress.getAddressById(o.getBillingAddressId()));
-                o.setPaymentMethod(dbPaymethod.getPaymentMethodById(o.getPaymentMethodId()));
-                o.setOrderLines(dbOrder.getOrderLines(o.getId()));
-                
-                if (o.getShippingAddress() == null)
-                    o.setBillingAddress(new Address());
-                
-                if (o.getBillingAddress() == null)
-                    o.setBillingAddress(new Address());
+                getFullOrder(o);
             }
 
             request.setAttribute("orders", orders);
@@ -180,6 +171,101 @@ public class OrdersController extends HttpServlet {
             RequestDispatcher requestDispatcher; 
             requestDispatcher = request.getRequestDispatcher("/view/orders/list.jsp");
             requestDispatcher.forward(request, response);
+        }
+        catch (Exception e)
+        {
+            Logging.logMessage("Failed to run doOrdersList", e);
+        }
+    }
+    
+     protected void doOrdersSearchPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException 
+    {
+        try
+        {   
+            HttpSession session = request.getSession();
+            Flash flash = Flash.getInstance(session);
+            Customer customer = (Customer)session.getAttribute("customer");
+            User user = (User)session.getAttribute("user");
+
+            if (customer == null || user == null)
+            {
+                flash.add(Flash.MessageType.Error, "You are not logged in");
+                URL.GoBack(request, response);
+                return;
+            }
+            
+            Validator validator = new Validator(new ValidatorFieldRules[] {
+                new ValidatorFieldRules("Search term", "search", "required")
+            });
+          
+            if (!validator.validate(request))
+            {
+                URL.GoBack(request, response);
+                return;
+            }
+            
+            IOrder dbOrder = new DBOrder();
+            
+            //First try and do a lookup of the order ID
+            int orderId = 0;
+            try
+            {
+                orderId = Integer.parseInt(request.getParameter("search"));
+            }
+            catch (Exception e)
+            {
+                orderId = 0;
+            }
+            
+            if (orderId > 0)
+            {
+                response.sendRedirect(URL.Absolute("order/view/"+orderId, request));
+                return;
+            }
+            else
+            {
+                //Extract dates:
+                //Matches from:YYYY-MM-DD to:YYYY-MM-DD in either oreintation
+                //NOTE: For some reason java won't match without throwing in .* around the pattern.
+                final String fromPattern = ".*?(?:from\\:(\\d{4}\\-\\d{2}\\-\\d{2})).*?";
+                final String toPattern = ".*?(?:to\\:(\\d{4}\\-\\d{2}\\-\\d{2})).*?";
+                Pattern fromP = Pattern.compile(fromPattern);
+                Pattern toP = Pattern.compile(toPattern);
+                
+                //Java regex is weirdly not working with my pattern properly.
+                //Easiest way to get it to work is to add .*? everywhere and split into two separate patterns.
+                //This simplifies the logic anyway.
+                Matcher matchesFrom = fromP.matcher(request.getParameter("search"));
+                Matcher matchesTo = toP.matcher(request.getParameter("search"));
+                
+                if (!matchesFrom.matches() || !matchesTo.matches())
+                {
+                    flash.add(Flash.MessageType.Error, "Use dates format from:YYYY-MM-DD to:YYYY-MM-DD");
+                    URL.GoBack(request, response);
+                    return;
+                }
+                
+                Logging.logMessage("From full match is: "+matchesFrom.group(0));
+                Logging.logMessage("From Match 1: "+matchesFrom.group(1));
+                Logging.logMessage("To full match is: "+matchesTo.group(0));
+                Logging.logMessage("To Match 1: "+matchesTo.group(1));
+                
+                String start = matchesFrom.group(1);
+                String end = matchesTo.group(1);
+                
+                List<Order> orders = dbOrder.searchOrdersByDateForCustomerId(start, end, customer.getId());
+                for (Order o : orders)
+                {
+                    getFullOrder(o);
+                }
+                flash.add(Flash.MessageType.Success, "You search returned "+orders.size()+" results");
+                request.setAttribute("orders", orders);
+
+                RequestDispatcher requestDispatcher; 
+                requestDispatcher = request.getRequestDispatcher("/view/orders/list.jsp");
+                requestDispatcher.forward(request, response);
+            }
         }
         catch (Exception e)
         {
@@ -642,6 +728,39 @@ public class OrdersController extends HttpServlet {
         {
             Logging.logMessage("Failed to run updateOrderStock", e);
             return false;
+        }
+    }
+    
+    private void getFullOrder(Order o)
+    {
+        try
+        {
+            IOrder dbOrder = new DBOrder();
+            IProduct dbProduct = new DBProduct();
+            IAddress dbAddress = new DBAddress();
+            IPaymentMethod dbPaymethod = new DBPaymentMethod();
+            ICurrency dbCurrency = new DBCurrency();
+
+            o.setCurrency(dbCurrency.getCurrencyById(o.getCurrencyId()));
+            o.setBillingAddress(dbAddress.getAddressById(o.getBillingAddressId()));
+            o.setShippingAddress(dbAddress.getAddressById(o.getShippingAddressId()));
+            o.setBillingAddress(dbAddress.getAddressById(o.getBillingAddressId()));
+            o.setPaymentMethod(dbPaymethod.getPaymentMethodById(o.getPaymentMethodId()));
+            o.setOrderLines(dbOrder.getOrderLines(o.getId()));
+
+            for (OrderLine line : o.getOrderLines())
+                line.setProduct(dbProduct.getProductById(line.getProductId()));
+
+
+            if (o.getShippingAddress() == null)
+                o.setBillingAddress(new Address());
+
+            if (o.getBillingAddress() == null)
+                o.setBillingAddress(new Address());
+        }
+        catch (Exception e)
+        {
+            Logging.logMessage("Failed to run getFullOrder", e);
         }
     }
     
